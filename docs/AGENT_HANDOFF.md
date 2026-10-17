@@ -22,7 +22,7 @@ cleared; host tooling, signing keys, devices, emulators and source skills were
 untouched.
 
 
-Snapshot updated **2026-10-17**, after 0.22.2 (branch `feature/new-learning-games-0.21.0`, not merged).
+Snapshot updated **2026-10-17**, after 0.22.2 (merged into `main` from `feature/new-learning-games-0.21.0`).
 Read [AGENTS.md](../AGENTS.md), [README](../README.md), [design](design.md),
 [testing](testing.md) and the [development runbook](DEVELOPMENT_ENVIRONMENT.md).
 This handoff is context, not authorization for another feature.
