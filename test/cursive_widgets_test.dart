@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:rainbow_garden/handwriting.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rainbow_garden/app_theme.dart';
 import 'package:rainbow_garden/cursive.dart';
@@ -15,8 +16,12 @@ import 'package:rainbow_garden/widgets/writing_pad.dart';
 
 import 'widget_test.dart' show MemoryDevice, settle, tapVisible;
 
-Future<void> drawLetter(WidgetTester tester, String character) async {
-  final finder = find.byKey(const ValueKey('cursive-pad'));
+Future<void> drawLetter(
+  WidgetTester tester,
+  String character, {
+  String padKey = 'cursive-pad',
+}) async {
+  final finder = find.byKey(ValueKey(padKey));
   await tester.ensureVisible(finder);
   await tester.pump();
   final origin = tester.getTopLeft(finder);
@@ -53,9 +58,18 @@ Future<void> openPage(
   ),
 );
 
+final tracePad = find.byKey(const ValueKey('cursive-trace-pad'));
+final writePad = find.byKey(const ValueKey('cursive-pad'));
+CursivePad trace(WidgetTester tester) => tester.widget<CursivePad>(tracePad);
+CursivePad write(WidgetTester tester) => tester.widget<CursivePad>(writePad);
+
+Future<void> pick(WidgetTester tester, String key) async {
+  await tapVisible(tester, find.byKey(const ValueKey('cursive-picker')));
+  await tapVisible(tester, find.byKey(ValueKey(key)));
+}
+
 void main() {
   setUpAll(() async {
-    // Optional host font makes contact-sheet labels readable; never an app asset.
     if (Platform.environment['CURSIVE_SHEET'] != '1') return;
     final font = File(
       Platform.environment['CURSIVE_FONT'] ??
@@ -67,46 +81,48 @@ void main() {
       await (FontLoader(family)..addFont(Future.value(bytes))).load();
     }
   });
+
   testWidgets(
-    'Writing opens optional cursive, all practice stays silent and unsaved',
+    'Writing opens a–z cursive; Watch, trace, check, next and skip stay silent and unsaved',
     (tester) async {
       final device = MemoryDevice();
       await tester.pumpWidget(RainbowGardenApp(services: device));
       await settle(tester);
       await tapVisible(tester, find.text('Writing'));
-      await tapVisible(tester, find.text('Cursive play').first);
-      final writes = device.writes;
-      final settingsWrites = device.settingsWrites;
+      await tester.ensureVisible(find.text('Cursive play').first);
+      await settle(tester);
+      await tester.tap(find.text('Cursive play').first);
+      await tester.pump();
+      final writes = device.writes, settingsWrites = device.settingsWrites;
       final document = device.profileDocument;
-      await tapVisible(tester, find.byKey(const ValueKey('cursive-family-1')));
-      await tapVisible(tester, find.byKey(const ValueKey('cursive-letter-l')));
-      expect(find.text('Same letter'), findsOneWidget);
-      await tapVisible(
-        tester,
-        find.byKey(const ValueKey('cursive-mode-trace')),
-      );
-      await drawLetter(tester, 'l');
-      expect(
-        tester.widget<CursivePad>(find.byType(CursivePad)).ink.isEmpty,
-        isFalse,
-      );
-      await tapVisible(tester, find.text('Clear'));
-      expect(
-        tester.widget<CursivePad>(find.byType(CursivePad)).ink.isEmpty,
-        isTrue,
-      );
-      await tapVisible(
-        tester,
-        find.byKey(const ValueKey('cursive-mode-write')),
-      );
-      await drawLetter(tester, 'l');
-      await tapVisible(tester, find.text('Check'));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(write(tester).letter.character, 'a');
+      expect(find.text('Practice only · no XP · a–z'), findsOneWidget);
+      final first = trace(tester).watchProgress!;
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(trace(tester).watchProgress, greaterThan(first));
+      await drawLetter(tester, 'a', padKey: 'cursive-trace-pad');
+      expect(trace(tester).watchProgress, isNull);
+      expect(trace(tester).ink.isEmpty, isFalse);
+      await tapVisible(tester, find.byKey(const ValueKey('cursive-watch')));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(trace(tester).watchProgress, inExclusiveRange(0, 1));
+      expect(write(tester).watchProgress, isNull);
+      await drawLetter(tester, 'a');
+      await tapVisible(tester, find.byKey(const ValueKey('cursive-check')));
       expect(find.text('Nice curves!'), findsOneWidget);
-      await tapVisible(tester, find.text('Next letter'));
-      expect(
-        tester.widget<CursivePad>(find.byType(CursivePad)).letter.character,
-        'h',
-      );
+      expect(find.byKey(const ValueKey('cursive-next')), findsOneWidget);
+      await tapVisible(tester, find.byKey(const ValueKey('cursive-next')));
+      expect(write(tester).letter.character, 'b');
+      expect(write(tester).ink.isEmpty, isTrue);
+      expect(trace(tester).ink.isEmpty, isTrue);
+      expect(trace(tester).watchProgress, isNotNull);
+      await tapVisible(tester, find.text('Skip letter'));
+      expect(write(tester).letter.character, 'c');
+      expect(find.byKey(const ValueKey('cursive-next')), findsNothing);
+      await pick(tester, 'pick-letter-z');
+      await tapVisible(tester, find.text('Skip letter'));
+      expect(write(tester).letter.character, 'a');
       await tapVisible(tester, find.byTooltip('Back to writing'));
       expect(find.text('Handwriting'), findsOneWidget);
       expect(device.writes, writes);
@@ -118,138 +134,233 @@ void main() {
     },
   );
 
-  testWidgets('Watch travels once, cancels on backgrounding and dispose', (
-    tester,
-  ) async {
-    final controller = ProgressController(MemoryDevice());
-    addTearDown(controller.dispose);
-    await openPage(tester, controller);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
-    final first = tester
-        .widget<CursivePad>(find.byType(CursivePad))
-        .watchProgress!;
-    await tester.pump(const Duration(milliseconds: 600));
-    expect(
-      tester.widget<CursivePad>(find.byType(CursivePad)).watchProgress!,
-      greaterThan(first),
-    );
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
-    await tester.pump(const Duration(seconds: 1));
-    expect(
-      tester.widget<CursivePad>(find.byType(CursivePad)).watchProgress,
-      isNull,
-    );
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-    await tapVisible(tester, find.byKey(const ValueKey('cursive-mode-watch')));
-    await tester.pump(const Duration(seconds: 10));
-    expect(
-      tester.widget<CursivePad>(find.byType(CursivePad)).watchProgress,
-      isNull,
-    );
-    await tapVisible(tester, find.byKey(const ValueKey('cursive-mode-watch')));
-    await tester.pumpWidget(const SizedBox());
-    await tester.pump(const Duration(seconds: 10));
-    expect(tester.takeException(), isNull);
-    expect(tester.binding.transientCallbackCount, 0);
-  });
-
   testWidgets(
-    'Write offers gentle tracing help; Next never waits for a check',
+    'picker selects lowercase letters or ordered groups and exposes selected semantics',
     (tester) async {
+      final semantics = tester.ensureSemantics();
       final controller = ProgressController(MemoryDevice());
       addTearDown(controller.dispose);
       await openPage(tester, controller, reducedMotion: true);
-      await tapVisible(
-        tester,
-        find.byKey(const ValueKey('cursive-mode-write')),
-      );
-      await tapVisible(tester, find.text('Check'));
-      expect(find.text('Try tracing first'), findsOneWidget);
-      await tapVisible(tester, find.text('Next letter'));
+      await pick(tester, 'pick-letter-q');
+      expect(write(tester).letter.character, 'q');
+      await tapVisible(tester, find.byKey(const ValueKey('cursive-picker')));
+      await tester.ensureVisible(find.byKey(const ValueKey('pick-letter-q')));
+      await tester.pump();
+      final selected = find.bySemanticsLabel('Practise cursive q');
       expect(
-        tester.widget<CursivePad>(find.byType(CursivePad)).letter.character,
-        'a',
+        tester.getSemantics(selected),
+        matchesSemantics(
+          label: 'Practise cursive q',
+          isSelected: true,
+          hasSelectedState: true,
+          isButton: true,
+          hasEnabledState: true,
+          isEnabled: true,
+          hasTapAction: true,
+          hasFocusAction: true,
+          isFocusable: true,
+        ),
       );
+      await tapVisible(tester, find.byKey(const ValueKey('pick-group-1')));
+      expect(write(tester).letter.character, 'e');
+      expect(find.text('Practice only · no XP · Loops'), findsOneWidget);
+      await tapVisible(tester, find.byKey(const ValueKey('cursive-picker')));
+      expect(
+        tester
+            .getSemantics(find.byKey(const ValueKey('pick-group-1')))
+            .flagsCollection
+            .isSelected,
+        ui.Tristate.isTrue,
+      );
+      await tapVisible(tester, find.byTooltip('Close letter picker'));
+      for (final character in [...cursiveFamilies[1].letters.skip(1), 'e']) {
+        await drawLetter(tester, write(tester).letter.character);
+        await tapVisible(tester, find.byKey(const ValueKey('cursive-check')));
+        await tapVisible(tester, find.byKey(const ValueKey('cursive-next')));
+        expect(write(tester).letter.character, character);
+      }
+      semantics.dispose();
     },
   );
 
   testWidgets(
-    'unfinished ink cancels on backgrounding and cannot keep drawing',
+    'Check rejects empty ink, pad-wide scribble and a different letter; ignores live strokes',
     (tester) async {
       final controller = ProgressController(MemoryDevice());
       addTearDown(controller.dispose);
       await openPage(tester, controller, reducedMotion: true);
-      await tapVisible(
-        tester,
-        find.byKey(const ValueKey('cursive-mode-trace')),
+      await tapVisible(tester, find.byKey(const ValueKey('cursive-check')));
+      expect(find.text('Try tracing first'), findsOneWidget);
+      await tapVisible(tester, find.text('Clear'));
+      final ink = write(tester).ink;
+      // A dense zigzag covers the model, but most of its length is elsewhere.
+      ink.begin(const InkPoint(-.3, -.1));
+      for (var i = 0; i <= 30; i++) {
+        ink.add(InkPoint(i.isEven ? 1.4 : -.3, -.1 + i * .05));
+      }
+      ink.end();
+      expect(
+        cursiveCoverage(write(tester).letter, ink.strokes),
+        greaterThanOrEqualTo(.60),
       );
-      final pad = find.byType(CursivePad);
-      await tester.ensureVisible(pad);
+      await tapVisible(tester, find.byKey(const ValueKey('cursive-check')));
+      expect(find.text('Try tracing first'), findsOneWidget);
+      await tapVisible(tester, find.text('Clear'));
+      await pick(tester, 'pick-letter-q');
+      await drawLetter(tester, 'i');
+      await tapVisible(tester, find.byKey(const ValueKey('cursive-check')));
+      expect(find.text('Try tracing first'), findsOneWidget);
+      await tapVisible(tester, find.text('Clear'));
+      await tester.ensureVisible(writePad);
       await tester.pump();
-      final gesture = await tester.startGesture(tester.getCenter(pad));
-      await gesture.moveBy(const Offset(20, 10));
-      final ink = tester.widget<CursivePad>(pad).ink;
-      expect(ink.drawing, isTrue);
+      final gesture = await tester.startGesture(tester.getCenter(writePad));
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('cursive-check')));
+      await tester.pump();
+      expect(find.text('Try tracing first'), findsNothing);
+      await gesture.up();
+    },
+  );
+
+  testWidgets(
+    'faint toggle preserves both inks, pass and message, with toggled semantics',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      final controller = ProgressController(MemoryDevice());
+      addTearDown(controller.dispose);
+      await openPage(tester, controller, reducedMotion: true);
+      expect(write(tester).faint, isTrue);
+      expect(write(tester).showModel, isTrue);
+      expect(trace(tester).guidance, isTrue);
+      await drawLetter(tester, 'a', padKey: 'cursive-trace-pad');
+      await drawLetter(tester, 'a');
+      await tapVisible(tester, find.byKey(const ValueKey('cursive-check')));
+      final before = write(tester).ink.strokes;
+      final toggle = find.byKey(const ValueKey('cursive-faint-toggle'));
+      expect(
+        tester.getSemantics(toggle).flagsCollection.isToggled,
+        ui.Tristate.isTrue,
+      );
+      expect(find.byTooltip('Hide faint letter'), findsOneWidget);
+      await tapVisible(tester, toggle);
+      expect(write(tester).showModel, isFalse);
+      expect(trace(tester).showModel, isTrue);
+      expect(trace(tester).ink.isEmpty, isFalse);
+      expect(write(tester).ink.strokes, before);
+      expect(find.text('Nice curves!'), findsOneWidget);
+      expect(find.byKey(const ValueKey('cursive-next')), findsOneWidget);
+      expect(find.byTooltip('Show faint letter'), findsOneWidget);
+      expect(
+        tester.getSemantics(toggle).flagsCollection.isToggled,
+        ui.Tristate.isFalse,
+      );
+      await tapVisible(tester, find.text('Clear'));
+      expect(write(tester).ink.isEmpty, isTrue);
+      expect(trace(tester).ink.isEmpty, isTrue);
+      expect(find.text('Nice curves!'), findsNothing);
+      expect(find.byKey(const ValueKey('cursive-check')), findsOneWidget);
+      semantics.dispose();
+    },
+  );
+
+  testWidgets(
+    'pause cancels strokes and Watch; no auto-resume or callbacks after disposal',
+    (tester) async {
+      final controller = ProgressController(MemoryDevice());
+      addTearDown(controller.dispose);
+      await openPage(tester, controller);
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(trace(tester).watchProgress, isNotNull);
+      await tester.ensureVisible(writePad);
+      await tester.pump();
+      final gesture = await tester.startGesture(tester.getCenter(writePad));
+      expect(write(tester).ink.drawing, isTrue);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
       await tester.pump();
-      expect(ink.isEmpty, isTrue);
-      expect(tester.widget<CursivePad>(pad).enabled, isFalse);
-      await gesture.moveBy(const Offset(10, 10));
+      expect(trace(tester).watchProgress, isNull);
+      expect(write(tester).ink.isEmpty, isTrue);
+      expect(write(tester).enabled, isFalse);
+      await gesture.moveBy(const Offset(20, 10));
       await gesture.up();
-      expect(ink.isEmpty, isTrue);
+      expect(write(tester).ink.isEmpty, isTrue);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-      await tester.pump();
-      await drawLetter(tester, 'c');
-      expect(ink.isEmpty, isFalse);
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(trace(tester).watchProgress, isNull);
+      await tapVisible(tester, find.byKey(const ValueKey('cursive-watch')));
+      await tester.pump(const Duration(seconds: 6));
+      expect(trace(tester).watchProgress, isNull);
+      await tapVisible(tester, find.byKey(const ValueKey('cursive-watch')));
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 6));
+      expect(tester.takeException(), isNull);
+      expect(tester.binding.transientCallbackCount, 0);
     },
   );
 
-  testWidgets('393x852 keeps every mode pad above the fixed actions', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(393, 852);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    final controller = ProgressController(MemoryDevice());
-    addTearDown(controller.dispose);
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: GardenTheme.light,
-        builder: (context, child) => MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            // Include realistic system insets in the visibility requirement.
-            padding: const EdgeInsets.only(top: 24, bottom: 24),
-          ),
-          child: child!,
-        ),
-        home: CursivePage(controller: controller),
-      ),
-    );
-    await tester.pump();
-    for (final mode in ['watch', 'trace', 'write']) {
-      await tester.tap(find.byKey(ValueKey('cursive-mode-$mode')));
+  testWidgets(
+    'resize cancels unfinished strokes while retaining finished ink',
+    (tester) async {
+      tester.view.physicalSize = const Size(393, 852);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final controller = ProgressController(MemoryDevice());
+      addTearDown(controller.dispose);
+      await openPage(tester, controller, reducedMotion: true);
+      await drawLetter(tester, 'a');
+      final completed = write(tester).ink.strokes;
+      final gesture = await tester.startGesture(tester.getCenter(writePad));
+      tester.view.physicalSize = const Size(800, 1280);
       await tester.pump();
-      final pad = tester.getRect(find.byType(CursivePad));
-      final actions = tester.getRect(
-        find.ancestor(
-          of: find.text('Next letter'),
-          matching: find.byType(FilledButton),
+      await tester.pump();
+      expect(write(tester).ink.drawing, isFalse);
+      await gesture.up();
+      expect(write(tester).ink.strokes, completed);
+    },
+  );
+
+  testWidgets(
+    '393x852 keeps both pads, Watch and fixed actions visible with system insets',
+    (tester) async {
+      tester.view.physicalSize = const Size(393, 852);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final controller = ProgressController(MemoryDevice());
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: GardenTheme.light,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(padding: const EdgeInsets.only(top: 24, bottom: 24)),
+            child: child!,
+          ),
+          home: CursivePage(controller: controller),
         ),
       );
-      expect(pad.height, 210);
-      expect(pad.top, greaterThanOrEqualTo(80));
-      expect(pad.bottom, lessThanOrEqualTo(actions.top - 8));
-      expect(actions.bottom, lessThanOrEqualTo(852 - 24));
+      await tester.pump();
+      final t = tester.getRect(tracePad), w = tester.getRect(writePad);
+      final watch = tester.getRect(find.byKey(const ValueKey('cursive-watch')));
+      final check = tester.getRect(find.byKey(const ValueKey('cursive-check')));
+      // Printed positions are part of the review evidence.
+      debugPrint('PHONE trace=$t write=$w watch=$watch check=$check');
+      expect(t.height, 200);
+      expect(w.height, 200);
+      expect(t.top, greaterThanOrEqualTo(80));
+      expect(w.top, greaterThan(t.bottom));
+      expect(w.bottom, lessThan(check.top));
+      expect(watch.top, greaterThanOrEqualTo(80));
+      expect(check.bottom, lessThanOrEqualTo(828));
       expect(tester.takeException(), isNull);
-    }
-  });
+    },
+  );
 
-  testWidgets('pickers stay in one row and Next reveals its selected letter', (
+  testWidgets('800x1280 puts pads side by side near the fixed bottom actions', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(393, 852);
+    tester.view.physicalSize = const Size(800, 1280);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -257,83 +368,18 @@ void main() {
     addTearDown(controller.dispose);
     await openPage(tester, controller, reducedMotion: true);
     await tester.pump();
-    final families = find.byKey(const ValueKey('cursive-families'));
-    final letters = find.byKey(const ValueKey('cursive-letters'));
-    final familyTop = tester
-        .getTopLeft(find.byKey(const ValueKey('cursive-family-0')))
-        .dy;
-    for (var i = 0; i < cursiveFamilies.length; i++) {
-      final chip = find.byKey(ValueKey('cursive-family-$i'));
-      expect(tester.getTopLeft(chip).dy, familyTop);
-      expect(tester.getSize(chip).height, greaterThanOrEqualTo(48));
-    }
-    await tester.drag(families, const Offset(-600, 0));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('cursive-family-3')));
-    await tester.pumpAndSettle();
-    final letterTop = tester
-        .getTopLeft(find.byKey(const ValueKey('cursive-letter-n')))
-        .dy;
-    for (final character in cursiveFamilies.last.letters) {
-      final button = find.byKey(ValueKey('cursive-letter-$character'));
-      expect(tester.getTopLeft(button).dy, letterTop);
-      final size = tester.getSize(button);
-      expect(size.width, greaterThanOrEqualTo(48));
-      expect(size.height, greaterThanOrEqualTo(48));
-    }
-    // Next must reveal offscreen letters without scrolling away from the pad.
-    final initialPad = tester.getRect(find.byType(CursivePad));
-    for (final character in ['m', 'v', 'x', 'y', 'z', 'r', 's', 'n']) {
-      await tester.tap(find.text('Next letter'));
-      await tester.pumpAndSettle();
-      final button = find.byKey(ValueKey('cursive-letter-$character'));
-      final rect = tester.getRect(button);
-      final viewport = tester.getRect(letters);
-      expect(rect.left, greaterThanOrEqualTo(viewport.left));
-      expect(rect.right, lessThanOrEqualTo(viewport.right));
-      expect(
-        tester
-            .widget<OutlinedButton>(button)
-            .style!
-            .backgroundColor!
-            .resolve({}),
-        GardenColors.light.selectedSurface,
-      );
-      expect(tester.getRect(find.byType(CursivePad)), initialPad);
-    }
-    expect(tester.takeException(), isNull);
+    final t = tester.getRect(tracePad), w = tester.getRect(writePad);
+    expect(t.height, 240);
+    expect(w.height, 240);
+    expect(t.top, w.top);
+    expect(t.right, lessThan(w.left));
+    expect(w.bottom, greaterThan(1100));
+    expect(tester.getRect(find.text('Skip letter')).bottom, lessThan(t.top));
   });
-
-  testWidgets(
-    'tablet keeps the practice pad fixed and bottom actions reachable',
-    (tester) async {
-      tester.view.physicalSize = const Size(800, 1280);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      final controller = ProgressController(MemoryDevice());
-      addTearDown(controller.dispose);
-      await openPage(tester, controller, reducedMotion: true);
-      await tester.pump();
-      expect(tester.getSize(find.byType(CursivePad)), const Size(400, 240));
-      expect(tester.getRect(find.byType(CursivePad)).bottom, greaterThan(1100));
-      for (final label in ['Clear', 'Next letter']) {
-        final button = find
-            .ancestor(
-              of: find.text(label),
-              matching: find.bySubtype<ButtonStyleButton>(),
-            )
-            .first;
-        final size = tester.getSize(button);
-        expect(size.width, greaterThanOrEqualTo(48));
-        expect(size.height, greaterThanOrEqualTo(48));
-      }
-    },
-  );
 
   for (final dark in [false, true]) {
     testWidgets(
-      '360x640, 2x text, reduced motion, ${dark ? 'dark' : 'light'}',
+      '360x640 2x ${dark ? 'dark' : 'light'} has reduced motion and reachable controls and picker',
       (tester) async {
         tester.view.physicalSize = const Size(360, 640);
         tester.view.devicePixelRatio = 1;
@@ -344,37 +390,32 @@ void main() {
         await openPage(
           tester,
           controller,
-          dark: dark,
           reducedMotion: true,
+          dark: dark,
           scale: 2,
         );
         await tester.pumpAndSettle();
-        expect(
-          tester.widget<CursivePad>(find.byType(CursivePad)).watchProgress,
-          isNull,
-        );
-        expect(
-          tester.widget<CursivePad>(find.byType(CursivePad)).guidance,
-          isTrue,
-        );
-        expect(tester.binding.transientCallbackCount, 0);
-        for (final mode in ['trace', 'write', 'watch']) {
-          await tapVisible(tester, find.byKey(ValueKey('cursive-mode-$mode')));
-          await tester.ensureVisible(find.byType(CursivePad));
-          await tester.pump();
-          expect(tester.takeException(), isNull);
-        }
-        for (final label in ['Clear', 'Next letter']) {
+        expect(trace(tester).watchProgress, isNull);
+        expect(trace(tester).guidance, isTrue);
+        await tapVisible(tester, find.byKey(const ValueKey('cursive-watch')));
+        expect(trace(tester).watchProgress, isNull);
+        await tester.ensureVisible(writePad);
+        await tester.pump();
+        for (final label in ['Clear', 'Check']) {
           final rect = tester.getRect(find.text(label));
           expect(rect.top, greaterThanOrEqualTo(0));
           expect(rect.bottom, lessThanOrEqualTo(640));
         }
         final semantics = tester.ensureSemantics();
         expect(
-          find.bySemanticsLabel('Watch how to write cursive c'),
+          find.bySemanticsLabel('Watch how to write cursive a'),
           findsOneWidget,
         );
         semantics.dispose();
+        await pick(tester, 'pick-letter-w');
+        expect(write(tester).letter.character, 'w');
+        expect(tester.takeException(), isNull);
+        expect(tester.binding.transientCallbackCount, 0);
       },
     );
   }

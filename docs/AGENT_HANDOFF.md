@@ -22,12 +22,21 @@ cleared; host tooling, signing keys, devices, emulators and source skills were
 untouched.
 
 
-Snapshot prepared **2026-09-19**, after 0.20.2 compact uniform Numbers cards.
+Snapshot updated **2026-10-17**, after 0.22.0 (branch `feature/new-learning-games-0.21.0`, not merged).
 Read [AGENTS.md](../AGENTS.md), [README](../README.md), [design](design.md),
 [testing](testing.md) and the [development runbook](DEVELOPMENT_ENVIRONMENT.md).
 This handoff is context, not authorization for another feature.
 
-## Current release: 0.21.1+46 — visual-game feedback in the fixed bar (2026-10-17)
+
+## Current release: 0.22.0+47 — simpler Cursive play and new activity icons (2026-10-17)
+
+Parent phone feedback on 0.21.1: recordings sound good; Same number pictures are big enough (what to do was not immediately clear — revisit later); Cursive play felt complicated. Decisions are in [design](design.md#simpler-cursive-play-and-new-activity-icons-0220). Sound it out and Word Sprint are not yet phone-tested.
+
+Codex GPT-6.1-Sol workers drew the six icons and rebuilt Cursive play (Handwriting-style two pads, Watch button, upper-right faint-letter toggle and letter/group picker, precision guard on Check); the lead enlarged the Same number icon shapes, reviewed diffs and captures, and ran all final checks. **955 Flutter tests passed**; full `flutter analyze` 0 errors/warnings (62 infos); `dart format` no changes. Captures ([gallery](screenshots/0220/)): 14 icon/category scenarios (`artifacts/icons-0220/icons_review.dart`) and 80 cursive scenarios (`artifacts/new-games-0210/review.dart --name cursive-`) passed with no exceptions/overflows; the lead inspected the icon grids (62×54 and 48 px, Light/Dark), category pages and cursive start/sheet/passed/faint-off captures.
+
+APK **0.22.0+47**, **670,716,116 bytes**, SHA-256 `08159147193725217e1909e7297f148ea03dce441228e2a09271470161ab324b`; same certificate, offline permissions, API 24–36, not debuggable; all 1,992 bundled files byte-identical to 0.21.1, no added assets ([audit](../artifacts/new-games-0210/apk-verification-0220.json)). Native test on **LearningCornerTest / emulator-5570** (Codex worker, [results](../artifacts/icons-0220/native/results.json)): 0.21.1 → 0.22.0 `install -r` preserved the fixture; icons visible and clear; cursive defaults to a / a–z, Watch auto-plays, replays and stops on tracing; both pads, Watch, Skip and Clear/Check fit a 1080×2400 screen without scrolling; scribble rejected, model stroke passed, Next → b; faint toggle keeps ink; Loops walk/wrap and z → a verified; HOME during Watch recovered; XP unchanged by cursive; no Flutter/FATAL/AndroidRuntime errors. (A brief expectation that Handwriting shows a message on empty Check was wrong: Check is disabled until there is ink, as before.) A broad stroke starting at the screen edge can trigger Android's back gesture, as with any edge-to-edge pad. Child freehand tolerance remains a manual check. Final fixture unchanged: Player 1, 550 XP / level 6, five gifts, Word Sprint best 4; emulator stopped with data preserved.
+
+## Previous release: 0.21.1+46 — visual-game feedback in the fixed bar (2026-10-17)
 
 Native testing of 0.21.0 on the disposable **LearningCornerTest / emulator-5570** (Codex worker driving adb; [results](../artifacts/new-games-0210/native/results.json)) passed all 14 checks: 0.20.2 → 0.21.0 `install -r` preserved XP; each new game's round awarded exactly 50 XP; Word Sprint (best, undo, hint pause, early stop, untimed, timer persistence, background → explicit Resume) and Cursive play awarded none; Number hunt showed a look-alike in all five questions; no Flutter/FATAL/AndroidRuntime errors (only the known platform `ashmem` deprecation line). It found that on a 411×914 dp phone 'Try again' and Next sat below the fold for Make-believe words and Same number. **0.21.1** moves feedback and manual Next into the fixed bottom bar for all four visual games (other games unchanged); new layout tests cover it.
 
@@ -45,7 +54,7 @@ Audio: 34 `cvc_*` Chirp words and 70 `nonsense_*` Gemini phonics-directed IPA pr
 
 APK **0.21.0+45**, **670,896,188 bytes**, SHA-256 `0d7e5f445800e7c7ae97c9684669f34fdfd20ab3c5c8dff42fd95e4651d1f65c`. The audit verified the original signing certificate, package/label/entrypoint, API 24–36, not debuggable, and no INTERNET/network/RECORD_AUDIO/VIBRATE permission. All **1,852** previous content/shader files are byte-identical; the two audio manifests were updated and exactly **140** files were added (104 `cvc_*`/`nonsense_*` recordings, 34 word pictures plus manifest and license). [APK](../artifacts/learning-corner.apk) · [Evidence](../artifacts/new-games-0210/README.md) · [Gallery](screenshots/0210/README.md).
 
-Work was done on branch `feature/new-learning-games-0.21.0`. Codex GPT-6.1-Sol workers did the research (5 reports), foundation seams, all six game implementations, Number hunt distractors, the capture harness and the review fixes; the lead session planned, curated the word bank/pictures, generated audio, fixed integration issues (2048 description regression, foundation/phrase-count tests, number shape sizing), ran all final checks, built and audited the APK. No device or emulator was used; physical touch, listening and TalkBack review remain manual. Follow-ups: stretched continuous-blend recordings, joined cursive, activity icons for the six new cards (they show example text), parent stage settings for word sets.
+Work was done on branch `feature/new-learning-games-0.21.0`. Codex GPT-6.1-Sol workers did the research (5 reports), foundation seams, all six game implementations, Number hunt distractors, the capture harness and the review fixes; the lead session planned, curated the word bank/pictures, generated audio, fixed integration issues (2048 description regression, foundation/phrase-count tests, number shape sizing), ran all final checks, built and audited the APK. No device or emulator was used; physical touch, listening and TalkBack review remain manual. Follow-ups: stretched continuous-blend recordings, joined cursive, parent stage settings for word sets (activity icons were added in 0.22.0).
 
 ## Previous release: 0.20.2+44 — compact uniform Numbers cards
 

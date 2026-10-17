@@ -5,6 +5,24 @@ import 'package:rainbow_garden/cursive.dart';
 import 'package:rainbow_garden/handwriting.dart';
 
 void main() {
+  test(
+    'precision accepts each model and rejects empty ink or a pad-wide scribble',
+    () {
+      final scribble = <InkPoint>[
+        for (var i = 0; i <= 30; i++)
+          InkPoint(i.isEven ? 1.4 : -.3, -.1 + i * .05),
+      ];
+      for (final letter in cursiveLetters.values) {
+        expect(
+          cursivePrecision(letter, letter.strokes),
+          greaterThanOrEqualTo(.99),
+        );
+        expect(cursivePrecision(letter, []), 0);
+        expect(cursivePrecision(letter, [scribble]), lessThan(.5));
+      }
+    },
+  );
+
   test('families cover each lowercase letter exactly once', () {
     final letters = cursiveFamilies.expand((family) => family.letters).toList();
     expect(letters, hasLength(26));

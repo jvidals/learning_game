@@ -77,6 +77,12 @@ class _CategoryPageState extends State<CategoryPage> {
                       Activity.makeGroup => const CountingIllustration(
                         makeGroup: true,
                       ),
+                      Activity.cursive => const CursiveIllustration(),
+                      Activity.sameNumber => const SameNumberIllustration(),
+                      Activity.wordSprint => const WordSprintIllustration(),
+                      Activity.readAndFind => const ReadAndFindIllustration(),
+                      Activity.makeBelieve => const MakeBelieveIllustration(),
+                      Activity.numberParts => const NumberPartsIllustration(),
                       _ => null,
                     },
                     trailingAction: NumberGameRanges.appliesTo(activity)

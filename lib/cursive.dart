@@ -79,6 +79,24 @@ double cursiveCoverage(CursiveLetter letter, List<InkStroke> ink) {
   return covered / letter.points.length;
 }
 
+/// Fraction of resampled ink near the model. Complements coverage so broad
+/// scribbling cannot pass merely by crossing every part of the letter.
+/// Like coverage, this ignores speed, direction and stroke order.
+double cursivePrecision(CursiveLetter letter, List<InkStroke> ink) {
+  final drawn = ink
+      .where((stroke) => stroke.isNotEmpty)
+      .map(sampleStroke)
+      .expand((stroke) => stroke)
+      .toList();
+  if (drawn.isEmpty) return 0;
+  final near = drawn
+      .where(
+        (point) => letter.points.any((model) => point.distance(model) <= .14),
+      )
+      .length;
+  return near / drawn.length;
+}
+
 // Absolute M/L/C commands; each list entry is one pen-down stroke. Curves are
 // flattened once for the same geometry in painting, animation and coverage.
 InkStroke _path(String source) {

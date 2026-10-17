@@ -6,12 +6,10 @@ import '../app_theme.dart';
 import '../cursive.dart';
 import '../progress_controller.dart';
 import '../widgets/cursive_pad.dart';
+import '../widgets/success_celebration.dart';
 import '../widgets/writing_pad.dart';
 
-enum _Mode { watch, trace, write }
-
-/// Optional lowercase practice. The shared controller is accepted for routing
-/// compatibility; cursive deliberately never reads or mutates player progress.
+/// Visit-local lowercase practice: no player progress or settings are touched.
 class CursivePage extends StatefulWidget {
   const CursivePage({super.key, required this.controller});
   final ProgressController controller;
@@ -21,128 +19,340 @@ class CursivePage extends StatefulWidget {
 }
 
 class _CursivePageState extends State<CursivePage>
-    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late final AnimationController _watch = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 4500),
   );
+  late final AnimationController _sparkle = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 550),
+  );
   final _traceInk = WritingInk(), _writeInk = WritingInk();
-  final _letterScroll = ScrollController();
-  final _letterKeys = {
-    for (final character in cursiveLetters.keys) character: GlobalKey(),
-  };
-  _Mode _mode = _Mode.watch;
-  int _familyIndex = 0, _letterIndex = 0;
-  bool _reducedMotion = false, _foreground = true, _initialized = false;
-  String _message = '';
+  final _scroll = ScrollController();
+  final _alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+  String _character = 'a', _message = '';
+  int? _groupIndex;
+  bool _faint = true, _passed = false;
+  bool _reducedMotion = false, _foreground = true, _visible = true;
+  bool _initialized = false;
+  Size? _viewport;
 
-  CursiveFamily get _family => cursiveFamilies[_familyIndex];
-  CursiveLetter get _letter => cursiveLetters[_family.letters[_letterIndex]]!;
-  WritingInk get _ink => _mode == _Mode.write ? _writeInk : _traceInk;
+  CursiveLetter get _letter => cursiveLetters[_character]!;
+  List<String> get _order =>
+      _groupIndex == null ? _alphabet : cursiveFamilies[_groupIndex!].letters;
+  bool get _enabled => _foreground && _visible;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _writeInk.addListener(_inkChanged);
+    _traceInk.addListener(_traceChanged);
+    _writeInk.addListener(_writeChanged);
   }
 
-  void _inkChanged() {
-    if (_message.isNotEmpty) setState(() => _message = '');
+  void _traceChanged() {
+    if (_traceInk.drawing && _watch.isAnimating) {
+      setState(_watch.stop);
+    }
+  }
+
+  void _writeChanged() {
+    if (_writeInk.drawing && (_message.isNotEmpty || _passed)) {
+      _sparkle.stop();
+      setState(() {
+        _message = '';
+        _passed = false;
+      });
+    }
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final viewport = MediaQuery.sizeOf(context);
+    if (_viewport != null && _viewport != viewport) {
+      // Crossing the stacked/side-by-side breakpoint replaces pad subtrees,
+      // so cancellation must also happen here, before their geometry changes.
+      _traceInk.cancel();
+      _writeInk.cancel();
+    }
+    _viewport = viewport;
     _reducedMotion = MediaQuery.disableAnimationsOf(context);
-    if (_reducedMotion) _watch.stop();
+    if (_reducedMotion) {
+      _watch.stop();
+      _sparkle.stop();
+    }
     if (!_initialized) {
       _initialized = true;
       if (!_reducedMotion) _watch.forward();
     }
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void _interrupt() {
     _watch.stop();
+    _sparkle.stop();
     _traceInk.cancel();
     _writeInk.cancel();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _interrupt();
     setState(() => _foreground = state == AppLifecycleState.resumed);
-    // A returning child chooses Watch again; movement never resumes by itself.
   }
 
   @override
   void deactivate() {
-    _watch.stop();
-    _traceInk.cancel();
-    _writeInk.cancel();
+    _visible = false;
+    _interrupt();
     super.deactivate();
+  }
+
+  @override
+  void activate() {
+    super.activate();
+    _visible = true;
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _watch.dispose();
-    _letterScroll.dispose();
-    _writeInk.removeListener(_inkChanged);
+    _sparkle.dispose();
+    _scroll.dispose();
+    _traceInk.removeListener(_traceChanged);
+    _writeInk.removeListener(_writeChanged);
     _traceInk.dispose();
     _writeInk.dispose();
     super.dispose();
   }
 
-  void _chooseMode(_Mode mode) {
-    _watch.stop();
+  void _replay() {
+    if (!_enabled) return;
     _traceInk.cancel();
-    _writeInk.cancel();
     setState(() {
-      _mode = mode;
-      _message = '';
+      _watch.stop();
+      if (!_reducedMotion) _watch.forward(from: 0);
     });
-    if (mode == _Mode.watch && !_reducedMotion && _foreground) {
-      _watch.forward(from: 0);
-    }
   }
 
-  void _chooseLetter({int? family, int? letter}) {
-    _watch.stop();
+  void _chooseLetter(String character, {int? group}) {
+    _interrupt();
     _traceInk.clear();
     _writeInk.clear();
     setState(() {
-      if (family != null) _familyIndex = family;
-      _letterIndex = letter ?? 0;
-      _mode = _Mode.watch;
+      _character = character;
+      _groupIndex = group;
       _message = '';
+      _passed = false;
+      if (!_reducedMotion && _enabled) _watch.forward(from: 0);
     });
-    if (!_reducedMotion && _foreground) _watch.forward(from: 0);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_letterScroll.hasClients) return;
-      final target = _letterKeys[_letter.character]!.currentContext
-          ?.findRenderObject();
-      if (target == null) return;
-      // Only move the horizontal picker; keep the child's pad in place.
-      _letterScroll.position.ensureVisible(
-        target,
-        alignment: .5,
-        duration: _reducedMotion
-            ? Duration.zero
-            : const Duration(milliseconds: 180),
-      );
-    });
+    if (_scroll.hasClients) _scroll.jumpTo(0);
   }
+
+  void _advance() => _chooseLetter(
+    _order[(_order.indexOf(_character) + 1) % _order.length],
+    group: _groupIndex,
+  );
 
   void _clear() {
+    _sparkle.stop();
     _traceInk.clear();
     _writeInk.clear();
-    setState(() => _message = '');
+    setState(() {
+      _message = '';
+      _passed = false;
+    });
   }
 
   void _check() {
-    if (_writeInk.drawing) return;
+    if (!_enabled || _writeInk.drawing || _traceInk.drawing) return;
     setState(() {
-      _message = cursiveCoverage(_letter, _writeInk.strokes) >= .60
-          ? 'Nice curves!'
-          : 'Try tracing first';
+      _passed =
+          cursiveCoverage(_letter, _writeInk.strokes) >= .60 &&
+          cursivePrecision(_letter, _writeInk.strokes) >= .50;
+      _message = _passed ? 'Nice curves!' : 'Try tracing first';
     });
+    if (_passed && !_reducedMotion) _sparkle.forward(from: 0);
+  }
+
+  ButtonStyle _selectionStyle(bool selected) => OutlinedButton.styleFrom(
+    minimumSize: const Size(48, 48),
+    backgroundColor: selected ? GardenColors.of(context).selectedSurface : null,
+    side: selected
+        ? BorderSide(color: GardenColors.of(context).primary, width: 2)
+        : null,
+  );
+
+  Future<void> _picker() async {
+    setState(_interrupt);
+    final selected = await showModalBottomSheet<({int? group, String letter})>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: SizedBox(
+          height: MediaQuery.sizeOf(context).height * .78,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    children: [
+                      const Expanded(
+                        child: Text(
+                          'Choose a letter',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: 'Close letter picker',
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text(
+                    'Practice only · no XP',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(
+                    'Letter groups',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                  ),
+                ),
+                for (var i = 0; i < cursiveFamilies.length; i++)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: MergeSemantics(
+                      child: Semantics(
+                        selected: _groupIndex == i,
+                        child: OutlinedButton(
+                          key: ValueKey('pick-group-$i'),
+                          style: _selectionStyle(_groupIndex == i),
+                          onPressed: () => Navigator.pop(context, (
+                            group: i,
+                            letter: cursiveFamilies[i].letters.first,
+                          )),
+                          child: Text(
+                            '${cursiveFamilies[i].name} · ${cursiveFamilies[i].letters.join(' ')}',
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(
+                    'All letters',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                  ),
+                ),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    const gridPadding = 16.0, spacing = 10.0;
+                    const buttonPadding = EdgeInsets.all(16);
+                    final scaler = MediaQuery.textScalerOf(context);
+                    final theme = Theme.of(context);
+                    final labelStyle =
+                        (theme.outlinedButtonTheme.style?.textStyle?.resolve(
+                                  {},
+                                ) ??
+                                theme.textTheme.labelLarge!)
+                            .copyWith(fontSize: 26);
+                    final painter = TextPainter(
+                      textDirection: Directionality.of(context),
+                      textScaler: scaler,
+                      maxLines: 1,
+                    );
+                    var labelWidth = 0.0, labelHeight = 0.0;
+                    for (final character in _alphabet) {
+                      painter.text = TextSpan(
+                        text: character,
+                        style: labelStyle,
+                      );
+                      painter.layout();
+                      labelWidth = math.max(labelWidth, painter.width);
+                      labelHeight = math.max(labelHeight, painter.height);
+                    }
+                    painter.dispose();
+                    final cellWidth = math.max(
+                      48.0,
+                      labelWidth.ceilToDouble() + buttonPadding.horizontal,
+                    );
+                    final available = constraints.maxWidth - 2 * gridPadding;
+                    final columns =
+                        ((available + spacing) / (cellWidth + spacing))
+                            .floor()
+                            .clamp(1, 6);
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(gridPadding),
+                      itemCount: 26,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: columns,
+                        mainAxisSpacing: spacing,
+                        crossAxisSpacing: spacing,
+                        mainAxisExtent: math.max(
+                          48 * scaler.scale(1),
+                          labelHeight.ceilToDouble() + buttonPadding.vertical,
+                        ),
+                      ),
+                      itemBuilder: (context, index) {
+                        final character = _alphabet[index];
+                        return MergeSemantics(
+                          child: Semantics(
+                            label: 'Practise cursive $character',
+                            selected: character == _character,
+                            child: OutlinedButton(
+                              key: ValueKey('pick-letter-$character'),
+                              style: _selectionStyle(character == _character)
+                                  .copyWith(
+                                    padding: const WidgetStatePropertyAll(
+                                      buttonPadding,
+                                    ),
+                                  ),
+                              onPressed: () => Navigator.pop(context, (
+                                group: null,
+                                letter: character,
+                              )),
+                              child: ExcludeSemantics(
+                                child: Text(
+                                  character,
+                                  style: labelStyle,
+                                  maxLines: 1,
+                                  softWrap: false,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    if (!mounted || selected == null) return;
+    _chooseLetter(selected.letter, group: selected.group);
   }
 
   @override
@@ -154,6 +364,29 @@ class _CursivePageState extends State<CursivePage>
         onPressed: () => Navigator.pop(context),
         icon: const Icon(Icons.arrow_back_rounded),
       ),
+      actions: [
+        MergeSemantics(
+          child: Semantics(
+            toggled: _faint,
+            child: IconButton(
+              key: const ValueKey('cursive-faint-toggle'),
+              tooltip: _faint ? 'Hide faint letter' : 'Show faint letter',
+              onPressed: () => setState(() => _faint = !_faint),
+              icon: Icon(
+                _faint
+                    ? Icons.visibility_rounded
+                    : Icons.visibility_off_rounded,
+              ),
+            ),
+          ),
+        ),
+        IconButton(
+          key: const ValueKey('cursive-picker'),
+          tooltip: 'Choose a letter',
+          onPressed: _picker,
+          icon: const Icon(Icons.grid_view_rounded),
+        ),
+      ],
     ),
     body: SafeArea(
       child: Column(
@@ -163,42 +396,36 @@ class _CursivePageState extends State<CursivePage>
               builder: (context, viewport) {
                 final tablet = MediaQuery.sizeOf(context).shortestSide >= 600;
                 return SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  controller: _scroll,
+                  padding: EdgeInsets.fromLTRB(16, 4, 16, tablet ? 16 : 8),
                   child: Center(
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxWidth: 700,
+                        maxWidth: 1000,
                         minHeight: tablet
-                            ? math.max(0, viewport.maxHeight - 24)
+                            ? math.max(0, viewport.maxHeight - 20)
                             : 0,
                       ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         mainAxisAlignment: tablet
                             ? MainAxisAlignment.spaceBetween
                             : MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              const Text(
-                                'Practice only · no XP',
+                              Text(
+                                'Practice only · no XP · ${_groupIndex == null ? 'a–z' : cursiveFamilies[_groupIndex!].name}',
                                 textAlign: TextAlign.center,
                               ),
                               const SizedBox(height: 4),
-                              _families(),
-                              const SizedBox(height: 8),
-                              _letters(),
-                              const SizedBox(height: 8),
-                              _model(),
-                              const SizedBox(height: 8),
-                              _modes(),
+                              _comparison(),
+                              const SizedBox(height: 4),
+                              if (tablet) _skipLetter(),
                             ],
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: _drawing(),
-                          ),
+                          _pads(),
+                          if (!tablet) _skipLetter(),
                         ],
                       ),
                     ),
@@ -213,110 +440,29 @@ class _CursivePageState extends State<CursivePage>
     ),
   );
 
-  Widget _families() => Semantics(
-    label: 'Choose a family',
-    child: SingleChildScrollView(
-      key: const ValueKey('cursive-families'),
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          for (var i = 0; i < cursiveFamilies.length; i++) ...[
-            if (i > 0) const SizedBox(width: 8),
-            ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 48),
-              child: ChoiceChip(
-                key: ValueKey('cursive-family-$i'),
-                label: Text(cursiveFamilies[i].name),
-                selected: _familyIndex == i,
-                onSelected: (_) => _chooseLetter(family: i),
-              ),
-            ),
-          ],
-        ],
-      ),
-    ),
-  );
-
-  Widget _letters() => SingleChildScrollView(
-    key: const ValueKey('cursive-letters'),
-    controller: _letterScroll,
-    scrollDirection: Axis.horizontal,
-    child: Row(
-      children: [
-        for (var i = 0; i < _family.letters.length; i++) ...[
-          if (i > 0) const SizedBox(width: 8),
-          Semantics(
-            key: _letterKeys[_family.letters[i]],
-            label: 'Choose cursive ${_family.letters[i]}',
-            selected: _letterIndex == i,
-            inMutuallyExclusiveGroup: true,
-            child: OutlinedButton(
-              key: ValueKey('cursive-letter-${_family.letters[i]}'),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(56, 56),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                backgroundColor: _letterIndex == i
-                    ? GardenColors.of(context).selectedSurface
-                    : null,
-                side: BorderSide(
-                  color: _letterIndex == i
-                      ? GardenColors.of(context).primary
-                      : GardenColors.of(context).outline,
-                  width: _letterIndex == i ? 2 : 1,
-                ),
-              ),
-              onPressed: () => _chooseLetter(letter: i),
-              child: ExcludeSemantics(
-                child: Text(
-                  _family.letters[i],
-                  style: const TextStyle(fontSize: 24),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ],
-    ),
-  );
-
-  Widget _model() => Semantics(
+  Widget _comparison() => Semantics(
     label:
-        'Print ${_letter.character} and cursive ${_letter.character}: the same lowercase letter.',
+        'Print $_character and cursive $_character: the same lowercase letter.',
     child: ExcludeSemantics(
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            child: Column(
-              children: [
-                const Text('Print', textAlign: TextAlign.center),
-                Text(
-                  _letter.character,
-                  style: const TextStyle(fontSize: 56, height: 1),
-                ),
-              ],
-            ),
+          Text(
+            _character,
+            style: const TextStyle(fontSize: 52, fontWeight: FontWeight.w700),
           ),
-          const Expanded(
-            child: Text('Same letter', textAlign: TextAlign.center),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text('=', style: TextStyle(fontSize: 24)),
           ),
-          Expanded(
-            child: Column(
-              children: [
-                const Text('Cursive', textAlign: TextAlign.center),
-                SizedBox(
-                  height: 88,
-                  width: 112,
-                  child: CustomPaint(
-                    painter: CursivePainter(
-                      letter: _letter,
-                      colors: GardenColors.of(context),
-                    ),
-                  ),
-                ),
-              ],
+          SizedBox(
+            width: 112,
+            height: 88,
+            child: CustomPaint(
+              painter: CursivePainter(
+                letter: _letter,
+                colors: GardenColors.of(context),
+              ),
             ),
           ),
         ],
@@ -324,185 +470,164 @@ class _CursivePageState extends State<CursivePage>
     ),
   );
 
-  Widget _modes() => LayoutBuilder(
+  Widget _skipLetter() => TextButton(
+    onPressed: _enabled ? _advance : null,
+    child: const Text('Skip letter'),
+  );
+
+  Widget _pads() => LayoutBuilder(
     builder: (context, constraints) {
-      final stack =
-          constraints.maxWidth < 500 &&
-          MediaQuery.textScalerOf(context).scale(1) > 1.3;
-      final buttons = [
-        for (final mode in _Mode.values)
-          Semantics(
-            label: switch (mode) {
-              _Mode.watch => 'Watch how to write cursive ${_letter.character}',
-              _Mode.trace => 'Trace cursive ${_letter.character}',
-              _Mode.write => 'Write cursive ${_letter.character}',
-            },
-            selected: _mode == mode,
-            inMutuallyExclusiveGroup: true,
-            child: OutlinedButton(
-              key: ValueKey('cursive-mode-${mode.name}'),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(48, 56),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                backgroundColor: _mode == mode
-                    ? GardenColors.of(context).selectedSurface
-                    : null,
-                side: BorderSide(
-                  color: _mode == mode
-                      ? GardenColors.of(context).primary
-                      : GardenColors.of(context).outline,
-                  width: _mode == mode ? 2 : 1,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onPressed: () => _chooseMode(mode),
-              child: ExcludeSemantics(
-                child: Text(switch (mode) {
-                  _Mode.watch => 'Watch',
-                  _Mode.trace => 'Trace',
-                  _Mode.write => 'Write',
-                }, textAlign: TextAlign.center),
-              ),
+      final wide = constraints.maxWidth >= 640;
+      final height = wide
+          ? 240.0
+          : (MediaQuery.sizeOf(context).height >= 800 ? 200.0 : 180.0);
+      Widget header(bool trace) => LayoutBuilder(
+        builder: (context, header) {
+          final label = Text(
+            trace ? 'Trace the example' : 'Now write it yourself',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          );
+          final watch = Semantics(
+            label: 'Watch how to write cursive $_character',
+            child: OutlinedButton.icon(
+              key: const ValueKey('cursive-watch'),
+              onPressed: _enabled ? _replay : null,
+              icon: const Icon(Icons.play_arrow_rounded),
+              label: const ExcludeSemantics(child: Text('Watch')),
             ),
-          ),
-      ];
-      return stack
-          ? Column(
+          );
+          // Give large text the full label width instead of breaking words
+          // into fragments beside the Watch button on narrow windows.
+          if (trace &&
+              header.maxWidth < 500 &&
+              MediaQuery.textScalerOf(context).scale(1) > 1.3) {
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (var i = 0; i < buttons.length; i++) ...[
-                  if (i > 0) const SizedBox(height: 4),
-                  buttons[i],
-                ],
+                label,
+                Align(alignment: Alignment.centerRight, child: watch),
+              ],
+            );
+          }
+          return ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: wide ? 56 : (trace ? 48 : 0),
+            ),
+            child: Row(
+              children: [
+                Expanded(child: label),
+                if (trace) watch,
+              ],
+            ),
+          );
+        },
+      );
+      Widget pad(bool trace) => SizedBox(
+        height: height,
+        child: AnimatedBuilder(
+          animation: _watch,
+          builder: (context, _) => CursivePad(
+            key: ValueKey(trace ? 'cursive-trace-pad' : 'cursive-pad'),
+            letter: _letter,
+            ink: trace ? _traceInk : _writeInk,
+            enabled: _enabled,
+            guidance: trace,
+            faint: !trace,
+            showModel: trace || _faint,
+            watchProgress:
+                trace && _watch.isAnimating && !_reducedMotion && _enabled
+                ? _watch.value
+                : null,
+          ),
+        ),
+      );
+      Widget area(bool trace) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [header(trace), const SizedBox(height: 4), pad(trace)],
+      );
+      Widget pair(Widget left, Widget right) => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: left),
+          const SizedBox(width: 20),
+          Expanded(child: right),
+        ],
+      );
+      return wide
+          ? Column(
+              children: [
+                pair(header(true), header(false)),
+                const SizedBox(height: 4),
+                pair(pad(true), pad(false)),
               ],
             )
-          : Row(
-              children: [
-                for (var i = 0; i < buttons.length; i++) ...[
-                  if (i > 0) const SizedBox(width: 4),
-                  Expanded(child: buttons[i]),
-                ],
-              ],
+          : Column(
+              children: [area(true), const SizedBox(height: 8), area(false)],
             );
     },
   );
 
-  Widget _drawing() => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      Text(switch (_mode) {
-        _Mode.watch =>
-          _reducedMotion
-              ? 'Follow the numbers and arrows'
-              : 'Watch the dot. Tap Watch to see it again.',
-        _Mode.trace => 'Trace the curves',
-        _Mode.write => 'Write over the faint model, then Check',
-      }, textAlign: TextAlign.center),
-      const SizedBox(height: 8),
-      Center(
+  Widget _actions() => ListenableBuilder(
+    listenable: Listenable.merge([_traceInk, _writeInk]),
+    builder: (context, _) {
+      final clear = OutlinedButton(
+        style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+        onPressed: _enabled ? _clear : null,
+        child: const Text('Clear'),
+      );
+      final check = FilledButton(
+        key: ValueKey(_passed ? 'cursive-next' : 'cursive-check'),
+        style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+        onPressed: !_enabled || _writeInk.drawing || _traceInk.drawing
+            ? null
+            : (_passed ? _advance : _check),
+        child: Text(
+          _passed ? 'Next letter' : 'Check',
+          textAlign: TextAlign.center,
+        ),
+      );
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: SizedBox(
-            height: MediaQuery.sizeOf(context).shortestSide >= 600 ? 240 : 210,
-            child: AnimatedBuilder(
-              animation: _watch,
-              builder: (context, _) => CursivePad(
-                key: const ValueKey('cursive-pad'),
-                letter: _letter,
-                ink: _ink,
-                enabled: _foreground && _mode != _Mode.watch,
-                guidance: _mode != _Mode.write,
-                faint: _mode == _Mode.write,
-                watchProgress:
-                    _mode == _Mode.watch &&
-                        !_reducedMotion &&
-                        _watch.isAnimating
-                    ? _watch.value
-                    : null,
-              ),
-            ),
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (_message.isNotEmpty)
+                Semantics(
+                  liveRegion: true,
+                  child: SuccessCelebration(
+                    animation: _sparkle,
+                    active: _passed && !_reducedMotion,
+                    child: Text(
+                      _message,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 4),
+              if (MediaQuery.sizeOf(context).width < 500 &&
+                  MediaQuery.textScalerOf(context).scale(1) > 1.3)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [clear, const SizedBox(height: 4), check],
+                )
+              else
+                Row(
+                  children: [
+                    clear,
+                    const SizedBox(width: 12),
+                    Expanded(child: check),
+                  ],
+                ),
+            ],
           ),
         ),
-      ),
-    ],
-  );
-
-  Widget _actions() => Center(
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 700),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (_message.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Semantics(
-                  liveRegion: true,
-                  child: Text(_message, textAlign: TextAlign.center),
-                ),
-              ),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final stack =
-                    constraints.maxWidth < 500 &&
-                    MediaQuery.textScalerOf(context).scale(1) > 1.3;
-                final buttons = [
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(48, 48),
-                    ),
-                    onPressed: _clear,
-                    child: const Text('Clear'),
-                  ),
-                  if (_mode == _Mode.write)
-                    OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(48, 48),
-                      ),
-                      onPressed: _check,
-                      child: const Text('Check'),
-                    ),
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(48, 48),
-                    ),
-                    onPressed: () => _chooseLetter(
-                      letter: (_letterIndex + 1) % _family.letters.length,
-                    ),
-                    child: const Text(
-                      'Next letter',
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ];
-                return stack
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          for (var i = 0; i < buttons.length; i++) ...[
-                            if (i > 0) const SizedBox(height: 4),
-                            buttons[i],
-                          ],
-                        ],
-                      )
-                    : Row(
-                        children: [
-                          for (var i = 0; i < buttons.length; i++) ...[
-                            if (i > 0) const SizedBox(width: 8),
-                            Expanded(child: buttons[i]),
-                          ],
-                        ],
-                      );
-              },
-            ),
-          ],
-        ),
-      ),
-    ),
+      );
+    },
   );
 }

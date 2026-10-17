@@ -18,11 +18,12 @@ class CursivePad extends StatefulWidget {
     required this.enabled,
     required this.guidance,
     this.faint = false,
+    this.showModel = true,
     this.watchProgress,
   });
   final CursiveLetter letter;
   final WritingInk ink;
-  final bool enabled, guidance, faint;
+  final bool enabled, guidance, faint, showModel;
   final double? watchProgress;
 
   @override
@@ -46,9 +47,9 @@ class _CursivePadState extends State<CursivePad> {
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: widget.enabled
-        ? '${widget.faint ? 'Write' : 'Trace'} cursive ${widget.letter.character} with a finger or stylus. Clear and Next letter are always available.'
-        : 'Cursive ${widget.letter.character} model. Numbered circles mark stroke starts; arrows show direction.',
+    label: widget.guidance
+        ? 'Trace cursive ${widget.letter.character} with a finger or stylus. Numbered circles mark stroke starts; arrows show direction.'
+        : 'Write cursive ${widget.letter.character} with a finger or stylus, then tap Check. Use Clear to start again, or Skip letter to move on.',
     child: LayoutBuilder(
       builder: (context, constraints) {
         final size = Size(constraints.maxWidth, constraints.maxHeight);
@@ -112,6 +113,7 @@ class _CursivePadState extends State<CursivePad> {
                     ink: widget.ink,
                     guidance: widget.guidance,
                     faint: widget.faint,
+                    showModel: widget.showModel,
                     watchProgress: widget.watchProgress,
                   ),
                   child: const SizedBox.expand(),
@@ -133,12 +135,13 @@ class CursivePainter extends CustomPainter {
     this.ink,
     this.guidance = false,
     this.faint = false,
+    this.showModel = true,
     this.watchProgress,
   }) : super(repaint: ink);
   final CursiveLetter letter;
   final GardenColors colors;
   final WritingInk? ink;
-  final bool guidance, faint;
+  final bool guidance, faint, showModel;
   final double? watchProgress;
 
   @override
@@ -192,7 +195,7 @@ class CursivePainter extends CustomPainter {
     // Standalone examples need a strong, readable line. Practice pads use the
     // softer guide so the child's ink remains distinct from the template.
     final modelColor = ink == null ? colors.writingInk : colors.writingGuide;
-    for (final points in letter.strokes) {
+    for (final points in showModel ? letter.strokes : <InkStroke>[]) {
       stroke(
         points,
         faint ? modelColor.withValues(alpha: .5) : modelColor,
@@ -202,6 +205,13 @@ class CursivePainter extends CustomPainter {
     }
     for (final points in ink?.strokes ?? <InkStroke>[]) {
       stroke(points, colors.writingInk, 4.5);
+    }
+    if (!showModel) {
+      canvas.drawCircle(
+        geometry.position(letter.strokes.first.first),
+        4,
+        Paint()..color = colors.writingDirection,
+      );
     }
     if (guidance) {
       for (var i = 0; i < letter.samples.length; i++) {
@@ -274,5 +284,6 @@ class CursivePainter extends CustomPainter {
       oldDelegate.ink != ink ||
       oldDelegate.guidance != guidance ||
       oldDelegate.faint != faint ||
+      oldDelegate.showModel != showModel ||
       oldDelegate.watchProgress != watchProgress;
 }

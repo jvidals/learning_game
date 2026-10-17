@@ -12,6 +12,7 @@ import 'package:rainbow_garden/progress_controller.dart';
 import 'package:rainbow_garden/screens/game_page.dart';
 import 'package:rainbow_garden/screens/word_sprint_page.dart';
 import 'package:rainbow_garden/widgets/decoding_visuals.dart';
+import 'package:rainbow_garden/widgets/activity_illustration.dart';
 import 'package:rainbow_garden/widgets/number_visuals.dart';
 import 'package:rainbow_garden/widgets/selection_card.dart';
 import 'package:rainbow_garden/widgets/visual_question.dart';
@@ -350,7 +351,12 @@ void main() {
         hasLength(1),
       );
       for (final card in cards.skip(5)) {
-        expect(card.illustration, isNull);
+        expect(
+          card.illustration,
+          card.title == 'Same number'
+              ? isA<SameNumberIllustration>()
+              : isA<NumberPartsIllustration>(),
+        );
         expect(card.trailingAction, isNull);
       }
       await tester.pumpWidget(const SizedBox());
@@ -568,7 +574,11 @@ void main() {
       'Read as many words as you can',
     ]);
     for (final card in cards.skip(1)) {
-      expect(card.illustration, isNull);
+      expect(card.illustration, switch (card.title) {
+        'Read and find' => isA<ReadAndFindIllustration>(),
+        'Make-believe words' => isA<MakeBelieveIllustration>(),
+        _ => isA<WordSprintIllustration>(),
+      });
       expect(card.trailingAction, isNull);
     }
     await tapVisible(tester, find.text('Word Sprint'));

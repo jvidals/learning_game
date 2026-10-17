@@ -13,7 +13,7 @@ APK/emulator validation updated September 19, 2026; USB setup reviewed September
 | USB permissions | `jvidals` already belongs to `plugdev` |
 | Android USB rules | `/usr/lib/udev/rules.d/51-android.rules` exists and grants matching devices access through `plugdev` and `uaccess` |
 | Connected devices | No device installation during 0.20.2; prior 0.20.0 disposable-emulator results are historical |
-| APK | `/home/jvidals/Documents/ScriptWork/learning_game/artifacts/learning-corner.apk` (version 0.21.1+46, about 671 MB) |
+| APK | `/home/jvidals/Documents/ScriptWork/learning_game/artifacts/learning-corner.apk` (version 0.22.0+47, about 671 MB) |
 | App package | `com.rainbowgarden.rainbow_garden` |
 
 Emulator testing uses the disposable `LearningCornerTest` AVD on `emulator-5570`, never your own `Medium_Phone_API_36.1`; see [the runbook](docs/DEVELOPMENT_ENVIRONMENT.md#disposable-test-emulator-learningcornertest-current-2026-10-17).
