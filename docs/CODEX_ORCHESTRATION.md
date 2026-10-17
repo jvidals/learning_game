@@ -46,11 +46,20 @@ Keep these with the lead Claude session:
 - anything that needs the user's confirmation
 - final review and the final full test and analysis run
 - version and checksum updates
-- `tools/build_apk.sh`, `tools/install_apk.sh`, adb, emulators and devices
+- `tools/build_apk.sh`, physical devices, and starting/stopping emulators
 - audio generation and anything touching gcloud
 - the handoff and validation notes
 
-Workers must never run these.
+Workers must never run these. **Exception — emulator UI testing (approved
+2026-10-17):** the lead boots and verifies the disposable `LearningCornerTest`
+AVD as `emulator-5570` (see the runbook's "Disposable test emulator" section),
+then a worker may drive it with the adb client, always with `-s emulator-5570`:
+`install -r` of the project APK, `shell input`, `screencap`, `uiautomator dump`,
+`am`, `dumpsys`, `logcat` and `pull`. Workers must re-check
+`adb -s emulator-5570 emu avd name` prints `LearningCornerTest` before acting,
+and must never touch another serial or the user's `Medium_Phone_API_36.1`,
+`emu kill`, uninstall, `pm clear`, wipe data, or re-enable network. Keep
+`CODEX_NETWORK=1` so the sandboxed client can reach the lead's adb server.
 
 ## Workflow
 

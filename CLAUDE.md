@@ -20,7 +20,9 @@ implementation tasks to Codex **GPT-6.1-Sol** workers to save cost. Follow
   `-after` snapshot and `git diff`. Codex keeps `.git` read-only, so Git stays
   with the lead session. Give parallel workers disjoint files, and keep
   planning, final review and validation, APK build/install, devices,
-  gcloud/audio generation and the handoff notes with the lead session.
+  gcloud/audio generation and the handoff notes with the lead session. A worker may drive
+  the lead-booted `LearningCornerTest` emulator (`emulator-5570`) with the adb client; see
+  the orchestration guide's emulator exception.
 - Review every worker's actual diff and rerun the checks yourself before
   reporting. When reporting, say which tasks Codex did.
 - Claude sub-agents must not start Codex workers unless their brief says so.

@@ -720,39 +720,53 @@ gcloud auth login "$LC_GCLOUD_ACCOUNT" --no-activate
 
 Continue independent app work while authentication is unresolved. TTS was enabled in the personal project and billing was available during prior generation; do not infer that credentials will remain valid indefinitely. Existing bundled recordings are sufficient for normal development and builds.
 
-## Isolated emulator used for prior verification
+## Disposable test emulator: LearningCornerTest (current, 2026-10-17)
 
-The user's existing `Medium_Phone_API_36.1` AVD encountered snapshot/renderer/profile locking issues. Leave it alone. A separate test AVD was created under `/tmp/rainbow-avd`:
+Use this AVD for all emulator testing. **Never use, wipe or modify the user's own `Medium_Phone_API_36.1`** (in `~/.android/avd/`). Earlier disposable AVDs under `/tmp` (`RainbowGarden`, `LearningGardenWriting`) no longer exist; their results are historical.
 
-- AVD name: `RainbowGarden`; config directory: `/tmp/rainbow-avd/RainbowGarden.avd`.
-- System image: `/home/jvidals/Android/Sdk/system-images/android-36.1/google_apis_playstore/x86_64/`.
-- Configuration: x86_64, two cores, 2048 MB RAM, 1080×1920, 420 dpi, host GPU, no SD card, 6 GiB data partition.
-- It was stopped after the latest test. The 0.3.0 baseline was six flowers and range 0–20. The 0.4.0 session migrated that state, then used synthetic adventure fixtures; see the current handoff before relying on any baseline.
+| Item | Value |
+| --- | --- |
+| AVD | `LearningCornerTest`, in `ANDROID_AVD_HOME=$HOME/Android/avd-learning-corner` (kept out of the default AVD list, so Android Studio and `emulator -list-avds` without that variable show only the user's AVD) |
+| Image | `system-images/android-36.1/google_apis_playstore/x86_64/` (Android 16, the only installed image) |
+| Hardware | 4 cores, 4096 MB, 1080×2400 at 420 dpi, 6 GiB data, no camera/mic/SD card, cold boot |
+| Port / serial | `-port 5570` → **`emulator-5570`** (the user's emulator defaults to 5554) |
+| Tools | `~/Android/Sdk/emulator/emulator`, `~/Android/Sdk/platform-tools/adb` (not on PATH). `avdmanager`/cmdline-tools are **not installed**; the AVD was written by hand (below) |
+| KVM | `/dev/kvm` grants the user via ACL; boot completes in about 20 s |
 
-If those temporary files still exist, launch the isolated AVD in a managed terminal session:
-
-```bash
-ANDROID_AVD_HOME=/tmp/rainbow-avd \
-  "$HOME/Android/Sdk/emulator/emulator" -avd RainbowGarden \
-  -no-window -no-audio -no-snapshot -gpu host \
-  > /tmp/rainbow-emulator-fresh.log 2>&1
-```
-
-If they are gone, create a new isolated AVD when device testing is needed; do not depend on `/tmp` as a durable test fixture. Check `adb devices -l` and `getprop sys.boot_completed` before testing. Prior runs used `emulator-5554`, but verify the serial each time. After verifying that serial belongs to the disposable emulator:
+Boot headless (lead session only; run in the background):
 
 ```bash
-"$ADB_BIN" -s emulator-5554 shell cmd connectivity airplane-mode enable
-"$ADB_BIN" -s emulator-5554 shell svc wifi disable
-"$ADB_BIN" -s emulator-5554 shell svc data disable
-./tools/install_apk.sh emulator-5554
-
-# Stop only the isolated emulator after testing.
-"$ADB_BIN" -s emulator-5554 emu kill
+ANDROID_AVD_HOME=$HOME/Android/avd-learning-corner \
+  ~/Android/Sdk/emulator/emulator -avd LearningCornerTest -port 5570 \
+  -no-window -no-audio -no-snapshot -no-boot-anim -gpu swiftshader_indirect \
+  > /tmp/learning-corner-emulator.log 2>&1
 ```
 
-The headless emulator was muted. Playback completion and wave inspection do not replace listening on the Pixel.
+Verify identity and boot, then make it offline (the app must work without network):
 
-Temporary smoke scripts and logs may still exist under `/tmp/rainbow-*`. They are troubleshooting evidence, not maintained tests. In particular, `/tmp/rainbow-030-smoke.py` assumes a five-to-six-flower baseline and is not idempotent; older scripts assume the former home layout. Use the repository's tests and [manual checklist](testing.md) instead of rerunning these scripts blindly.
+```bash
+adb=~/Android/Sdk/platform-tools/adb; s=emulator-5570
+$adb -s $s wait-for-device
+until [ "$($adb -s $s shell getprop sys.boot_completed | tr -d '\r')" = 1 ]; do sleep 5; done
+$adb -s $s emu avd name            # must print LearningCornerTest
+$adb -s $s shell cmd connectivity airplane-mode enable
+$adb -s $s shell svc wifi disable; $adb -s $s shell svc data disable
+$adb -s $s shell settings put system screen_off_timeout 2147483647
+ADB_BIN=$adb tools/install_apk.sh $s   # install -r preserves app data
+```
+
+Stop it only with `$adb -s emulator-5570 emu kill` after re-checking `emu avd name`. Its app data persists between boots (cold boot, no snapshot), so it doubles as an upgrade fixture; record the fixture state you leave behind in the handoff.
+
+**Codex workers and the emulator.** Codex's `workspace-write` sandbox cannot write `$HOME`, so a worker cannot start the emulator or an adb server. The lead boots and verifies the emulator (which also starts the adb server on `tcp:5037`); the worker then runs the adb *client* against `-s emulator-5570`. This requires sandbox network access (`CODEX_NETWORK=1`, the wrapper default): without it the client tries to start its own daemon and fails with `cannot connect to daemon`. Verified 2026-10-17 inside the sandbox: `shell getprop`, `exec-out screencap -p > /tmp/x.png`, `uiautomator dump` + `pull`. Quick check without spending tokens:
+
+```bash
+codex sandbox -c 'sandbox_mode="workspace-write"' -c sandbox_workspace_write.network_access=true \
+  -- ~/Android/Sdk/platform-tools/adb -s emulator-5570 shell getprop ro.build.version.release
+```
+
+To recreate the AVD (if the folder is lost), write `$HOME/Android/avd-learning-corner/LearningCornerTest.ini` (`avd.ini.encoding=UTF-8`, `path=$HOME/Android/avd-learning-corner/LearningCornerTest.avd`, `path.rel=LearningCornerTest.avd`, `target=android-36.1`) and `LearningCornerTest.avd/config.ini` with: `AvdId=LearningCornerTest`, `abi.type=x86_64`, `hw.cpu.arch=x86_64`, `hw.cpu.ncore=4`, `hw.ramSize=4096`, `disk.dataPartition.size=6G`, `hw.lcd.width=1080`, `hw.lcd.height=2400`, `hw.lcd.density=420`, `hw.keyboard=yes`, `hw.gpu.enabled=yes`, `hw.audioInput=no`, `hw.camera.back=none`, `hw.camera.front=none`, `hw.sdCard=no`, `fastboot.forceColdBoot=yes`, `PlayStore.enabled=true`, `tag.id=google_apis_playstore`, `target=android-36.1`, `image.sysdir.1=system-images/android-36.1/google_apis_playstore/x86_64/`.
+
+The headless emulator is muted: playback completion and the absence of the app's "Sound could not play" message are the only audio evidence; listening still needs the phone.
 
 ## Companion adventure validation (0.4.0)
 
