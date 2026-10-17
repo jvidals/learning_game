@@ -1,5 +1,13 @@
 # Testing Learning Corner
 
+## 0.21.0 — reading, number-sense and cursive games (2026-10-17)
+
+**920 Flutter tests passed** (760 at 0.20.2), including foundation seams, builders over hundreds of seeds, widget flows, cancellation, persistence/migration, 360×640 at 200% text and both palettes. Full `flutter analyze` completed without the file-watcher fallback: **0 errors/warnings, the same 62 informational notices**. `dart format` reports no changes for lib/test. **All Python tool tests passed**, including new generator and APK-verifier cases; `generate_audio.py --verify` confirms **325** recordings. **336 rendered review scenarios / 336 PNGs** (320×640, 393×852, 740×360, 800×1100; Light/Dark; 100%/200% text, reduced motion at 200%) passed with no exceptions or overflows; the lead inspected representative captures, and review-driven fixes (Word Sprint mode picker, landscape grid, centered words; cursive pad above the fold and open bowls; compact Same number row, reading-order hints, dice patterns, simplified Make 10, larger shapes/ten-frame dots) were re-captured and re-inspected. Some dark 200% captures intermittently omit static paint in the harness; layout assertions pass.
+
+APK **0.21.0+45**, **670,896,188 bytes**, SHA-256 `0d7e5f445800e7c7ae97c9684669f34fdfd20ab3c5c8dff42fd95e4651d1f65c`. The audit verified the original signing certificate, package/label/entrypoint, API 24–36, not debuggable, and no INTERNET/network/RECORD_AUDIO/VIBRATE permission. All **1,852** previous content/shader files are byte-identical; the two audio manifests were updated and exactly **140** files were added (104 `cvc_*`/`nonsense_*` recordings, 34 word pictures plus manifest and license). [APK](../artifacts/learning-corner.apk) · [Evidence](../artifacts/new-games-0210/README.md) · [Gallery](screenshots/0210/README.md).
+
+Not performed: device/emulator install, physical touch, listening review of new recordings, TalkBack exploration.
+
 ## Workspace cleanup — 2026-10-03
 
 Removed obsolete artwork/models/APKs, all raw animation caches and generated

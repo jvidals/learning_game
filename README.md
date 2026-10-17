@@ -13,16 +13,22 @@ The main screen is **Home**, greeting the active player with **Hi, [profile name
 
 ## Play
 
-The game includes five categories. **Letters** opens Uppercase letters, Lowercase letters, Letter friends, Alphabet Order, and Letter Sounds. **Numbers** opens Number hunt, Number Order, 2048, How many?, and Make a group. **Words** opens Sight Words. **Writing** opens Handwriting. **Reflex** opens Tap Challenge. Game Back returns to its category; **Back to home** in the reward sheet returns directly home.
+The game includes five categories. **Letters** opens Uppercase letters, Lowercase letters, Letter friends, Alphabet Order, and Letter Sounds. **Numbers** opens Number hunt, Number Order, 2048, How many?, Make a group, Same number and Number parts. **Words** opens Sight Words, Read and find, Make-believe words and Word Sprint. **Writing** opens Handwriting and Cursive play. **Reflex** opens Tap Challenge. Game Back returns to its category; **Back to home** in the reward sheet returns directly home.
 
 - **Uppercase letters:** hear a letter and find its uppercase form.
 - **Lowercase letters:** hear a letter and find its lowercase form.
 - **Letter friends:** match uppercase and lowercase in both directions. The upper-right speaker toggles voice for this visit, including Next round. It starts from the Home’s sound setting each time you open the game. Muting stops speech; turning it on is silent. Silent play still asks you to find the match; **Show a hint** reveals the answer.
-- **Number hunt:** recognize shuffled numbers, starting at **0–10**. A grown-up can choose any inclusive range within **0–100**.
+- **Number hunt:** recognize shuffled numbers, starting at **0–10**. A grown-up can choose any inclusive range within **0–100**. One wrong choice is a look-alike when the range allows (12/21, 6/9, 13/30).
 - **Letter Sounds:** hear only a sound and select its lowercase letter. Parents choose among 24 basic letter spellings; short vowels and common consonants are included. c and k share /k/ and cannot compete as answers. Show a hint reveals a letter, reference picture and word. q, x and multi-letter spellings are deferred.
 - **How many?:** count still objects and select their numeral. Tap objects to mark/unmark them while counting. There is no running total or narration; Show a hint numbers the objects and reveals the answer.
 - **Make a group:** match the displayed numeral/object picture by adding objects to an open tray, tap placed objects to remove them, then Check. Zero accepts an empty tray. Hints show an example without filling the tray. Each counting game has an independent parent-selected range within 0–20 (default 0–10); both have five questions, saved 50 XP rewards and fixed Next/Check controls.
 - **Sight Words:** hear “Find the word” followed by a word and choose it from three cards. Pack 1 starts enabled; parents can independently enable three bundled packs totaling 43 words. Both targets and distractors come from enabled packs.
+- **Read and find:** read a printed word (no voice) and tap its picture. **Show a hint** opens **Sound it out**: each letter lights up with its sound, then the whole word plays; tap a letter to hear just that sound.
+- **Make-believe words:** read a pretend word, tap the three sound cards to hear options, select one and Check. The hint plays only the separate sounds.
+- **Word Sprint:** read each word aloud and tap it (tap again to undo); hold a word to sound it out. Real, Make-believe or Mix words; the saved 1-minute timer can be switched off. Completed timed runs keep a personal best; there is no XP.
+- **Same number:** complete a Numeral | Ten frame | Picture row by choosing the missing one. Silent.
+- **Number parts:** find the missing part of a whole, ending with Make 10 on a ten frame. Silent.
+- **Cursive play:** optional practice-only lowercase cursive: pick a family and letter, Watch the dot, Trace, then Write. No XP; nothing saved.
 - **Alphabet Order:** arrange all 26 letters across rows, then down. The live **A/a** button changes every letter without changing the puzzle and remembers its case across replay, visits and restarts.
 - **Number Order:** arrange every value in the saved inclusive range, smallest first. Both ordering games use floating square cards: hold and drag or tap two cards to swap. Correct cards sparkle, turn green with a check, and lock. A full board earns **50 XP**. Boards fit the screen when possible; large ranges and constrained accessible layouts scroll, including near-edge scrolling during drags. Leaving an unfinished board starts fresh next time.
 
@@ -40,7 +46,7 @@ Each recognition round has five targets (unique when the range contains at least
 
 Each player has a saved personal best. A completed final score above that best earns **50 XP**, including the first positive score. Ties and lower scores earn none. The high score and XP save together; failures can be retried without duplicate rewards. There is no untimed mode. Target roles and scoring are independent of artwork, allowing a future companion to provide its own icon set.
 
-Current distributable: **Learning Corner 0.19.2+41**, **662 MB**. Home now greets the active player by saved name. Profile changes update the silent greeting after saving; app identity, artwork and game flow remain unchanged. [Greeting gallery](docs/screenshots/0192/README.md) · [Validation](docs/testing.md) · [APK audit](artifacts/home-greeting-0192/apk-verification.json).
+Current distributable: **Learning Corner 0.21.0+45**, **671 MB**. Adds Read and find, Make-believe words, Word Sprint, Same number, Number parts and Cursive play. [Gallery](docs/screenshots/0210/README.md) · [Validation](docs/testing.md) · [APK audit](artifacts/new-games-0210/apk-verification.json).
 
 The previous **0.17.0+34** release: Adventure, board moves, saved-play restrictions and its exclusive assets have been removed. Existing XP, unicorn rewards, profiles/settings, Writing and 2048 carry forward; retired destination scores do not transfer to Tap Challenge. [Screenshots](docs/screenshots/0170/README.md) · [Validation](docs/testing.md).
 
@@ -146,6 +152,14 @@ Historical screenshots: [home](docs/screenshots/home.png), [letter activity](doc
 | `lib/widgets/companion_choices.dart` | Shared shaded portraits, item pictures, cards and category tabs |
 | `lib/screens/tap_challenge_page.dart` | Timed play, record rewards and lifecycle handling |
 | `lib/handwriting.dart` | Authored vector alphabet and offline geometric handwriting matching |
+| `lib/word_bank.dart` | Curated CVC real/make-believe words, pictures and phoneme clip mapping |
+| `lib/decoding.dart`, `lib/widgets/decoding_visuals.dart` | Read and find / Make-believe builders and visuals |
+| `lib/widgets/sound_it_out.dart` | Shared explicit blending hint |
+| `lib/word_sprint.dart`, `lib/screens/word_sprint_page.dart` | Word Sprint session, timer, hint sheet and personal best |
+| `lib/number_sense.dart`, `lib/widgets/number_visuals.dart` | Same number / Number parts builders, ten frames and dot patterns |
+| `lib/widgets/visual_question.dart` | `QuestionVisual` context and dispatcher used by GamePage |
+| `lib/cursive.dart`, `lib/screens/cursive_page.dart`, `lib/widgets/cursive_pad.dart` | Original cursive stroke paths, families, pad and practice page |
+| `tools/render_word_pictures.py` | Authoring-only renderer for `assets/words/` |
 | `lib/writing.dart` | Saved shuffled alphabet and paired-form completion rules |
 | `lib/screens/writing_page.dart` | Handwriting, letter picker, saved rewards and lifecycle |
 | `lib/widgets/writing_pad.dart` | Bounded finger/stylus ink, practice rules and direction guides |
