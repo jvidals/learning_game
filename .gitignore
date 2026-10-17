@@ -74,3 +74,6 @@ __pycache__/
 /art/foal/review/
 *.blend1
 *.blend2
+
+# Phone camera photos (Pixel PXL_*) dropped into the workspace for reference.
+PXL_*
