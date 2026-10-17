@@ -116,6 +116,53 @@ Future<void> finishMinute(WidgetTester tester) async {
 Finder word(int index) => find.byKey(ValueKey('sprint-word-$index'));
 
 void main() {
+  for (final mode in [WordSprintMode.makeBelieve, WordSprintMode.realWords]) {
+    testWidgets('${mode.name} hint plays the appropriate offline clips', (
+      tester,
+    ) async {
+      final d = SprintDevice();
+      await mount(tester, d);
+      final option = find.byKey(ValueKey('sprint-mode-${mode.name}'));
+      await tester.ensureVisible(option);
+      await tester.tap(option);
+      await tester.pump();
+      await tap(tester, 'Start');
+      if (mode == WordSprintMode.makeBelieve) {
+        await tester.scrollUntilVisible(
+          find.text('lix'),
+          150,
+          scrollable: find.descendant(
+            of: find.byType(CustomScrollView),
+            matching: find.byType(Scrollable),
+          ),
+        );
+        await tester.longPress(find.text('lix'));
+      } else {
+        await tester.longPress(word(0));
+      }
+      await tester.pumpAndSettle();
+      final hint = tester.widget<SoundItOut>(find.byType(SoundItOut));
+      expect(hint.word.real, mode == WordSprintMode.realWords);
+      expect(d.clips, isEmpty);
+      await tester.tap(
+        find.descendant(
+          of: find.byType(SoundItOut),
+          matching: find.text('Sound it out'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(d.clips, [
+        ...hint.word.letterSounds.expand((sounds) => sounds),
+        if (hint.word.real) hint.word.clip,
+      ]);
+      expect(d.clips.where((clip) => clip.startsWith('nonsense_')), isEmpty);
+      if (hint.word.real) {
+        expect(d.clips.last, 'cvc_${hint.word.spelling}');
+      }
+      await tester.pumpWidget(const SizedBox());
+    });
+  }
+
   testWidgets('timer preference saves immediately and Start waits for saving', (
     tester,
   ) async {

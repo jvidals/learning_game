@@ -241,6 +241,7 @@ class _WordSprintPageState extends State<WordSprintPage>
                 const SizedBox(height: 16),
                 SoundItOut(
                   word: word,
+                  includeWholeWord: word.real,
                   playSequence: _playSequence,
                   soundOn: _controller.soundOn,
                   enabled: _foreground && !_paused,

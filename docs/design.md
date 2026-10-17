@@ -1,5 +1,9 @@
 # Learning Corner design decisions
 
+## Word Sprint: Activity 2 words, 50-word runs (0.22.2)
+
+The parent brought home a second school sheet ("Activity 2", 50 nonsense CVC cells). Word Sprint runs are now **50 words** (matching the sheets; the timer stays 1 minute) and the make-believe pool (Make-believe and Mix modes) adds **22 of its words**, randomly mixed with the 24 existing targets: fod hif wum lif nen pem vab nuv yez pob bem yuc sut tef jub rez juf bik nem lix wob vup. Left out on purpose: qif (no q sound), real or word-like words (hum, mob, rep, tum, sis, pom, def, sen, sid, vic, bap, hep, dod, reg, tog, gib, sez, lin, kev), most x words, and zod (already present). These words have no whole-word recordings and live in `sprintOnlyPretendWords`, separate from the Make-believe game's recorded items. Word Sprint's Sound it out hint now plays the whole word only for real words; pretend words play letter sounds only, as in Make-believe words.
+
 ## Consistency pass (0.22.1)
 
 Parent feedback on 0.22.0: Number parts' 'Try again' popped up over the answers; card heights differed; the Same number icon's hand-drawn 3 didn't match. Standing preferences are recorded in AGENTS.md ("UI consistency for new work").

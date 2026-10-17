@@ -108,6 +108,33 @@ const makeBelieveItems = <MakeBelieveItem>[
   MakeBelieveItem('tes', ['tos', 'tep']),
 ];
 
+/// Word Sprint only: from the school's Activity 2 sheet.
+/// These words have NO whole-word recordings.
+const sprintOnlyPretendWords = <DecodableWord>[
+  DecodableWord('fod'),
+  DecodableWord('hif'),
+  DecodableWord('wum'),
+  DecodableWord('lif'),
+  DecodableWord('nen'),
+  DecodableWord('pem'),
+  DecodableWord('vab'),
+  DecodableWord('nuv'),
+  DecodableWord('yez'),
+  DecodableWord('pob'),
+  DecodableWord('bem'),
+  DecodableWord('yuc'),
+  DecodableWord('sut'),
+  DecodableWord('tef'),
+  DecodableWord('jub'),
+  DecodableWord('rez'),
+  DecodableWord('juf'),
+  DecodableWord('bik'),
+  DecodableWord('nem'),
+  DecodableWord('lix'),
+  DecodableWord('wob'),
+  DecodableWord('vup'),
+];
+
 /// Every make-believe spelling that needs a recording (targets and foils).
 final List<DecodableWord> makeBelieveWords = List.unmodifiable(
   {

@@ -11,17 +11,23 @@ enum WordSprintMode {
   final String label;
 }
 
+const wordSprintSessionLength = 50;
+
 /// Reading is self-reported. This session owns marks, never time or rewards.
 class WordSprintSession {
   WordSprintSession({this.mode = WordSprintMode.mix, Random? random}) {
     final rng = random ?? Random();
+    final pretendPool = <String, DecodableWord>{
+      for (final item in makeBelieveItems)
+        item.target: makeBelieveWord(item.target),
+      for (final word in sprintOnlyPretendWords) word.spelling: word,
+    };
     final pool = <DecodableWord>[
       if (mode != WordSprintMode.makeBelieve) ...realWords,
-      if (mode != WordSprintMode.realWords)
-        for (final item in makeBelieveItems) makeBelieveWord(item.target),
+      if (mode != WordSprintMode.realWords) ...pretendPool.values,
     ];
     final generated = <DecodableWord>[];
-    while (generated.length < 60) {
+    while (generated.length < wordSprintSessionLength) {
       final cycle = [...pool]..shuffle(rng);
       if (generated.isNotEmpty &&
           generated.last.spelling == cycle.first.spelling) {
@@ -30,7 +36,7 @@ class WordSprintSession {
         cycle[0] = cycle[other];
         cycle[other] = first;
       }
-      generated.addAll(cycle.take(60 - generated.length));
+      generated.addAll(cycle.take(wordSprintSessionLength - generated.length));
     }
     words = List.unmodifiable(generated);
   }
