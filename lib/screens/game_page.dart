@@ -677,16 +677,46 @@ class _GamePageState extends State<GamePage>
           builder: (context, _) => _build(context),
         );
 
+  Widget _scrollBottomBar({
+    required bool visual,
+    required bool empty,
+    required Widget child,
+  }) {
+    final padding = empty
+        ? EdgeInsets.zero
+        : const EdgeInsets.fromLTRB(20, 8, 20, 12);
+    if (visual && !_round.finished) {
+      return ListView(shrinkWrap: true, padding: padding, children: [child]);
+    }
+    return SingleChildScrollView(padding: padding, child: child);
+  }
+
   Widget _build(BuildContext context) {
     final question = _round.question;
     final showTarget = _hint;
     final visual = question.visual;
     final checkVisual = visual?.selectThenCheck ?? false;
+    final hasFeedback = _round.answered || _retry;
+    final emptyVisualBar = visual != null && !checkVisual && !hasFeedback;
     final choicesEnabled =
         !_round.answered &&
         !_writeBlocked &&
         (visual == null || (_foreground && _visible && !_rewardsOpen));
     final heading = numberGameHeading(context, widget.activity);
+    final feedback = Semantics(
+      liveRegion: true,
+      child: visual != null && !hasFeedback
+          ? const SizedBox.shrink()
+          : Text(
+              _round.answered
+                  ? 'You found it! ✨'
+                  : _retry
+                  ? 'Try again'
+                  : '',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
+    );
     return Scaffold(
       appBar: AppBar(
         title: heading != null
@@ -745,15 +775,16 @@ class _GamePageState extends State<GamePage>
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      bottomNavigationBar: _round.finished || _countingGame || checkVisual
+      bottomNavigationBar: _round.finished || _countingGame || visual != null
           ? SafeArea(
               top: false,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: MediaQuery.sizeOf(context).height * .55,
                 ),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                child: _scrollBottomBar(
+                  visual: visual != null,
+                  empty: emptyVisualBar,
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 680),
@@ -763,6 +794,9 @@ class _GamePageState extends State<GamePage>
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
+                                if (visual != null) feedback,
+                                if (visual != null && hasFeedback)
+                                  const SizedBox(height: 8),
                                 if (checkVisual && !_round.answered)
                                   FilledButton.icon(
                                     key: const ValueKey('check-visual'),
@@ -1079,22 +1113,13 @@ class _GamePageState extends State<GamePage>
                 );
               },
             ),
-          const SizedBox(height: 20),
-          Semantics(
-            liveRegion: true,
-            child: Text(
-              _round.answered
-                  ? 'You found it! ✨'
-                  : _retry
-                  ? 'Try again'
-                  : '',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-            ),
-          ),
-          const SizedBox(height: 20),
+          if (visual == null) ...[
+            const SizedBox(height: 20),
+            feedback,
+            const SizedBox(height: 20),
+          ],
           if (!_countingGame &&
-              !checkVisual &&
+              visual == null &&
               _round.answered &&
               !_round.finished &&
               _manualNext)
