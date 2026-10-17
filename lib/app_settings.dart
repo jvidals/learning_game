@@ -107,12 +107,14 @@ class AppSettings {
     this.haptics = true,
     this.orderingLowercase = false,
     this.soundOn = true,
+    this.wordSprintTimer = true,
     this.appearance = AppAppearance.system,
     this.enabledSightWordPacks = SightWordPacks.defaults,
   });
   final NumberGameRanges numberGameRanges;
   final SoundSelection enabledLetterSounds;
   final bool tapNext, haptics, orderingLowercase, soundOn;
+  final bool wordSprintTimer;
   final AppAppearance appearance;
   final SightWordPacks enabledSightWordPacks;
 
@@ -123,6 +125,7 @@ class AppSettings {
     bool? haptics,
     bool? orderingLowercase,
     bool? soundOn,
+    bool? wordSprintTimer,
     AppAppearance? appearance,
     SightWordPacks? enabledSightWordPacks,
   }) => AppSettings(
@@ -132,11 +135,14 @@ class AppSettings {
     haptics: haptics ?? this.haptics,
     orderingLowercase: orderingLowercase ?? this.orderingLowercase,
     soundOn: soundOn ?? this.soundOn,
+    wordSprintTimer: wordSprintTimer ?? this.wordSprintTimer,
     appearance: appearance ?? this.appearance,
     enabledSightWordPacks: enabledSightWordPacks ?? this.enabledSightWordPacks,
   );
   AppSettings withOrderingCase(bool lowercase) =>
       copyWith(orderingLowercase: lowercase);
+  AppSettings withWordSprintTimer(bool enabled) =>
+      copyWith(wordSprintTimer: enabled);
   AppSettings withSound(bool enabled) => copyWith(soundOn: enabled);
   AppSettings withNumberRange(Activity activity, NumberRange range) =>
       copyWith(numberGameRanges: numberGameRanges.withRange(activity, range));
@@ -148,6 +154,7 @@ class AppSettings {
     'haptics': haptics,
     'orderingLowercase': orderingLowercase,
     'soundOn': soundOn,
+    'wordSprintTimer': wordSprintTimer,
     'appearance': appearance.name,
     'enabledSightWordPacks': enabledSightWordPacks.toList(),
   };
@@ -178,6 +185,7 @@ class AppSettings {
       haptics: map?['haptics'] != false,
       orderingLowercase: map?['orderingLowercase'] == true,
       soundOn: map?['soundOn'] != false,
+      wordSprintTimer: map?['wordSprintTimer'] != false,
       appearance: map != null && map.containsKey('appearance')
           ? AppAppearance.fromValue(map['appearance'])
           : AppAppearance.system,

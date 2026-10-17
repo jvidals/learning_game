@@ -3,6 +3,8 @@ import 'number_range.dart';
 import 'sight_words.dart';
 import 'letter_sounds.dart';
 import 'counting.dart';
+import 'decoding.dart';
+import 'number_sense.dart';
 
 enum GameCategory { letters, numbers, words, writing, reflex }
 
@@ -47,14 +49,28 @@ enum Activity {
   letterSounds,
   howMany,
   makeGroup,
+  readAndFind,
+  makeBelieve,
+  wordSprint,
+  sameNumber,
+  numberParts,
+  cursive,
 }
 
 extension ActivityContent on Activity {
+  bool get isVisualChoice =>
+      this == Activity.readAndFind ||
+      this == Activity.makeBelieve ||
+      this == Activity.sameNumber ||
+      this == Activity.numberParts;
   bool get isCounting => this == Activity.howMany || this == Activity.makeGroup;
   bool get hasSpokenTarget => isRecognition && !isCounting;
   bool get isOrdering =>
       this == Activity.alphabetOrder || this == Activity.numberOrder;
   bool get isRecognition =>
+      !isVisualChoice &&
+      this != Activity.wordSprint &&
+      this != Activity.cursive &&
       !isOrdering &&
       this != Activity.game2048 &&
       this != Activity.handwriting &&
@@ -76,14 +92,25 @@ extension ActivityContent on Activity {
     Activity.letterSounds => 5,
     Activity.howMany => 1,
     Activity.makeGroup => 2,
+    Activity.readAndFind => 0,
+    Activity.makeBelieve => 4,
+    Activity.wordSprint => 2,
+    Activity.sameNumber => 1,
+    Activity.numberParts => 3,
+    Activity.cursive => 5,
   };
   GameCategory get category => this == Activity.tapChallenge
       ? GameCategory.reflex
-      : this == Activity.handwriting
+      : this == Activity.handwriting || this == Activity.cursive
       ? GameCategory.writing
-      : this == Activity.sightWords
+      : this == Activity.sightWords ||
+            this == Activity.readAndFind ||
+            this == Activity.makeBelieve ||
+            this == Activity.wordSprint
       ? GameCategory.words
       : isCounting ||
+            this == Activity.sameNumber ||
+            this == Activity.numberParts ||
             this == Activity.numbers ||
             this == Activity.numberOrder ||
             this == Activity.game2048
@@ -103,6 +130,12 @@ extension ActivityContent on Activity {
     Activity.letterSounds => 'Letter Sounds',
     Activity.howMany => 'How many?',
     Activity.makeGroup => 'Make a group',
+    Activity.readAndFind => 'Read and find',
+    Activity.makeBelieve => 'Make-believe words',
+    Activity.wordSprint => 'Word Sprint',
+    Activity.sameNumber => 'Same number',
+    Activity.numberParts => 'Number parts',
+    Activity.cursive => 'Cursive play',
   };
   String get example => switch (this) {
     Activity.uppercase => 'ABC',
@@ -118,6 +151,12 @@ extension ActivityContent on Activity {
     Activity.letterSounds => 'm',
     Activity.howMany => '123',
     Activity.makeGroup => '5',
+    Activity.readAndFind => 'cat',
+    Activity.makeBelieve => 'pib',
+    Activity.wordSprint => 'pos',
+    Activity.sameNumber => '5',
+    Activity.numberParts => '2+3',
+    Activity.cursive => 'ce',
   };
   String get subtitle => switch (this) {
     Activity.uppercase => 'Find uppercase letters',
@@ -133,7 +172,31 @@ extension ActivityContent on Activity {
     Activity.letterSounds => 'Match a sound to its letter',
     Activity.howMany => 'Count the objects',
     Activity.makeGroup => 'Build a matching collection',
+    Activity.readAndFind => 'Read the word, find its picture',
+    Activity.makeBelieve => 'Read a pretend word, pick its sound',
+    Activity.wordSprint => 'Read as many words as you can',
+    Activity.sameNumber => 'Match numbers, ten frames and pictures',
+    Activity.numberParts => 'Find the missing part',
+    Activity.cursive => 'Trace and write cursive letters',
   };
+}
+
+/// Optional per-question payload for activities with custom visuals.
+abstract class QuestionVisual {
+  const QuestionVisual();
+
+  /// Choices are selected first (optionally playing [choiceClip]) and
+  /// submitted with a Check button instead of answering on tap.
+  bool get selectThenCheck => false;
+
+  /// Bundled clip played when a choice is selected, if any.
+  String? choiceClip(String choice) => null;
+
+  /// Accessible label for a choice card.
+  String choiceLabel(String choice) => choice;
+
+  /// Stack choice cards full width instead of three per row.
+  bool get fullWidthChoices => false;
 }
 
 class Question {
@@ -144,6 +207,7 @@ class Question {
     required this.instruction,
     this.partner,
     this.counting,
+    this.visual,
   });
   final String answer;
   final List<String> choices;
@@ -151,6 +215,7 @@ class Question {
   final String instruction;
   final String? partner;
   final CountingScene? counting;
+  final QuestionVisual? visual;
 }
 
 enum AnswerResult { correct, retry, ignored }
@@ -166,10 +231,24 @@ class GameRound {
     int countingMax = 10,
     NumberRange? countingRange,
   }) {
-    if (!activity.isRecognition && !activity.isCounting) {
+    if (!activity.isRecognition &&
+        !activity.isCounting &&
+        !activity.isVisualChoice) {
       throw ArgumentError('Use the activity’s own game engine');
     }
     final rng = random ?? Random();
+    if (activity.isVisualChoice) {
+      final repeatedSlots = [0, 1, 2]..shuffle(rng);
+      final answerSlots = [0, 1, 2, ...repeatedSlots.take(2)]..shuffle(rng);
+      questions = List.unmodifiable(switch (activity) {
+        Activity.readAndFind => buildReadAndFindQuestions(rng, answerSlots),
+        Activity.makeBelieve => buildMakeBelieveQuestions(rng, answerSlots),
+        Activity.sameNumber => buildSameNumberQuestions(rng, answerSlots),
+        Activity.numberParts => buildNumberPartsQuestions(rng, answerSlots),
+        _ => throw StateError('Unknown visual activity'),
+      });
+      return;
+    }
     final quantities = countingRange ?? NumberRange(0, countingMax);
     if (activity.isCounting && quantities.max > NumberRange.countingMaximum) {
       throw ArgumentError('Counting supports at most 20 objects.');
@@ -213,6 +292,45 @@ class GameRound {
                 )
                 .toList()
               ..shuffle(rng);
+        if (activity == Activity.numbers) {
+          final number = int.parse(target);
+          // The shuffled order chooses uniformly within the first available
+          // category. Draw the second choice independently from the remainder.
+          final categories = <List<int>>[
+            if (target.length == 2 &&
+                !target.contains('0') &&
+                target[0] != target[1])
+              [int.parse('${target[1]}${target[0]}')],
+            [
+              for (var digit = 0; digit < target.length; digit++)
+                if (target[digit] == '6' || target[digit] == '9')
+                  int.parse(
+                    target.replaceRange(
+                      digit,
+                      digit + 1,
+                      target[digit] == '6' ? '9' : '6',
+                    ),
+                  ),
+            ],
+            [
+              if (number >= 13 && number <= 19) (number - 10) * 10,
+              if (number >= 30 && number <= 90 && number % 10 == 0)
+                10 + number ~/ 10,
+            ],
+            [number - 10, number + 10],
+            [number - 1, number + 1],
+          ];
+          for (final category in categories) {
+            final preferred = distractors.indexWhere(
+              (value) => category.contains(int.parse(value)),
+            );
+            if (preferred == -1) continue;
+            distractors.insert(0, distractors.removeAt(preferred));
+            final second = 1 + rng.nextInt(distractors.length - 1);
+            distractors.insert(1, distractors.removeAt(second));
+            break;
+          }
+        }
         final distinctSounds = <String>{};
         final eligible = activity == Activity.letterSounds
             ? distractors.where(

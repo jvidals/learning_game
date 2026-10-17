@@ -48,10 +48,11 @@ def verify(apk_path, baseline=None, allow_profiling=False):
         files = set(apk.namelist())
         expected_content = {PREFIX+'assets/audio/'+name+'.wav' for name in audio}
         expected_content.update(PREFIX+'assets/companion/foal_3d/'+name for name in required | {'manifest.json'})
-        pictures = json.loads((ROOT / 'assets/phonics/manifest.json').read_text())
-        expected_content.update(PREFIX+'assets/phonics/'+name for name in set(pictures['checksums']) | {'manifest.json'})
-        for name, checksum in pictures['checksums'].items():
-            assert digest(apk.read(PREFIX+'assets/phonics/'+name)) == checksum, name
+        for folder in ('phonics', 'words'):
+            pictures = json.loads((ROOT / f'assets/{folder}/manifest.json').read_text())
+            expected_content.update(PREFIX+f'assets/{folder}/'+name for name in set(pictures['checksums']) | {'manifest.json'})
+            for name, checksum in pictures['checksums'].items():
+                assert digest(apk.read(PREFIX+f'assets/{folder}/'+name)) == checksum, name
         actual_content = {name for name in files if name.startswith(PREFIX+'assets/')}
         assert actual_content == expected_content, 'Unexpected or missing bundled content: ' + str(sorted(actual_content ^ expected_content))
         for name, metadata in audio.items():

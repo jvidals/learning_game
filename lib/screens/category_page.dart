@@ -95,14 +95,19 @@ class _CategoryPageState extends State<CategoryPage> {
                                 'Change ${activity.title} range, ${widget.controller.effectiveSettings.numberGameRanges.forActivity(activity).label}',
                           )
                         : null,
-                    subtitle: activity == Activity.letterSounds
-                        ? activity.subtitle
-                        : activity == Activity.tapChallenge ||
-                              activity == Activity.game2048 ||
-                              activity == Activity.handwriting
-                        ? activity.subtitle
-                        : activity.category == GameCategory.numbers
+                    subtitle:
+                        activity.category == GameCategory.numbers &&
+                            activity != Activity.game2048
                         ? ''
+                        : activity == Activity.readAndFind ||
+                              activity == Activity.makeBelieve ||
+                              activity == Activity.wordSprint ||
+                              activity == Activity.letterSounds ||
+                              activity == Activity.tapChallenge ||
+                              activity == Activity.game2048 ||
+                              activity == Activity.handwriting ||
+                              activity == Activity.cursive
+                        ? activity.subtitle
                         : activity == Activity.matching
                         ? 'Match the letter friends'
                         : '',

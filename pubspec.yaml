@@ -1,7 +1,7 @@
 name: rainbow_garden
 description: Offline learning games and companions for little learners.
 publish_to: none
-version: 0.20.2+44
+version: 0.21.0+45
 environment:
   sdk: ^3.10.7
 dependencies:
@@ -16,6 +16,7 @@ flutter:
   assets:
     - assets/audio/
     - assets/phonics/
+    - assets/words/
     - assets/companion/foal_3d/
   shaders:
     - shaders/companion_hair.frag

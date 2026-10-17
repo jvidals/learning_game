@@ -17,6 +17,8 @@ class ProgressController extends ChangeNotifier {
   final DeviceServices services;
   final Random _game2048Random;
   Game2048Move? last2048Move;
+  // Controller-local idempotency is scoped to stable players; best alone is persisted.
+  final _wordSprintResults = <String, Map<String, WordSprintResult>>{};
   PlayerProgress? progress;
   AppSettings settings = const AppSettings();
   AppSettings? _queuedSettings;
@@ -100,6 +102,11 @@ class ProgressController extends ChangeNotifier {
   Future<void> setSound(bool enabled) async {
     _requireReady();
     await updateSettings((current) => current.withSound(enabled));
+  }
+
+  Future<void> setWordSprintTimer(bool enabled) async {
+    _requireReady();
+    await updateSettings((current) => current.withWordSprintTimer(enabled));
   }
 
   /// Settings edits are immediate; only one immutable document is written at a time.
@@ -250,6 +257,9 @@ class ProgressController extends ChangeNotifier {
         _accept(pending.store, savedProgress: pending.progress);
         last2048Move = pending.gameMove;
         _pending = null;
+        if (pending.key == 'reset') {
+          _wordSprintResults.remove(pending.profileId);
+        }
         if (pending.key.startsWith('choose:') ||
             pending.key.startsWith('equip:')) {
           unawaited(
@@ -339,6 +349,32 @@ class ProgressController extends ChangeNotifier {
           .copyWith(tapChallengeHighScore: score, lastRewardedRound: key),
     );
     return TapChallengeResult(score, progress!.tapChallengeHighScore, 50);
+  }
+
+  Future<WordSprintResult> recordWordSprint(String id, int words) async {
+    if (id.isEmpty || words < 0) throw ArgumentError('Invalid sprint result');
+    final key = 'sprint:$id';
+    final playerId = _store?.activeId;
+    if (_pending?.key == key) {
+      await retry();
+      return _wordSprintResults[playerId]![id]!;
+    }
+    _requireReady();
+    final results = _wordSprintResults.putIfAbsent(playerId!, () => {});
+    final previous = results[id];
+    if (previous != null) return previous;
+    final p = progress!;
+    final newBest = words > p.wordSprintBest;
+    final result = WordSprintResult(
+      words,
+      newBest ? words : p.wordSprintBest,
+      newBest,
+    );
+    results[id] = result;
+    if (newBest) {
+      await _commit(key, p.copyWith(wordSprintBest: words));
+    }
+    return result;
   }
 
   Future<void> saveSettings(AppSettings value) => updateSettings((_) => value);
@@ -482,4 +518,10 @@ class _Write {
 class TapChallengeResult {
   const TapChallengeResult(this.score, this.highScore, this.xpAwarded);
   final int score, highScore, xpAwarded;
+}
+
+class WordSprintResult {
+  const WordSprintResult(this.words, this.best, this.newBest);
+  final int words, best;
+  final bool newBest;
 }

@@ -217,6 +217,7 @@ class PlayerProgress {
   PlayerProgress({
     this.xp = 0,
     this.tapChallengeHighScore = 0,
+    this.wordSprintBest = 0,
     int? earnedRewardChoices,
     Set<String> owned = const {},
     CompanionConfiguration? companion,
@@ -229,6 +230,7 @@ class PlayerProgress {
        owned = Set.unmodifiable(owned),
        companion = companion ?? CompanionConfiguration();
   final int xp, tapChallengeHighScore, earnedRewardChoices;
+  final int wordSprintBest;
   final Set<String> owned;
   final CompanionConfiguration companion;
   final String? lastRewardedRound;
@@ -258,6 +260,7 @@ class PlayerProgress {
   PlayerProgress copyWith({
     int? xp,
     int? tapChallengeHighScore,
+    int? wordSprintBest,
     int? earnedRewardChoices,
     Set<String>? owned,
     CompanionConfiguration? companion,
@@ -267,6 +270,7 @@ class PlayerProgress {
   }) => PlayerProgress(
     xp: xp ?? this.xp,
     tapChallengeHighScore: tapChallengeHighScore ?? this.tapChallengeHighScore,
+    wordSprintBest: wordSprintBest ?? this.wordSprintBest,
     earnedRewardChoices: earnedRewardChoices ?? this.earnedRewardChoices,
     owned: owned ?? this.owned,
     companion: companion ?? this.companion,
@@ -279,6 +283,7 @@ class PlayerProgress {
     'earnedRewardChoices': earnedRewardChoices,
     'xp': xp,
     'tapChallengeHighScore': tapChallengeHighScore,
+    'wordSprintBest': wordSprintBest,
     'owned': owned.toList(),
     'equipped': companion.equipped.map((k, v) => MapEntry(k.name, v)),
     'lastRewardedRound': lastRewardedRound,
@@ -292,6 +297,9 @@ class PlayerProgress {
       if (version != 1 && version != 2 && version != 3)
         throw const FormatException();
       final xp = m['xp'] as int;
+      final sprintBest = m.containsKey('wordSprintBest')
+          ? m['wordSprintBest'] as int
+          : 0;
       final highScore = version == 3 ? m['tapChallengeHighScore'] as int : 0;
       if (version != 3) _validateLegacyAdventure(m, xp);
       final earned = version == 1
@@ -318,6 +326,7 @@ class PlayerProgress {
       if (xp < 0 ||
           xp % 10 != 0 ||
           highScore < 0 ||
+          sprintBest < 0 ||
           (highScore > 0 && xp < 50) ||
           owned.length != rawOwned.length ||
           earned < 0 ||
@@ -337,6 +346,7 @@ class PlayerProgress {
       return PlayerProgress(
         xp: xp,
         tapChallengeHighScore: highScore,
+        wordSprintBest: sprintBest,
         earnedRewardChoices: earned,
         owned: owned,
         companion: CompanionConfiguration(equipped),

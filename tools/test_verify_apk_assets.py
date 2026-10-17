@@ -48,8 +48,9 @@ class CompanionApkInventoryTests(unittest.TestCase):
             root=Path(temp);foal=root/'assets/companion/foal_3d'
             foal.mkdir(parents=True)
             (root/'assets/audio_manifest.json').write_text('{}')
-            (root/'assets/phonics').mkdir()
-            (root/'assets/phonics/manifest.json').write_text('{"checksums": {}}')
+            for folder in ('phonics', 'words'):
+                (root/'assets'/folder).mkdir()
+                (root/'assets'/folder/'manifest.json').write_text('{"checksums": {}}')
             names=('items.png','none-none-poster.webp','none-none-happy-000.webp')
             manifest={'outfits':{'none-none':{'happy':{'segments':[{'asset':names[2]}]}}},
                       'checksums':{name:hashlib.sha256(b'fixture').hexdigest() for name in names}}
@@ -60,6 +61,7 @@ class CompanionApkInventoryTests(unittest.TestCase):
                     prefix=PREFIX+'assets/companion/foal_3d/'
                     archive.writestr(prefix+'manifest.json',raw)
                     archive.writestr(PREFIX+'assets/phonics/manifest.json',b'{"checksums": {}}')
+                    archive.writestr(PREFIX+'assets/words/manifest.json',b'{"checksums": {}}')
                     for name in names:archive.writestr(prefix+name,b'fixture')
                     archive.writestr(PREFIX+'shaders/companion_hair.frag',b'shader')
                     if extra:archive.writestr(PREFIX+'assets/old-unicorn/preview.png',b'old')
@@ -74,8 +76,9 @@ class CompanionApkInventoryTests(unittest.TestCase):
             root=Path(temp);foal=root/'assets/companion/foal_3d'
             foal.mkdir(parents=True)
             (root/'assets/audio_manifest.json').write_text('{}')
-            (root/'assets/phonics').mkdir()
-            (root/'assets/phonics/manifest.json').write_text('{"checksums": {}}')
+            for folder in ('phonics', 'words'):
+                (root/'assets'/folder).mkdir()
+                (root/'assets'/folder/'manifest.json').write_text('{"checksums": {}}')
             names=('items.png','none-none-poster.webp')
             manifest={'outfits':{'none-none':{}},'checksums':{name:hashlib.sha256(b'fixture').hexdigest() for name in names}}
             raw=json.dumps(manifest).encode();(foal/'manifest.json').write_bytes(raw)
@@ -85,6 +88,7 @@ class CompanionApkInventoryTests(unittest.TestCase):
                     prefix=PREFIX+'assets/companion/foal_3d/'
                     archive.writestr(prefix+'manifest.json',raw)
                     archive.writestr(PREFIX+'assets/phonics/manifest.json',b'{"checksums": {}}')
+                    archive.writestr(PREFIX+'assets/words/manifest.json',b'{"checksums": {}}')
                     for name in names:archive.writestr(prefix+name,b'fixture')
                     archive.writestr(PREFIX+'shaders/companion_hair.frag',b'shader')
                     archive.writestr('lib/arm64-v8a/libapp.so',b'FOAL_TIMING' if instrumented else b'normal')

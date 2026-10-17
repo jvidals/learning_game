@@ -64,6 +64,11 @@ class GeneratorTests(unittest.TestCase):
             elif clip.startswith('sound_'):
                 self.assertNotIn('ssml', source)
                 self.assertIn(f'/{generator.PHONEMES[clip[6:]]}/', source['prompt'])
+            elif clip.startswith('cvc_'):
+                self.assertEqual(source, {'text': phrase + '.'})
+            elif clip.startswith('nonsense_'):
+                self.assertEqual(source['text'], phrase)
+                self.assertIn(f'/{generator.ipa_for(phrase)}/', source['prompt'])
             else:
                 self.assertEqual(source, {'text': phrase})
         self.assertEqual(changed, 153)
@@ -140,6 +145,32 @@ class GeneratorTests(unittest.TestCase):
                     generator.main()
                 auth.assert_not_called()
                 network.assert_not_called()
+
+    def test_reading_game_words_are_isolated_and_nonsense_is_phonics_directed(self):
+        real = generator.request_for('cvc_six', 'six')
+        self.assertEqual(real['input'], {'text': 'six.'})
+        self.assertEqual(real['voice'], generator.VOICE)
+        fake = generator.request_for('nonsense_koz', 'koz')
+        self.assertEqual(fake['input']['text'], 'koz')
+        self.assertIn('/kɑz/', fake['input']['prompt'])
+        self.assertIn('as in dog', fake['input']['prompt'])
+        self.assertEqual(fake['voice']['modelName'], 'gemini-2.5-pro-tts')
+        self.assertEqual(generator.ipa_for('fox'), 'fɑks')
+        self.assertEqual(generator.ipa_for('cat'), 'kæt')
+        self.assertTrue(generator.is_isolated_word('nonsense_pib'))
+        self.assertFalse(generator.is_isolated_word('word_the'))
+
+    def test_bundled_reading_words_match_the_word_bank(self):
+        import re
+        root = Path(generator.__file__).resolve().parents[1]
+        bank = (root / 'lib/word_bank.dart').read_text()
+        phrases = json.loads((root / 'assets/audio_phrases.json').read_text())
+        real = re.findall(r"DecodableWord\('([a-z]{3})', picture:", bank)
+        fake = {w for item in re.findall(
+            r"MakeBelieveItem\('([a-z]{3})', \['([a-z]{3})', '([a-z]{3})'\]\)", bank) for w in item}
+        self.assertEqual({k for k in phrases if k.startswith('cvc_')}, {f'cvc_{w}' for w in real})
+        self.assertEqual({k for k in phrases if k.startswith('nonsense_')}, {f'nonsense_{w}' for w in fake})
+        self.assertFalse(set(real) & fake)
 
 
 if __name__ == '__main__':

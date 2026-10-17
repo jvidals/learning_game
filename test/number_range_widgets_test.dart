@@ -276,9 +276,9 @@ void main() {
           await tapVisible(tester, find.text('Numbers'));
           void checkUniformCards() {
             final cards = find.byType(SelectionCard);
-            expect(cards, findsNWidgets(5));
+            expect(cards, findsNWidgets(7));
             final heights = [
-              for (var i = 0; i < 5; i++) tester.getSize(cards.at(i)).height,
+              for (var i = 0; i < 7; i++) tester.getSize(cards.at(i)).height,
             ];
             expect(heights.toSet(), hasLength(1));
             if (name == 'phone' &&

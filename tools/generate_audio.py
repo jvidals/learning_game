@@ -49,6 +49,36 @@ PHONEME_CUES = dict(zip(PHONEMES, [
 PHONEME_VOICE = {'languageCode': 'en-US', 'name': 'Puck',
                  'modelName': 'gemini-2.5-flash-tts'}
 PHONEME_AUDIO = {'audioEncoding': 'LINEAR16', 'sampleRateHertz': 24000}
+# Whole CVC words for the reading games (no carrier phrase, no target pause).
+WORD_PROCESSING = 'isolated-word-v1'
+SHORT_VOWEL_WORDS = {'a': 'cat', 'e': 'bed', 'i': 'pig', 'o': 'dog', 'u': 'sun'}
+
+
+def ipa_for(spelling):
+    """Decodable short-vowel spelling to IPA: c is /k/, x is /ks/."""
+    return ''.join('ks' if letter == 'x' else PHONEMES['k' if letter == 'c' else letter]
+                   for letter in spelling)
+
+
+def nonsense_request(spelling):
+    # Plain TTS turns made-up words into nearby real words or letter names.
+    # Direct the phonics model with IPA and the short-vowel reference word.
+    vowel = spelling[1]
+    prompt = (
+        'You are a skilled American English phonics teacher recording one made-up '
+        'word for a kindergarten decoding exercise. Say the word exactly once, as a '
+        f'single smooth syllable, clearly and at a calm natural pace: /{ipa_for(spelling)}/. '
+        f'The vowel is the short {vowel} sound as in {SHORT_VOWEL_WORDS[vowel]}. '
+        'It is a pretend word, not a real word: do not change it into a similar '
+        'real word, do not spell it, do not say letter names, and do not speak any '
+        'other words or instructions. No "uh" after the final consonant.')
+    return {'input': {'prompt': prompt, 'text': spelling},
+            'voice': dict(PHONEME_VOICE, modelName='gemini-2.5-pro-tts'),
+            'audioConfig': PHONEME_AUDIO}
+
+
+def is_isolated_word(clip):
+    return re.fullmatch(r'(cvc|nonsense)_[a-z]{3}', clip) is not None
 
 
 def phoneme_request(sound):
@@ -84,6 +114,10 @@ def request_for(clip, phrase):
     word = re.fullmatch(r'word_([a-z]+)', clip)
     if clip.startswith('sound_'):
         return phoneme_request(clip.removeprefix('sound_'))
+    elif clip.startswith('nonsense_'):
+        return nonsense_request(clip.removeprefix('nonsense_'))
+    elif clip.startswith('cvc_'):
+        source = {'text': f"{clip.removeprefix('cvc_')}."}
     elif word:
         target = 'I' if word[1] == 'i' else word[1]
         prefix, suffix = phrase.rsplit(target, 1)
@@ -255,19 +289,20 @@ def main():
         entry = manifest.get(clip, {})
         is_target = clip.startswith(('upper_', 'lower_', 'number_', 'word_'))
         processed = (entry.get('processing') == ('phonics-directed-l-v3' if clip == 'sound_l' else 'phonics-directed-v2') if clip.startswith('sound_')
+                     else entry.get('processing') == WORD_PROCESSING if is_isolated_word(clip)
                      else not is_target or entry.get('processing') == 'target-pause-v2')
         if target.exists() and entry.get('request_sha256') == request_hash and processed:
             data = target.read_bytes()
             if digest(data) == entry.get('audio_sha256'):
-                if clip.startswith('sound_'):
+                if clip.startswith('sound_') or is_isolated_word(clip):
                     valid_phoneme(data)
                 else:
                     valid_wav(data)
                 continue
         pending.append((clip, request, request_hash))
-    phonics_count = sum(clip.startswith('sound_') for clip, _, _ in pending)
+    phonics_count = sum(clip.startswith(('sound_', 'nonsense_')) for clip, _, _ in pending)
     characters = sum(len(next(iter(req['input'].values()))) for clip, req, _ in pending
-                     if not clip.startswith('sound_'))
+                     if not clip.startswith(('sound_', 'nonsense_')))
     print(f'{len(selected) - len(pending)} verified; {len(pending)} to generate. '
           f'Chirp: up to {characters} input characters; '
           f'${characters * 30 / 1_000_000:.4f} at $30/million before allowances/retries. '
@@ -302,6 +337,9 @@ def main():
                     if clip == 'sound_l':
                         data = shorten_sustained_l(data)
                     valid_phoneme(data)
+                elif is_isolated_word(clip):
+                    data = normalize_phoneme(data)
+                    valid_phoneme(data)
                 valid_wav(data)
                 if clip.startswith(('upper_', 'lower_', 'number_', 'word_')):
                     data = normalize_target_pause(data)
@@ -318,6 +356,10 @@ def main():
         if clip.startswith('sound_'):
             manifest[clip]['processing'] = ('phonics-directed-l-v3' if clip == 'sound_l' else 'phonics-directed-v2')
             manifest[clip]['model'] = payload['voice']['modelName']
+        if is_isolated_word(clip):
+            manifest[clip]['processing'] = WORD_PROCESSING
+            if 'modelName' in payload['voice']:
+                manifest[clip]['model'] = payload['voice']['modelName']
         if clip.startswith(('upper_', 'lower_', 'number_', 'word_')):
             manifest[clip]['processing'] = 'target-pause-v2'
         atomic_write(MANIFEST, (json.dumps(manifest, indent=2, sort_keys=True) + '\n').encode())

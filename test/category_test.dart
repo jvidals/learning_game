@@ -23,6 +23,8 @@ void main() {
       Activity.game2048,
       Activity.howMany,
       Activity.makeGroup,
+      Activity.sameNumber,
+      Activity.numberParts,
     ]);
     expect(
       GameCategory.values.expand((c) => c.activities).toSet(),

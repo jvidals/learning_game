@@ -112,7 +112,7 @@ void main() {
       final phrases =
           jsonDecode(File('assets/audio_phrases.json').readAsStringSync())
               as Map<String, dynamic>;
-      expect(phrases.length, 221);
+      expect(phrases.length, 325);
       expect(
         files.map((file) => file.uri.pathSegments.last).toSet(),
         phrases.keys.map((key) => '$key.wav').toSet(),

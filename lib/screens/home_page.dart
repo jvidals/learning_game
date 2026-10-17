@@ -15,6 +15,8 @@ import '../widgets/tap_challenge_art.dart';
 import 'companion_page.dart';
 import 'category_page.dart';
 import 'game_page.dart';
+import 'word_sprint_page.dart';
+import 'cursive_page.dart';
 import 'ordering_page.dart';
 import 'game_2048_page.dart';
 import 'writing_page.dart';
@@ -87,8 +89,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       MaterialPageRoute<void>(
         builder: (_) => activity == Activity.tapChallenge
             ? TapChallengePage(controller: _controller)
+            : activity == Activity.wordSprint
+            ? WordSprintPage(controller: _controller, services: widget.services)
             : activity == Activity.handwriting
             ? WritingPage(controller: _controller)
+            : activity == Activity.cursive
+            ? CursivePage(controller: _controller)
             : activity == Activity.game2048
             ? Game2048Page(controller: _controller)
             : activity.isOrdering

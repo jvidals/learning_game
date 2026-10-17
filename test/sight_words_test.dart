@@ -28,7 +28,12 @@ void main() {
     final all = SightWordPacks(SightWordPack.values).words;
     expect(all.length, 43);
     expect(all.toSet().length, 43);
-    expect(GameCategory.words.activities, [Activity.sightWords]);
+    expect(GameCategory.words.activities, [
+      Activity.sightWords,
+      Activity.readAndFind,
+      Activity.makeBelieve,
+      Activity.wordSprint,
+    ]);
     expect(Activity.sightWords.isRecognition, isTrue);
   });
 

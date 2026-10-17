@@ -13,6 +13,7 @@ import '../sight_words.dart';
 import '../letter_sounds.dart';
 import '../counting.dart';
 import '../widgets/counting_board.dart';
+import '../widgets/visual_question.dart';
 import '../widgets/number_range_editor.dart';
 import '../garden_art.dart';
 import '../widgets/page_body.dart';
@@ -83,6 +84,10 @@ class _GamePageState extends State<GamePage>
   bool get _rangePaused => _rangeEditorOpen || _rangeChangePending;
   bool get _countingGame => widget.activity.isCounting;
   bool get _makeGroup => widget.activity == Activity.makeGroup;
+  bool get _silentNumbers =>
+      widget.activity == Activity.sameNumber ||
+      widget.activity == Activity.numberParts;
+  String? _selected;
   bool _hint = false;
   bool _audioFailed = false;
   // Matching keeps a local override; identification uses the shared saved choice.
@@ -90,6 +95,7 @@ class _GamePageState extends State<GamePage>
   bool get _matching => widget.activity == Activity.matching;
   bool get _sound =>
       !_countingGame &&
+      !_silentNumbers &&
       (_matching ? _voiceOn : widget.controller?.soundOn ?? _voiceOn);
   bool get _writeBlocked =>
       (widget.controller?.blocked.value ?? false) || _rangePaused;
@@ -115,7 +121,10 @@ class _GamePageState extends State<GamePage>
 
   void _scheduleEntryPrompt() {
     if (!_entryPromptPending || _entryFrameQueued) return;
-    if (!_sound || _round.answered || _rewardsOpen) {
+    if (!_sound ||
+        _round.question.audio.isEmpty ||
+        _round.answered ||
+        _rewardsOpen) {
       _cancelEntryPrompt();
       return;
     }
@@ -303,7 +312,12 @@ class _GamePageState extends State<GamePage>
 
   Future<void> _playPrompt() async {
     _cancelEntryPrompt();
-    if (!_sound || !_foreground || !_visible || _rewardsOpen || _rangePaused)
+    if (_round.question.audio.isEmpty ||
+        !_sound ||
+        !_foreground ||
+        !_visible ||
+        _rewardsOpen ||
+        _rangePaused)
       return;
     final request = ++_audioRequest;
     if (_audioFailed) setState(() => _audioFailed = false);
@@ -317,6 +331,79 @@ class _GamePageState extends State<GamePage>
           _visible) {
         setState(() => _audioFailed = true);
       }
+    }
+  }
+
+  /// A single request token covers all steps, including their callbacks.
+  Future<bool> _playSequence(
+    List<List<String>> steps, {
+    void Function(int step)? onStep,
+  }) async {
+    _cancelEntryPrompt();
+    final request = ++_audioRequest;
+    bool active() =>
+        mounted &&
+        request == _audioRequest &&
+        _sound &&
+        _foreground &&
+        _visible &&
+        !_rewardsOpen &&
+        !_rangePaused &&
+        (ModalRoute.isCurrentOf(context) ?? true);
+    if (!active()) return false;
+    if (_audioFailed) setState(() => _audioFailed = false);
+    try {
+      // Replace earlier playback before starting this sequence. Check again after
+      // stop: navigation or another request may have happened while awaiting it.
+      await widget.services.stop();
+      for (var step = 0; step < steps.length; step++) {
+        if (!active()) return false;
+        onStep?.call(step);
+        for (final clip in steps[step]) {
+          if (!active()) return false;
+          await widget.services.play(clip);
+          if (!active()) return false;
+        }
+      }
+      return active();
+    } catch (_) {
+      if (active()) setState(() => _audioFailed = true);
+      return false;
+    }
+  }
+
+  VisualQuestionContext get _visualContext => VisualQuestionContext(
+    hint: _hint,
+    answered: _round.answered,
+    enabled:
+        !_round.answered &&
+        !_writeBlocked &&
+        _foreground &&
+        _visible &&
+        !_rewardsOpen,
+    soundOn: _sound,
+    selected: _selected,
+    playSequence: _playSequence,
+  );
+
+  void _tapChoice(String choice) {
+    final visual = _round.question.visual;
+    if (visual?.selectThenCheck != true) {
+      _choose(choice);
+      return;
+    }
+    if (!_visualContext.enabled || choice == _wrongChoice) return;
+    setState(() => _selected = choice);
+    final clip = visual!.choiceClip(choice);
+    if (_sound && clip != null) {
+      unawaited(
+        _playSequence([
+          [clip],
+        ]),
+      );
+    } else {
+      // Selecting a card without a clip still cancels an earlier preview.
+      unawaited(_stopSpeech());
     }
   }
 
@@ -362,6 +449,7 @@ class _GamePageState extends State<GamePage>
     if (result == AnswerResult.ignored) return;
     setState(() => _retry = result == AnswerResult.retry);
     if (_retry) {
+      _selected = null;
       _clearRetry();
       _wrongChoice = choice;
       if (!MediaQuery.disableAnimationsOf(context)) _retryFade.forward(from: 0);
@@ -443,6 +531,7 @@ class _GamePageState extends State<GamePage>
       setState(() {
         _counting = CountingWork(_countingGame ? _activeRange.max : 10);
         _hint = false;
+        _selected = null;
         _retry = false;
       });
       _playPrompt();
@@ -530,6 +619,7 @@ class _GamePageState extends State<GamePage>
       _petReaction = 0;
       _reward = null;
       _hint = false;
+      _selected = null;
       _retry = false;
       _saveFailed = false;
     });
@@ -590,6 +680,12 @@ class _GamePageState extends State<GamePage>
   Widget _build(BuildContext context) {
     final question = _round.question;
     final showTarget = _hint;
+    final visual = question.visual;
+    final checkVisual = visual?.selectThenCheck ?? false;
+    final choicesEnabled =
+        !_round.answered &&
+        !_writeBlocked &&
+        (visual == null || (_foreground && _visible && !_rewardsOpen));
     final heading = numberGameHeading(context, widget.activity);
     return Scaffold(
       appBar: AppBar(
@@ -607,7 +703,7 @@ class _GamePageState extends State<GamePage>
               count: widget.controller!.progress!.availableChoices,
               onPressed: _openRewards,
             ),
-          if (!_rewardsOpen && !_countingGame)
+          if (!_rewardsOpen && !_countingGame && !_silentNumbers)
             VoiceButton(
               on: _sound,
               onPressed: _writeBlocked ? null : _toggleVoice,
@@ -615,12 +711,20 @@ class _GamePageState extends State<GamePage>
                   ? null
                   : widget.activity == Activity.numbers
                   ? 'number'
-                  : widget.activity == Activity.sightWords
+                  : widget.activity == Activity.sightWords ||
+                        widget.activity == Activity.readAndFind ||
+                        widget.activity == Activity.makeBelieve
                   ? 'word'
                   : widget.activity == Activity.letterSounds
                   ? 'sound'
                   : 'letter',
-              needsVoice: !_matching && !_sound && !_hint && !_round.answered,
+              needsVoice:
+                  !_matching &&
+                  !_sound &&
+                  !_hint &&
+                  !_round.answered &&
+                  (!widget.activity.isVisualChoice ||
+                      widget.activity == Activity.makeBelieve),
               active: _foreground && _visible && !_writeBlocked,
             ),
           if (widget.controller != null &&
@@ -641,7 +745,7 @@ class _GamePageState extends State<GamePage>
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      bottomNavigationBar: _round.finished || _countingGame
+      bottomNavigationBar: _round.finished || _countingGame || checkVisual
           ? SafeArea(
               top: false,
               child: ConstrainedBox(
@@ -659,6 +763,17 @@ class _GamePageState extends State<GamePage>
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
+                                if (checkVisual && !_round.answered)
+                                  FilledButton.icon(
+                                    key: const ValueKey('check-visual'),
+                                    onPressed:
+                                        !_visualContext.enabled ||
+                                            _selected == null
+                                        ? null
+                                        : () => _choose(_selected!),
+                                    icon: const Icon(Icons.check_rounded),
+                                    label: const Text('Check'),
+                                  ),
                                 if (_makeGroup && !_round.answered)
                                   FilledButton.icon(
                                     key: const ValueKey('check-counting'),
@@ -728,7 +843,7 @@ class _GamePageState extends State<GamePage>
             ),
           ),
           GardenArt(
-            height: _countingGame ? 64 : 120,
+            height: _countingGame || _silentNumbers ? 64 : 120,
             configuration: widget.controller?.progress?.companion,
             reactionTrigger: _round.answered ? _petReaction : 0,
           ),
@@ -737,7 +852,8 @@ class _GamePageState extends State<GamePage>
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
           ),
-          if (question.partner != null)
+          if (visual != null) buildVisualPrompt(visual, _visualContext),
+          if (visual == null && question.partner != null)
             Text(
               question.partner!,
               textAlign: TextAlign.center,
@@ -749,7 +865,7 @@ class _GamePageState extends State<GamePage>
             spacing: 12,
             runSpacing: 8,
             children: [
-              if (_sound && !_rewardsOpen)
+              if (_sound && !_rewardsOpen && question.audio.isNotEmpty)
                 OutlinedButton.icon(
                   onPressed: _playPrompt,
                   icon: const Icon(Icons.volume_up_rounded),
@@ -763,7 +879,7 @@ class _GamePageState extends State<GamePage>
                 ),
             ],
           ),
-          if (showTarget && !_makeGroup)
+          if (showTarget && !_makeGroup && visual == null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: widget.activity == Activity.letterSounds
@@ -828,12 +944,12 @@ class _GamePageState extends State<GamePage>
           if (!_makeGroup)
             LayoutBuilder(
               builder: (context, constraints) {
-                final wordGame = widget.activity.category == GameCategory.words;
+                final wordGame = widget.activity == Activity.sightWords;
                 const wordStyle = TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.w600,
                 );
-                final width = wordGame
+                final width = wordGame || (visual?.fullWidthChoices ?? false)
                     ? constraints.maxWidth
                     : ((constraints.maxWidth - 24) / 3).clamp(80.0, 180.0);
                 return Wrap(
@@ -845,17 +961,22 @@ class _GamePageState extends State<GamePage>
                       SizedBox(
                         width: width,
                         child: Semantics(
-                          label: widget.activity == Activity.sightWords
+                          label: visual != null
+                              ? visual.choiceLabel(question.choices[i])
+                              : widget.activity == Activity.sightWords
                               ? 'Word ${question.choices[i]}'
                               : (widget.activity == Activity.numbers ||
                                     _countingGame)
                               ? 'Number ${question.choices[i]}'
                               : '${question.choices[i] == question.choices[i].toUpperCase() ? 'Uppercase' : 'Lowercase'} ${question.choices[i]}',
+                          selected: visual?.selectThenCheck == true
+                              ? _selected == question.choices[i]
+                              : null,
                           button: true,
-                          enabled: !_round.answered && !_writeBlocked,
-                          onTap: _round.answered || _writeBlocked
+                          enabled: choicesEnabled,
+                          onTap: !choicesEnabled
                               ? null
-                              : () => _choose(question.choices[i]),
+                              : () => _tapChoice(question.choices[i]),
                           child: SuccessCelebration(
                             animation: _celebration,
                             active:
@@ -873,9 +994,9 @@ class _GamePageState extends State<GamePage>
                                   key: ValueKey(
                                     'choice-${question.choices[i]}',
                                   ),
-                                  onPressed: _round.answered || _writeBlocked
+                                  onPressed: !choicesEnabled
                                       ? null
-                                      : () => _choose(question.choices[i]),
+                                      : () => _tapChoice(question.choices[i]),
                                   style: FilledButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 18,
@@ -900,7 +1021,16 @@ class _GamePageState extends State<GamePage>
                                       context,
                                     ).foreground,
                                     shape: RoundedRectangleBorder(
-                                      side: GardenColors.of(context).isDark
+                                      side:
+                                          visual?.selectThenCheck == true &&
+                                              _selected == question.choices[i]
+                                          ? BorderSide(
+                                              color: GardenColors.of(
+                                                context,
+                                              ).accent(rainbow[i * 2]),
+                                              width: 4,
+                                            )
+                                          : GardenColors.of(context).isDark
                                           ? BorderSide(
                                               color:
                                                   _round.answered &&
@@ -917,7 +1047,13 @@ class _GamePageState extends State<GamePage>
                                       borderRadius: BorderRadius.circular(24),
                                     ),
                                   ),
-                                  child: wordGame
+                                  child: visual != null
+                                      ? buildVisualChoice(
+                                          visual,
+                                          question.choices[i],
+                                          _visualContext,
+                                        )
+                                      : wordGame
                                       ? Text(
                                           question.choices[i],
                                           style: wordStyle,
@@ -958,6 +1094,7 @@ class _GamePageState extends State<GamePage>
           ),
           const SizedBox(height: 20),
           if (!_countingGame &&
+              !checkVisual &&
               _round.answered &&
               !_round.finished &&
               _manualNext)
