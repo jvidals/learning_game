@@ -59,6 +59,9 @@ class _GamePageState extends State<GamePage>
   late final AnimationController _celebration;
   late final AnimationController _retryFade;
   String? _wrongChoice;
+  final _answerCardKey = GlobalKey();
+  final _visualChoicesKey = GlobalKey();
+  (Question, bool, RoundRewardResult?)? _visualLayout;
   Timer? _retryDuration, _retryCooldown;
 
   void _clearRetry({bool resetCooldown = false}) {
@@ -677,14 +680,40 @@ class _GamePageState extends State<GamePage>
           builder: (context, _) => _build(context),
         );
 
-  Widget _scrollBottomBar({
-    required bool visual,
-    required bool empty,
-    required Widget child,
-  }) {
-    final padding = empty
-        ? EdgeInsets.zero
-        : const EdgeInsets.fromLTRB(20, 8, 20, 12);
+  void _revealVisualContent(Question question) {
+    final layout = (question, _round.answered, _reward);
+    if (_visualLayout == layout) return;
+    _visualLayout = layout;
+    final answered = _round.answered;
+    // Preserve the established header/card sizes. When the fixed bar needs
+    // room, move just enough to keep the choices (or the revealed answer)
+    // above it. Tall accessibility layouts remain manually scrollable.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted ||
+          _round.question != question ||
+          _round.answered != answered ||
+          !_foreground ||
+          !_visible ||
+          _rewardsOpen) {
+        return;
+      }
+      final target =
+          (answered ? _answerCardKey : _visualChoicesKey).currentContext;
+      final box = target?.findRenderObject();
+      if (target == null || box is! RenderBox || !_scroll.hasClients) return;
+      if (!answered && box.size.height > _scroll.position.viewportDimension) {
+        return;
+      }
+      Scrollable.ensureVisible(
+        target,
+        alignment: 1,
+        alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+      );
+    });
+  }
+
+  Widget _scrollBottomBar({required bool visual, required Widget child}) {
+    const padding = EdgeInsets.fromLTRB(20, 8, 20, 12);
     if (visual && !_round.finished) {
       return ListView(shrinkWrap: true, padding: padding, children: [child]);
     }
@@ -696,8 +725,7 @@ class _GamePageState extends State<GamePage>
     final showTarget = _hint;
     final visual = question.visual;
     final checkVisual = visual?.selectThenCheck ?? false;
-    final hasFeedback = _round.answered || _retry;
-    final emptyVisualBar = visual != null && !checkVisual && !hasFeedback;
+    if (visual != null) _revealVisualContent(question);
     final choicesEnabled =
         !_round.answered &&
         !_writeBlocked &&
@@ -705,17 +733,15 @@ class _GamePageState extends State<GamePage>
     final heading = numberGameHeading(context, widget.activity);
     final feedback = Semantics(
       liveRegion: true,
-      child: visual != null && !hasFeedback
-          ? const SizedBox.shrink()
-          : Text(
-              _round.answered
-                  ? 'You found it! ✨'
-                  : _retry
-                  ? 'Try again'
-                  : '',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-            ),
+      child: Text(
+        _round.answered
+            ? 'You found it! ✨'
+            : _retry
+            ? 'Try again'
+            : '',
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+      ),
     );
     return Scaffold(
       appBar: AppBar(
@@ -784,7 +810,6 @@ class _GamePageState extends State<GamePage>
                 ),
                 child: _scrollBottomBar(
                   visual: visual != null,
-                  empty: emptyVisualBar,
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 680),
@@ -795,8 +820,7 @@ class _GamePageState extends State<GamePage>
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 if (visual != null) feedback,
-                                if (visual != null && hasFeedback)
-                                  const SizedBox(height: 8),
+                                if (visual != null) const SizedBox(height: 8),
                                 if (checkVisual && !_round.answered)
                                   FilledButton.icon(
                                     key: const ValueKey('check-visual'),
@@ -819,7 +843,30 @@ class _GamePageState extends State<GamePage>
                                     icon: const Icon(Icons.check_rounded),
                                     label: const Text('Check'),
                                   ),
-                                if (_round.answered && _manualNext)
+                                if (visual != null &&
+                                    (!checkVisual || _round.answered))
+                                  // Reserve the same action row as Check/Next,
+                                  // including when automatic advance is saved.
+                                  Visibility(
+                                    visible: _round.answered && _manualNext,
+                                    maintainState: true,
+                                    maintainAnimation: true,
+                                    maintainSize: true,
+                                    child: FilledButton.icon(
+                                      onPressed: _writeBlocked ? null : _next,
+                                      icon: const Icon(
+                                        Icons.arrow_forward_rounded,
+                                      ),
+                                      label: Text(
+                                        _round.answered && _manualNext
+                                            ? 'Next'
+                                            : '',
+                                      ),
+                                    ),
+                                  ),
+                                if (visual == null &&
+                                    _round.answered &&
+                                    _manualNext)
                                   FilledButton.icon(
                                     onPressed: _writeBlocked ? null : _next,
                                     icon: const Icon(
@@ -987,12 +1034,18 @@ class _GamePageState extends State<GamePage>
                     ? constraints.maxWidth
                     : ((constraints.maxWidth - 24) / 3).clamp(80.0, 180.0);
                 return Wrap(
+                  key: visual != null ? _visualChoicesKey : null,
                   alignment: WrapAlignment.center,
                   spacing: 12,
                   runSpacing: 12,
                   children: [
                     for (var i = 0; i < question.choices.length; i++)
                       SizedBox(
+                        key:
+                            visual != null &&
+                                question.choices[i] == question.answer
+                            ? _answerCardKey
+                            : null,
                         width: width,
                         child: Semantics(
                           label: visual != null
@@ -1057,6 +1110,7 @@ class _GamePageState extends State<GamePage>
                                     shape: RoundedRectangleBorder(
                                       side:
                                           visual?.selectThenCheck == true &&
+                                              !_round.answered &&
                                               _selected == question.choices[i]
                                           ? BorderSide(
                                               color: GardenColors.of(

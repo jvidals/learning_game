@@ -22,13 +22,19 @@ cleared; host tooling, signing keys, devices, emulators and source skills were
 untouched.
 
 
-Snapshot updated **2026-10-17**, after 0.22.0 (branch `feature/new-learning-games-0.21.0`, not merged).
+Snapshot updated **2026-10-17**, after 0.22.1 (branch `feature/new-learning-games-0.21.0`, not merged).
 Read [AGENTS.md](../AGENTS.md), [README](../README.md), [design](design.md),
 [testing](testing.md) and the [development runbook](DEVELOPMENT_ENVIRONMENT.md).
 This handoff is context, not authorization for another feature.
 
 
-## Current release: 0.22.0+47 — simpler Cursive play and new activity icons (2026-10-17)
+## Current release: 0.22.1+48 — consistency pass: retry layout, uniform cards, styling (2026-10-17)
+
+Parent feedback on 0.22.0: Number parts' 'Try again' popped over the answers; card heights differed; the Same number icon's 3 looked hand-drawn; new games should match old styling. Codex workers fixed the cards/icon (uniform `SelectionGrid` heights on every category page, typed 3) and the retry/styling pass (constant-height visual-game bottom bar with a reserved feedback line, standard RetryMarker/timing/haptics, answered-content reveal, typography/surfaces aligned with the closest original game — see [design](design.md#consistency-pass-0221)). The Codex emulator test then found Make-believe's third sound card under the bar on entry; the lead generalized the entry reveal to all four visual games and added entry-visibility tests at 411×914, 411×860 and 393×852 (6 failed without the fix, all pass with it). Preferences are recorded in AGENTS.md ("UI consistency for new work").
+
+**1,025 Flutter tests passed**; full analysis 0 errors/warnings (62 infos); format clean. APK **0.22.1+48**, **670,798,012 bytes**, SHA-256 `41590d71487bedd2b4aabdab598d028eff5b3c736183519ce1f0a391dd98795b`; same certificate, offline permissions; all 1,992 bundled files byte-identical, no added assets ([audit](../artifacts/new-games-0210/apk-verification-0221.json)). Native tests on LearningCornerTest (Codex worker): [first pass](../artifacts/icons-0220/native-0221/report.md) — uniform card/icon bounds on all five category pages, typed 3, retry leaves every choice card's bounds unchanged in all four games, Number hunt regression, Word Sprint (no XP), Cursive, persistence, no app errors; [retest of the rebuilt APK](../artifacts/icons-0220/native-0221b/report.md) — all three Make-believe cards and the printed word visible on all five entries, retry bounds stable in all four games, XP 800 → 1000. The entry reveal can scroll the progress stars just above the top (they remain reachable by scrolling). Final fixture: Player 1, 1000 XP / level 8, seven gifts, Word Sprint best 4; emulator stopped with data preserved.
+
+## Previous release: 0.22.0+47 — simpler Cursive play and new activity icons (2026-10-17)
 
 Parent phone feedback on 0.21.1: recordings sound good; Same number pictures are big enough (what to do was not immediately clear — revisit later); Cursive play felt complicated. Decisions are in [design](design.md#simpler-cursive-play-and-new-activity-icons-0220). Sound it out and Word Sprint are not yet phone-tested.
 

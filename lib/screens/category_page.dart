@@ -59,7 +59,7 @@ class _CategoryPageState extends State<CategoryPage> {
         builder: (context, saving, _) => PageBody(
           children: [
             SelectionGrid(
-              uniformHeight: widget.category == GameCategory.numbers,
+              uniformHeight: true,
               children: [
                 for (final activity in widget.category.activities)
                   SelectionCard(

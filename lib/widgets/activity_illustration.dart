@@ -265,6 +265,31 @@ Widget _activityIcon(BuildContext context, _ActivityIcon icon) =>
       child: CustomPaint(
         size: const Size(62, 54),
         painter: _ActivityIconPainter(GardenColors.of(context), icon),
+        child: icon == _ActivityIcon.sameNumber
+            ? SizedBox(
+                width: 62,
+                height: 54,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      left: 5,
+                      top: 1,
+                      child: Text(
+                        '3',
+                        textScaler: TextScaler.noScaling,
+                        style: TextStyle(
+                          color: GardenColors.of(context).foreground,
+                          fontFamily: 'Roboto',
+                          fontSize: 30,
+                          fontWeight: FontWeight.w800,
+                          height: 1,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : null,
       ),
     );
 
@@ -379,17 +404,6 @@ class _ActivityIconPainter extends CustomPainter {
           canvas.drawPath(path, ink);
         }
       case _ActivityIcon.sameNumber:
-        canvas.drawPath(
-          Path()
-            ..moveTo(6, 7)
-            ..cubicTo(19, 0, 26, 17, 13, 18)
-            ..cubicTo(29, 18, 23, 33, 7, 27),
-          Paint()
-            ..color = colors.foreground
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 3.8
-            ..strokeCap = StrokeCap.round,
-        );
         circle(const Offset(34, 17), 5.2, 4);
         shape(
           Path()

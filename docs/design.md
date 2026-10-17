@@ -1,5 +1,14 @@
 # Learning Corner design decisions
 
+## Consistency pass (0.22.1)
+
+Parent feedback on 0.22.0: Number parts' 'Try again' popped up over the answers; card heights differed; the Same number icon's hand-drawn 3 didn't match. Standing preferences are recorded in AGENTS.md ("UI consistency for new work").
+
+- **Retry matches the original games.** Visual games keep the fixed bottom bar from 0.21.1, but it now always reserves the feedback line, padding and action row, so its height stays the same before, during and after 'Try again'; choices never move or get covered. Wrong cards show the shared RetryMarker, 600 ms timing and haptics; after a correct answer the page scrolls just enough to keep the answer (and Number parts' equation) visible above the bar.
+- **Uniform cards:** every category page uses `SelectionGrid(uniformHeight: true)` (Words cards are all 109 dp at phone text; others 102 dp); Home was already uniform.
+- **Typed glyphs in icons:** Same number shows a typed 3.
+- **Styling aligned with the closest original game:** Read and find/Make-believe printed words use Sight Words' 40 px/w600; Same number/Number parts numerals 56 px/w600 like number choices; answered Make-believe cards use standard success borders; number panels use Counting's muted surface; Word Sprint tiles use rainbow cards, 24 px radius, 40 px/w600 words and standard success colors; Cursive's comparison letter and pad rules/ink match Handwriting. Kept on purpose: Make-believe sound labels (no spelling reveal), Sound it out tiles, Word Sprint grid/long-press help, cursive descender rule and thinner model strokes.
+
 ## Simpler Cursive play and new activity icons (0.22.0)
 
 Parent feedback after phone testing (2026-10-17): Cursive play felt complicated next to Handwriting's "dead simple" screen; Watch was the favorite part. The parent prefers toggles and menus in the upper right.

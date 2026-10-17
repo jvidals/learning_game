@@ -58,8 +58,34 @@ Future<GameRound> open(
   return round;
 }
 
+Future<void> answerChoice(
+  WidgetTester tester,
+  GameRound round,
+  String value,
+) async {
+  if (round.question.visual != null) {
+    await tester.ensureVisible(choice(value));
+    await tester.pump();
+  }
+  await tester.tap(choice(value));
+  await tester.pump();
+  if (round.question.visual?.selectThenCheck == true) {
+    final check = find.byKey(const ValueKey('check-visual'));
+    if (tester.widget<FilledButton>(check).onPressed != null) {
+      await tester.tap(check);
+      await tester.pump();
+    }
+  }
+}
+
 void main() {
-  for (final activity in ActivityContent.recognition) {
+  for (final activity in [
+    ...ActivityContent.recognition,
+    Activity.readAndFind,
+    Activity.makeBelieve,
+    Activity.sameNumber,
+    Activity.numberParts,
+  ]) {
     for (final manual in [true, false]) {
       testWidgets(
         '${activity.name}, manual=$manual: retry replaces, throttles, fades; correction stays immediate',
@@ -69,25 +95,46 @@ void main() {
           final wrong = round.question.choices
               .where((c) => c != round.question.answer)
               .toList();
+          Future<void> answer(String value) =>
+              answerChoice(tester, round, value);
+
+          if (round.question.visual != null) {
+            await tester.ensureVisible(choice(wrong[0]));
+            await tester.pump();
+          }
           final bounds = tester.getRect(choice(wrong[0]));
-          await tester.tap(choice(wrong[0]));
+          await answer(wrong[0]);
           await tester.pump();
           expect(marker, findsOneWidget);
           expect(tester.getRect(choice(wrong[0])), bounds);
+          if (round.question.visual?.selectThenCheck == true) {
+            expect(
+              tester
+                  .widget<FilledButton>(
+                    find.byKey(const ValueKey('check-visual')),
+                  )
+                  .onPressed,
+              isNull,
+            );
+          }
           expect(tester.getSize(marker), const Size(24, 24));
           expect(opacity(tester), 1);
           expect(find.text('Try again'), findsOneWidget);
           expect(
             d.clips,
-            activity.hasSpokenTarget ? [round.question.audio] : isEmpty,
+            activity == Activity.makeBelieve
+                ? [round.question.visual!.choiceClip(wrong[0])]
+                : activity.hasSpokenTarget
+                ? [round.question.audio]
+                : isEmpty,
           );
           expect(d.feedbacks, [DeviceFeedback.retry]);
           await tester.pump(const Duration(milliseconds: 150));
           expect(opacity(tester), 1);
-          await tester.tap(choice(wrong[0])); // Must not restart the fade.
+          await answer(wrong[0]); // Must not restart the fade.
           await tester.pump(const Duration(milliseconds: 225));
           expect(opacity(tester), closeTo(.5, .01));
-          await tester.tap(choice(wrong[1]));
+          await answer(wrong[1]);
           await tester.pump();
           expect(opacity(tester), 1);
           expect(
@@ -98,17 +145,17 @@ void main() {
           await tester.pump(
             const Duration(milliseconds: 225),
           ); // First cue's cooldown ends.
-          await tester.tap(choice(wrong[0]));
+          await answer(wrong[0]);
           await tester.pump();
           expect(d.feedbacks, [DeviceFeedback.retry, DeviceFeedback.retry]);
           await tester.pump(const Duration(milliseconds: 599));
           expect(marker, findsOneWidget);
           await tester.pump(const Duration(milliseconds: 1));
           expect(marker, findsNothing);
-          await tester.tap(choice(wrong[0]));
+          await answer(wrong[0]);
           await tester.pump();
           expect(marker, findsOneWidget);
-          await tester.tap(choice(round.question.answer));
+          await answer(round.question.answer);
           await tester.pump();
           expect(marker, findsNothing);
           await tester.pump(const Duration(milliseconds: 16));
@@ -124,86 +171,96 @@ void main() {
     }
   }
 
-  testWidgets(
-    'reduced motion is static for 600 ms; marker has no semantics or hit handling',
-    (tester) async {
-      final semantics = tester.ensureSemantics();
-      final d = MemoryDevice()..haptics = false;
-      final round = await open(tester, d, reduced: true);
-      final wrong = round.question.choices.firstWhere(
-        (c) => c != round.question.answer,
-      );
-      await tester.tap(choice(wrong));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 599));
-      expect(opacity(tester), 1);
-      expect(
-        tester
-            .widget<IgnorePointer>(
-              find
-                  .ancestor(of: marker, matching: find.byType(IgnorePointer))
-                  .first,
-            )
-            .ignoring,
-        isTrue,
-      );
-      expect(
-        find.ancestor(of: marker, matching: find.byType(ExcludeSemantics)),
-        findsOneWidget,
-      );
-      expect(
-        tester
-            .getSemantics(find.text('Try again'))
-            .getSemanticsData()
-            .flagsCollection
-            .isLiveRegion,
-        isTrue,
-      );
-      expect(d.feedbacks, isEmpty);
-      await tester.pump(const Duration(milliseconds: 1));
-      expect(marker, findsNothing);
-      await tester.pumpWidget(const SizedBox());
-      semantics.dispose();
-    },
-  );
+  for (final activity in [
+    Activity.numbers,
+    Activity.readAndFind,
+    Activity.makeBelieve,
+    Activity.sameNumber,
+    Activity.numberParts,
+  ]) {
+    testWidgets(
+      '${activity.name}: reduced motion is static for 600 ms; marker has no semantics or hit handling',
+      (tester) async {
+        final semantics = tester.ensureSemantics();
+        final d = MemoryDevice()..haptics = false;
+        final round = await open(tester, d, activity: activity, reduced: true);
+        final wrong = round.question.choices.firstWhere(
+          (c) => c != round.question.answer,
+        );
+        await answerChoice(tester, round, wrong);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 599));
+        expect(opacity(tester), 1);
+        expect(
+          tester
+              .widget<IgnorePointer>(
+                find
+                    .ancestor(of: marker, matching: find.byType(IgnorePointer))
+                    .first,
+              )
+              .ignoring,
+          isTrue,
+        );
+        expect(
+          find.ancestor(of: marker, matching: find.byType(ExcludeSemantics)),
+          findsOneWidget,
+        );
+        expect(
+          tester
+              .getSemantics(find.text('Try again'))
+              .getSemanticsData()
+              .flagsCollection
+              .isLiveRegion,
+          isTrue,
+        );
+        expect(d.feedbacks, isEmpty);
+        await tester.pump(const Duration(milliseconds: 1));
+        expect(marker, findsNothing);
+        await tester.pumpWidget(const SizedBox());
+        semantics.dispose();
+      },
+    );
 
-  testWidgets(
-    'background, route coverage and disposal cancel retry without restoring it',
-    (tester) async {
-      final nav = GlobalKey<NavigatorState>();
-      final d = MemoryDevice();
-      final round = await open(tester, d, navigator: nav);
-      final wrong = round.question.choices.firstWhere(
-        (c) => c != round.question.answer,
-      );
-      await tester.tap(choice(wrong));
-      await tester.pump();
-      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
-      await tester.pump();
-      expect(marker, findsNothing);
-      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-      await tester.pump();
-      expect(marker, findsNothing);
-      await tester.tap(choice(wrong));
-      await tester.pump();
-      unawaited(
-        showDialog<void>(
-          context: nav.currentContext!,
-          builder: (_) => const AlertDialog(title: Text('Covered')),
-        ),
-      );
-      await tester.pump();
-      expect(marker, findsNothing);
-      nav.currentState!.pop();
-      await settle(tester);
-      expect(marker, findsNothing);
-      await tester.tap(choice(wrong));
-      await tester.pump();
-      await tester.pumpWidget(const SizedBox());
-      await tester.pump(const Duration(seconds: 1));
-      expect(tester.takeException(), isNull);
-    },
-  );
+    testWidgets(
+      '${activity.name}: background, route coverage and disposal cancel retry without restoring it',
+      (tester) async {
+        final nav = GlobalKey<NavigatorState>();
+        final d = MemoryDevice();
+        final round = await open(tester, d, activity: activity, navigator: nav);
+        final wrong = round.question.choices.firstWhere(
+          (c) => c != round.question.answer,
+        );
+        await answerChoice(tester, round, wrong);
+        await tester.pump();
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+        await tester.pump();
+        expect(marker, findsNothing);
+        tester.binding.handleAppLifecycleStateChanged(
+          AppLifecycleState.resumed,
+        );
+        await tester.pump();
+        expect(marker, findsNothing);
+        await answerChoice(tester, round, wrong);
+        await tester.pump();
+        unawaited(
+          showDialog<void>(
+            context: nav.currentContext!,
+            builder: (_) => const AlertDialog(title: Text('Covered')),
+          ),
+        );
+        await tester.pump();
+        expect(marker, findsNothing);
+        nav.currentState!.pop();
+        await settle(tester);
+        expect(marker, findsNothing);
+        await answerChoice(tester, round, wrong);
+        await tester.pump();
+        await tester.pumpWidget(const SizedBox());
+        await tester.pump(const Duration(seconds: 1));
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 
   testWidgets('platform failures keep retry, hints and correction available', (
     tester,

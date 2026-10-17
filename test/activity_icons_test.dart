@@ -18,6 +18,34 @@ const newIcons = <Widget>[
 ];
 
 void main() {
+  testWidgets('Same number uses a typed, unscaled 3 at 48 pixels', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: GardenTheme.dark,
+        home: const Scaffold(
+          body: SizedBox(
+            width: 48,
+            height: 54 * 48 / 62,
+            child: FittedBox(child: SameNumberIllustration()),
+          ),
+        ),
+      ),
+    );
+    final glyph = tester.widget<Text>(
+      find.descendant(
+        of: find.byType(SameNumberIllustration),
+        matching: find.text('3'),
+      ),
+    );
+    expect(glyph.style?.fontWeight, FontWeight.w800);
+    expect(glyph.textScaler, TextScaler.noScaling);
+    final context = tester.element(find.byType(SameNumberIllustration));
+    expect(glyph.style?.color, GardenColors.of(context).foreground);
+    expect(tester.takeException(), isNull);
+  });
+
   for (final dark in [false, true]) {
     for (final small in [false, true]) {
       testWidgets('new icons paint: dark=$dark, fitted=$small', (tester) async {

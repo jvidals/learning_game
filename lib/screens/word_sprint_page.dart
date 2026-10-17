@@ -6,6 +6,7 @@ import 'package:flutter/semantics.dart';
 
 import '../app_theme.dart';
 import '../device_services.dart';
+import '../garden_art.dart' show rainbow;
 import '../progress.dart';
 import '../progress_controller.dart';
 import '../widgets/page_body.dart';
@@ -312,7 +313,7 @@ class _WordSprintPageState extends State<WordSprintPage>
       const Text(
         'Read each word out loud, then tap it.',
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+        style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
       ),
       const SizedBox(height: 20),
       for (final mode in WordSprintMode.values) ...[
@@ -373,7 +374,6 @@ class _WordSprintPageState extends State<WordSprintPage>
         ),
       const SizedBox(height: 20),
       FilledButton(
-        style: FilledButton.styleFrom(minimumSize: const Size(64, 64)),
         onPressed: _controller.blocked.value ? null : _start,
         child: const Text('Start'),
       ),
@@ -388,7 +388,7 @@ class _WordSprintPageState extends State<WordSprintPage>
       textAlign: TextAlign.center,
       style: TextStyle(
         fontSize: compact ? 20 : 22,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
       ),
     ),
   );
@@ -397,7 +397,7 @@ class _WordSprintPageState extends State<WordSprintPage>
     compact ? '${_seconds}s' : '$_seconds seconds',
     key: const ValueKey('sprint-time'),
     semanticsLabel: '$_seconds seconds',
-    style: TextStyle(fontSize: compact ? 20 : 24, fontWeight: FontWeight.w700),
+    style: TextStyle(fontSize: compact ? 20 : 24, fontWeight: FontWeight.w800),
   );
 
   Widget _timeProgress() => LinearProgressIndicator(
@@ -436,7 +436,7 @@ class _WordSprintPageState extends State<WordSprintPage>
   Widget _runView() => SafeArea(
     child: LayoutBuilder(
       builder: (context, box) {
-        final font = MediaQuery.textScalerOf(context).scale(36);
+        final font = MediaQuery.textScalerOf(context).scale(40);
         final compact = box.maxHeight < 500 && box.maxWidth >= 600;
         final preferred = box.maxWidth >= 600 ? 5 : 3;
         // Reserve enough width for three letters at the current text scale.
@@ -503,7 +503,10 @@ class _WordSprintPageState extends State<WordSprintPage>
                         crossAxisCount: columns,
                         mainAxisSpacing: 10,
                         crossAxisSpacing: 10,
-                        mainAxisExtent: font * 1.3 + 32,
+                        mainAxisExtent: math.max(
+                          100,
+                          font * 1.3 + (compact ? 24 : 32),
+                        ),
                       ),
                       delegate: SliverChildBuilderDelegate(
                         (context, index) => _wordTile(index),
@@ -577,12 +580,16 @@ class _WordSprintPageState extends State<WordSprintPage>
           : null,
       child: ExcludeSemantics(
         child: Material(
-          color: marked ? colors.successSurface : colors.surface,
+          color: marked
+              ? colors.successSurface
+              : colors.card(rainbow[(index % 3) * 2], white: .65),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-            side: BorderSide(
-              color: marked ? colors.successBorder : colors.outline,
-            ),
+            borderRadius: BorderRadius.circular(24),
+            side: marked
+                ? BorderSide(color: colors.successBorder)
+                : colors.isDark
+                ? BorderSide(color: colors.accent(rainbow[(index % 3) * 2]))
+                : BorderSide.none,
           ),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
@@ -598,9 +605,9 @@ class _WordSprintPageState extends State<WordSprintPage>
                       word.spelling,
                       maxLines: 1,
                       style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.w700,
-                        color: marked ? colors.successText : colors.foreground,
+                        fontSize: 40,
+                        fontWeight: FontWeight.w600,
+                        color: colors.foreground,
                       ),
                     ),
                   ),

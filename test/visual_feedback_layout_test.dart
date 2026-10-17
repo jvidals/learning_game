@@ -7,6 +7,7 @@ import 'package:rainbow_garden/game.dart';
 import 'package:rainbow_garden/progress_controller.dart';
 import 'package:rainbow_garden/screens/game_page.dart';
 import 'package:rainbow_garden/widgets/page_body.dart';
+import 'package:rainbow_garden/widgets/learning_reward.dart';
 
 import 'widget_test.dart' show MemoryDevice;
 
@@ -124,6 +125,125 @@ Future<void> choose(WidgetTester tester, GameRound round, String answer) async {
 }
 
 void main() {
+  // The emulator (411x914 dp minus system bars) showed Make-believe's third
+  // sound card under the fixed bar on entry; tests elsewhere call
+  // ensureVisible before tapping, so check entry visibility explicitly.
+  for (final size in [
+    const Size(411, 914),
+    const Size(411, 860),
+    const Size(393, 852),
+  ]) {
+    for (final activity in visualActivities) {
+      testWidgets('${activity.name}: all choices visible on entry at $size', (
+        tester,
+      ) async {
+        final round = await openGame(tester, activity, size: size);
+        for (var question = 0; question < 5; question++) {
+          await tester.pump();
+          final barTop = tester.getRect(bottomBar(tester)).top;
+          for (final c in round.question.choices) {
+            final card = find.byKey(ValueKey('choice-$c'));
+            expectFullyVisible(tester, card);
+            expect(tester.getRect(card).bottom, lessThanOrEqualTo(barTop));
+          }
+          if (activity == Activity.readAndFind ||
+              activity == Activity.makeBelieve) {
+            // The printed word must stay on screen while choosing.
+            final spelling =
+                (round.question.visual as dynamic).word.spelling as String;
+            expectFullyVisible(tester, find.text(spelling));
+          }
+          if (question == 4) break;
+          await choose(tester, round, round.question.answer);
+          await tester.tap(find.text('Next'));
+          await tester.pump();
+        }
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox());
+      });
+    }
+  }
+
+  for (final dark in [false, true]) {
+    for (final size in [const Size(411, 914), const Size(393, 852)]) {
+      for (final activity in visualActivities) {
+        testWidgets(
+          '${activity.name}: stable retry geometry at $size, dark=$dark',
+          (tester) async {
+            final round = await openGame(
+              tester,
+              activity,
+              size: size,
+              dark: dark,
+            );
+            for (var question = 0; question < 4; question++) {
+              final wrong = round.question.choices.firstWhere(
+                (c) => c != round.question.answer,
+              );
+              final wrongCard = find.byKey(ValueKey('choice-$wrong'));
+              await tester.ensureVisible(wrongCard);
+              await tester.pump();
+              final barRect = tester.getRect(bottomBar(tester));
+              final cards = {
+                for (final c in round.question.choices)
+                  c: tester.getRect(find.byKey(ValueKey('choice-$c'))),
+              };
+              await choose(tester, round, wrong);
+              expect(tester.getRect(bottomBar(tester)), barRect);
+              for (final entry in cards.entries) {
+                expect(
+                  tester.getRect(find.byKey(ValueKey('choice-${entry.key}'))),
+                  entry.value,
+                );
+              }
+              expectFullyVisible(tester, find.text('Try again'));
+              final marker = find.byKey(const ValueKey('retry-marker'));
+              expect(marker, findsOneWidget);
+              expect(
+                tester.getRect(wrongCard).contains(tester.getCenter(marker)),
+                isTrue,
+              );
+              await tester.pump(const Duration(milliseconds: 600));
+              expect(marker, findsNothing);
+              expect(find.text('Try again'), findsOneWidget);
+              expect(tester.getRect(bottomBar(tester)), barRect);
+              for (final entry in cards.entries) {
+                expect(
+                  tester.getRect(find.byKey(ValueKey('choice-${entry.key}'))),
+                  entry.value,
+                );
+              }
+              await choose(tester, round, round.question.answer);
+              await tester
+                  .pump(); // Apply any post-layout answer visibility adjustment.
+              expect(tester.getRect(bottomBar(tester)), barRect);
+              expectBarNext(tester);
+              final correct = find.byKey(
+                ValueKey('choice-${round.question.answer}'),
+              );
+              expectFullyVisible(tester, correct);
+              expect(
+                tester.getRect(correct).bottom,
+                lessThanOrEqualTo(barRect.top),
+              );
+              if (activity == Activity.numberParts) {
+                expectFullyVisible(
+                  tester,
+                  find.byKey(const ValueKey('parts-equation')),
+                );
+              }
+              await tester.tap(find.text('Next'));
+              await tester.pump();
+              expect(round.answered, isFalse);
+            }
+            expect(tester.takeException(), isNull);
+            await tester.pumpWidget(const SizedBox());
+          },
+        );
+      }
+    }
+  }
+
   for (final dark in [false, true]) {
     for (final activity in visualActivities) {
       testWidgets(
@@ -205,6 +325,27 @@ void main() {
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox());
     });
+
+    testWidgets(
+      '${activity.name}: rewards pause and restart the full automatic delay',
+      (tester) async {
+        final round = await openGame(tester, activity, manual: false);
+        await choose(tester, round, round.question.answer);
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.tap(find.byType(LearningRewardsButton));
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 2));
+        expect(round.answered, isTrue);
+        await tester.tap(find.text('Back to game'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 799));
+        expect(round.answered, isTrue);
+        await tester.pump(const Duration(milliseconds: 1));
+        expect(round.answered, isFalse);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox());
+      },
+    );
 
     testWidgets('${activity.name}: Tap Next off retains automatic advance', (
       tester,

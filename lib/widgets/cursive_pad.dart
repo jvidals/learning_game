@@ -150,20 +150,20 @@ class CursivePainter extends CustomPainter {
     canvas.drawRect(Offset.zero & size, Paint()..color = colors.surface);
     final rule = Paint()
       ..color = colors.writingRule
-      ..strokeWidth = 1;
+      ..strokeWidth = 1.5;
     for (final y in [0.0, 1.0, 1.35]) {
       final height = geometry.position(InkPoint(0, y)).dy;
       canvas.drawLine(
-        Offset(10, height),
-        Offset(size.width - 10, height),
+        Offset(12, height),
+        Offset(size.width - 12, height),
         rule,
       );
     }
     final middle = geometry.position(const InkPoint(0, .5)).dy;
-    for (var x = 10.0; x < size.width - 10; x += 12) {
+    for (var x = 12.0; x < size.width - 12; x += 12) {
       canvas.drawLine(
         Offset(x, middle),
-        Offset(math.min(x + 6, size.width - 10), middle),
+        Offset(math.min(x + 6, size.width - 12), middle),
         rule,
       );
     }
@@ -204,7 +204,7 @@ class CursivePainter extends CustomPainter {
       );
     }
     for (final points in ink?.strokes ?? <InkStroke>[]) {
-      stroke(points, colors.writingInk, 4.5);
+      stroke(points, colors.writingInk, 5);
     }
     if (!showModel) {
       canvas.drawCircle(
@@ -271,7 +271,7 @@ class CursivePainter extends CustomPainter {
     canvas.drawRRect(
       RRect.fromRectAndRadius(Offset.zero & size, const Radius.circular(18)),
       Paint()
-        ..color = colors.outline
+        ..color = colors.writingGuide
         ..strokeWidth = 2
         ..style = PaintingStyle.stroke,
     );

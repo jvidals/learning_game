@@ -137,7 +137,7 @@ class MakeBelieveChoice extends StatelessWidget {
     children: [
       Icon(
         this.context.selected == choice
-            ? Icons.volume_up
+            ? Icons.volume_up_rounded
             : Icons.volume_up_outlined,
         size: 32,
       ),
@@ -170,8 +170,7 @@ class _PrintedWord extends StatelessWidget {
       word.spelling,
       maxLines: 1,
       style: TextStyle(
-        fontSize: 72,
-        letterSpacing: 8,
+        fontSize: 40,
         fontWeight: FontWeight.w600,
         color: GardenColors.of(context).foreground,
       ),

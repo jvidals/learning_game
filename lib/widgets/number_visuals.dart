@@ -253,7 +253,7 @@ class _Panel extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(compact ? 8 : 10),
         decoration: BoxDecoration(
-          color: colors.panel,
+          color: colors.mutedSurface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: colors.outline),
         ),
@@ -282,7 +282,7 @@ class _QuestionMark extends StatelessWidget {
   Widget build(BuildContext context) => const Center(
     child: Text(
       '?',
-      style: TextStyle(fontSize: 42, fontWeight: FontWeight.w800),
+      style: TextStyle(fontSize: 56, fontWeight: FontWeight.w600),
     ),
   );
 }
@@ -295,8 +295,8 @@ class _Numeral extends StatelessWidget {
     '$quantity',
     textAlign: TextAlign.center,
     style: TextStyle(
-      fontSize: 42,
-      fontWeight: FontWeight.w800,
+      fontSize: 56,
+      fontWeight: FontWeight.w600,
       color: GardenColors.of(context).foreground,
     ),
   );

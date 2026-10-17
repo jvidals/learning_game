@@ -216,7 +216,7 @@ class _SoundItOutState extends State<SoundItOut>
         FilledButton.icon(
           onPressed: _canPlay ? () => _play() : null,
           style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-          icon: const Icon(Icons.volume_up_outlined),
+          icon: const Icon(Icons.volume_up_rounded),
           label: const Text('Sound it out', textAlign: TextAlign.center),
         ),
         if (!widget.soundOn) ...[

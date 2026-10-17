@@ -178,7 +178,6 @@ class _CursivePageState extends State<CursivePage>
   }
 
   ButtonStyle _selectionStyle(bool selected) => OutlinedButton.styleFrom(
-    minimumSize: const Size(48, 48),
     backgroundColor: selected ? GardenColors.of(context).selectedSurface : null,
     side: selected
         ? BorderSide(color: GardenColors.of(context).primary, width: 2)
@@ -449,7 +448,7 @@ class _CursivePageState extends State<CursivePage>
         children: [
           Text(
             _character,
-            style: const TextStyle(fontSize: 52, fontWeight: FontWeight.w700),
+            style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w800),
           ),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
@@ -571,13 +570,11 @@ class _CursivePageState extends State<CursivePage>
     listenable: Listenable.merge([_traceInk, _writeInk]),
     builder: (context, _) {
       final clear = OutlinedButton(
-        style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
         onPressed: _enabled ? _clear : null,
         child: const Text('Clear'),
       );
       final check = FilledButton(
         key: ValueKey(_passed ? 'cursive-next' : 'cursive-check'),
-        style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
         onPressed: !_enabled || _writeInk.drawing || _traceInk.drawing
             ? null
             : (_passed ? _advance : _check),
