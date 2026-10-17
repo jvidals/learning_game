@@ -46,7 +46,7 @@ Each recognition round has five targets (unique when the range contains at least
 
 Each player has a saved personal best. A completed final score above that best earns **50 XP**, including the first positive score. Ties and lower scores earn none. The high score and XP save together; failures can be retried without duplicate rewards. There is no untimed mode. Target roles and scoring are independent of artwork, allowing a future companion to provide its own icon set.
 
-Current distributable: **Learning Corner 0.21.0+45**, **671 MB**. Adds Read and find, Make-believe words, Word Sprint, Same number, Number parts and Cursive play. [Gallery](docs/screenshots/0210/README.md) · [Validation](docs/testing.md) · [APK audit](artifacts/new-games-0210/apk-verification.json).
+Current distributable: **Learning Corner 0.21.1+46**, **671 MB**. Adds Read and find, Make-believe words, Word Sprint, Same number, Number parts and Cursive play. [Gallery](docs/screenshots/0210/README.md) · [Validation](docs/testing.md) · [APK audit](artifacts/new-games-0210/apk-verification-0211.json).
 
 The previous **0.17.0+34** release: Adventure, board moves, saved-play restrictions and its exclusive assets have been removed. Existing XP, unicorn rewards, profiles/settings, Writing and 2048 carry forward; retired destination scores do not transfer to Tap Challenge. [Screenshots](docs/screenshots/0170/README.md) · [Validation](docs/testing.md).
 

@@ -27,7 +27,13 @@ Read [AGENTS.md](../AGENTS.md), [README](../README.md), [design](design.md),
 [testing](testing.md) and the [development runbook](DEVELOPMENT_ENVIRONMENT.md).
 This handoff is context, not authorization for another feature.
 
-## Current release: 0.21.0+45 — reading, number-sense and cursive games (2026-10-17)
+## Current release: 0.21.1+46 — visual-game feedback in the fixed bar (2026-10-17)
+
+Native testing of 0.21.0 on the disposable **LearningCornerTest / emulator-5570** (Codex worker driving adb; [results](../artifacts/new-games-0210/native/results.json)) passed all 14 checks: 0.20.2 → 0.21.0 `install -r` preserved XP; each new game's round awarded exactly 50 XP; Word Sprint (best, undo, hint pause, early stop, untimed, timer persistence, background → explicit Resume) and Cursive play awarded none; Number hunt showed a look-alike in all five questions; no Flutter/FATAL/AndroidRuntime errors (only the known platform `ashmem` deprecation line). It found that on a 411×914 dp phone 'Try again' and Next sat below the fold for Make-believe words and Same number. **0.21.1** moves feedback and manual Next into the fixed bottom bar for all four visual games (other games unchanged); new layout tests cover it.
+
+**937 Flutter tests passed**; full analysis 0 errors/warnings (62 infos); format clean. APK **0.21.1+46**, **670,896,188 bytes**, SHA-256 `045198a5436dd22922ac71280f32c275f0aa1aaeb9850d202d5c93c67914aabd`; same certificate and offline permissions; all 1,992 bundled files byte-identical to 0.21.0 ([audit](../artifacts/new-games-0210/apk-verification-0211.json)). Native retest of 0.21.1 ([results](../artifacts/new-games-0210/native-0211/results.json)): upgrade preserved the fixture; feedback/Next fully visible without scrolling in all four visual games; Number hunt/uppercase regressions passed; XP 300 → 550; no app errors. Opening the gift sheet clears transient 'Try again' text as in every game (existing interruption behavior, not a regression). Final emulator fixture: Player 1, 550 XP / level 6, five gifts, Word Sprint best 4, timer on, sound on; emulator stopped with data preserved.
+
+## Previous release: 0.21.0+45 — reading, number-sense and cursive games (2026-10-17)
 
 Built from the daughter's kindergarten materials (AVID WICOR number-representation posters, a one-minute nonsense-CVC reading sheet, the teacher's out-of-order number check) and a cursive request. Research (Codex, live web search) is preserved locally in `artifacts/new-games-0210/research/`; decisions are in [design](design.md#reading-number-sense-and-cursive-games-0210).
 
