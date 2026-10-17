@@ -13,7 +13,7 @@ APK/emulator validation updated September 19, 2026; USB setup reviewed September
 | USB permissions | `jvidals` already belongs to `plugdev` |
 | Android USB rules | `/usr/lib/udev/rules.d/51-android.rules` exists and grants matching devices access through `plugdev` and `uaccess` |
 | Connected devices | No device installation during 0.20.2; prior 0.20.0 disposable-emulator results are historical |
-| APK | `/home/jvidals/Documents/ScriptWork/learning_game/artifacts/learning-corner.apk` (version 0.20.2+44, about 662 MB) |
+| APK | `/home/jvidals/Documents/ScriptWork/learning_game/artifacts/learning-corner.apk` (version 0.21.0+45, about 671 MB) |
 | App package | `com.rainbowgarden.rainbow_garden` |
 
 ADB is available without installing another copy. The existing USB setup looks ready, but detection of your specific phone still needs checking when it is plugged in. The APK requires Android 7.0 / API 24 or newer.
