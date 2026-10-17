@@ -75,5 +75,7 @@ __pycache__/
 *.blend1
 *.blend2
 
-# Phone camera photos (Pixel PXL_*) dropped into the workspace for reference.
-PXL_*
+# Feedback images dropped at the project root: Pixel camera photos (PXL_*) and
+# Android screenshots (Screenshot_*). Root-only, so named assets elsewhere stay tracked.
+/PXL_*
+/Screenshot_*
