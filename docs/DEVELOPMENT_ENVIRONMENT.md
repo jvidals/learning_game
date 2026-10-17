@@ -315,6 +315,42 @@ because it uses loopback sockets. Smoke tests passed: a focused `flutter test`,
 workspace. Workflow, brief template and
 troubleshooting: [Codex orchestration](CODEX_ORCHESTRATION.md).
 
+## Secret scanning (gitleaks pre-commit hook)
+
+Added 2026-10-17. `tools/git-hooks/pre-commit` runs
+`gitleaks git --pre-commit --staged --redact` and blocks the commit on a finding
+or when gitleaks is missing (fail closed). Output is redacted, so secrets don't
+reach terminals or agent transcripts. Codex workers never commit (`.git` is
+read-only for them), so the hook covers the user's and the lead session's commits.
+
+Enable once per clone (stored in `.git/config`, not committed):
+
+```bash
+git config core.hooksPath tools/git-hooks
+```
+
+gitleaks **8.30.1** is installed at `~/.local/bin/gitleaks` from the official
+release, SHA-256 verified against the release checksums. Ubuntu's apt package
+(8.16.0) is too old. To install or upgrade, set `v` to the wanted release:
+
+```bash
+v=8.30.1; d=$(mktemp -d); cd "$d"
+curl -fsSLO "https://github.com/gitleaks/gitleaks/releases/download/v$v/gitleaks_${v}_linux_x64.tar.gz"
+curl -fsSLO "https://github.com/gitleaks/gitleaks/releases/download/v$v/gitleaks_${v}_checksums.txt"
+grep " gitleaks_${v}_linux_x64.tar.gz$" "gitleaks_${v}_checksums.txt" | sha256sum -c -
+tar -xzf "gitleaks_${v}_linux_x64.tar.gz" gitleaks && install -m 0755 gitleaks ~/.local/bin/gitleaks
+cd - && rm -rf "$d"
+```
+
+Full checks: `gitleaks git --redact .` scans every ref (including
+`refs/snapshots/*`); `gitleaks dir --redact .` also reads ignored paths. On
+2026-10-17 history was clean. The directory scan's only matches were signing
+certificate fingerprints in ignored `artifacts/*/logs/*certificate.log`, which
+are public digests, not secrets. Hook tests: `tools/test_git_hooks.py`.
+
+Don't bypass with `git commit --no-verify` or add a `.gitleaksignore`/allowlist
+without the user's explicit approval.
+
 ## Project MCP servers (Claude Code and Codex)
 
 Only Claude Code and Codex are used in this workspace. Since 2026-10-17 both share

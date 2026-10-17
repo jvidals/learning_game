@@ -68,6 +68,7 @@ They are symlinks into `~/agent_toolkit/skills/`, listed in `.agent-skills` and 
 - Do not wipe or repurpose the user's `Medium_Phone_API_36.1` emulator. Prior tests used a separate disposable AVD under `/tmp`.
 - Standard `flutter analyze` previously hit the host's exhausted file-watcher limit. Report that limitation accurately; the watcher-free fallback does not replace full Flutter linting. Do not change system limits or stop unrelated processes as a routine workaround.
 - Git was initialized on 2026-10-17 (`main`, no remote). Earlier handoff notes saying no repository existed are historical. Commit only when the user asks; `.gitignore` deliberately excludes `artifacts/`, APKs, `docs/screenshots/`, retired art and agent skill links.
+- Commits pass through the gitleaks pre-commit hook (`git config core.hooksPath tools/git-hooks`; see the runbook). Never bypass it with `--no-verify` or allowlist a finding without the user's explicit approval; remove the secret instead.
 - Root-level `PXL_*` (Pixel camera) and `Screenshot_*` (Android screenshot) images are the user's feedback on the app. Read them when the user refers to them; don't move, edit, delete or commit them (they are ignored).
 
 Run checks appropriate to code changes and record their actual outcomes. For a new APK, update the version as appropriate, checksum, and current validation notes. Distinguish historical results from checks run in the current session. Documentation-only work does not need an APK rebuild.

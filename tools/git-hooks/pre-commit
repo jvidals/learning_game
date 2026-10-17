@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Block commits whose staged changes contain secrets (gitleaks).
+# Enable once per clone:  git config core.hooksPath tools/git-hooks
+# Install/upgrade gitleaks: docs/DEVELOPMENT_ENVIRONMENT.md, "Secret scanning".
+# Bypassing with --no-verify needs the user's explicit approval (AGENTS.md).
+set -euo pipefail
+
+gitleaks_bin="$(command -v gitleaks || true)"
+# GUI clients and IDEs may not have ~/.local/bin on PATH.
+if [[ -z "$gitleaks_bin" && -x "$HOME/.local/bin/gitleaks" ]]; then
+  gitleaks_bin="$HOME/.local/bin/gitleaks"
+fi
+if [[ -z "$gitleaks_bin" ]]; then
+  printf 'pre-commit: gitleaks is not installed, so the secret scan cannot run.\n' >&2
+  printf 'Install it (docs/DEVELOPMENT_ENVIRONMENT.md, "Secret scanning") and retry.\n' >&2
+  exit 1
+fi
+
+# --redact keeps the secret itself out of terminal output and agent transcripts.
+if ! "$gitleaks_bin" git --pre-commit --staged --redact --no-banner --verbose .; then
+  printf '\npre-commit: gitleaks found a possible secret in the staged changes.\n' >&2
+  printf 'Remove it (use env vars or Secret Manager), or ask before allowlisting a false positive.\n' >&2
+  exit 1
+fi

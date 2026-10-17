@@ -220,4 +220,4 @@ The original 159-clip batch used at most 6,623 input characters including SSML: 
 
 Claude Code and Codex are the supported agents. Both get the same MCP servers from `.mcp.json` and `.codex/config.toml`; see [the runbook](docs/DEVELOPMENT_ENVIRONMENT.md#project-mcp-servers-claude-code-and-codex).
 
-The source repo is unchanged. On another development computer, clone agent_toolkit and run `~/agent_toolkit/bin/link_skills.py sync .` to recreate the links. See `docs/design.md` for decisions and `docs/testing.md` for validation and the phone checklist.
+The source repo is unchanged. On another development computer, clone agent_toolkit and run `~/agent_toolkit/bin/link_skills.py sync .` to recreate the links. After cloning this repository, also enable the secret-scanning hook with `git config core.hooksPath tools/git-hooks` and install gitleaks ([runbook](docs/DEVELOPMENT_ENVIRONMENT.md#secret-scanning-gitleaks-pre-commit-hook)). See `docs/design.md` for decisions and `docs/testing.md` for validation and the phone checklist.
