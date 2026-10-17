@@ -1,0 +1,30 @@
+{
+  "source": "Noto Color Emoji, Google / Arjen Nienhuis; rendered with installed font at 109 px, padded to 128 px",
+  "checksums": {
+    "a.png": "84167307cbc057e6e08715c360258a4df8d8ff1f6d3efe956ca56abb9509f617",
+    "b.png": "0afacd57e0681773ddc5c67f74cdfc65b7345cac4f27d61cfea3c25f794fc0e1",
+    "c.png": "e124d4d2984b247f24de74f213b0bc1c654c9009379174474e2aa4af34b2ca9b",
+    "d.png": "0f8b4c2e824a4b7240ceae21cb6c2bbe72425a99f1814ae1832385df80cd751d",
+    "e.png": "351534c805c1b8f05b45fd6fad1ff1f0d5d4f16ceb07d42bef7a534503ffadb0",
+    "f.png": "8a67fbdff763805cf2508d969706a3ee92838ba0c5503160fe5c6eb3f6345999",
+    "g.png": "e79bef220d2911259e25b2d9103bfdccec0325717b6144e44aa7f21511f74142",
+    "h.png": "45ee819ebbddee837b34a217d0225003d8b4c34d87289185c9c4343f56ebf8f3",
+    "i.png": "2046a5d6c9877bf1eb0153b8d546a1c5252ffcd17705f82a529559de6b6e5809",
+    "j.png": "2ed020ef8c554bfd7f3d8c141d7c768e32dab3cf226abd357d3d54217822fe15",
+    "k.png": "0374969a45baeef5d08f30ac88181e5178fd3e347a77d4ff07ec959659af2edd",
+    "l.png": "b5acc471ba9f7790deefdde26aaed1e4253d69fd3167edec35611b8bd71d9ef8",
+    "m.png": "aad0339d2a702746d106f1d9b7f5c6a26ae1159a8724f2990add5b2fef477401",
+    "n.png": "e07c5111f5023c1f1db643668f59aecdd47a3ee7ab514f595a602d8c4cd927f4",
+    "o.png": "26c1d7c506a15fbc8aa75032e4cf52144a7ee20ae3689802aa38eb4b6af7e90f",
+    "p.png": "8e15a964d8403a3b63a3795c54cfc3948e75345c675ddc262ed7538ed0639e67",
+    "r.png": "d8ecf06bcba1bd1349c879baf42ec6fb2e701ba6515b307e933cb3621b6744bf",
+    "s.png": "fd81b346c48c4c8b3d2105ef8e309a518c401bf1517e1d74e434bacfafd46830",
+    "t.png": "ea517dcbf38f452cb9d145f3ccd5f594ed33edd781d8fa6ae05f6c0d8262f2ea",
+    "u.png": "55f0f97114ad4d2556945496b1afb657232d1ee23cf5a977a7fc3530c04b9037",
+    "v.png": "b6155d775e4fb10392646c5d70de32cabd0c6df1703cfee4a9e2d5646ee3df7f",
+    "w.png": "be8a69a0f0ff696dfd4b67f1731e315a13e5794a5fd58160d2e84288761e0784",
+    "y.png": "e432eda81671d3d99d8aefb919b8fdfda764a9220b3701c5dc274a8fa564e9fd",
+    "z.png": "21732c1fa0dbfe98a43f3a0f133a1db5859dffb9ae2dcd1b82c920aee3bd4b5e",
+    "LICENSE.txt": "3720722d2046accb40e1696f096b57c658b0b47d74031b3d114cf7545b840b3c"
+  }
+}

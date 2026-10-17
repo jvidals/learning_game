@@ -1,0 +1,1570 @@
+{
+  "lower_a": {
+    "audio_sha256": "526d9d1cb69df456a6f3d6b95ebbc95dca915d1076424336eb3491816983a719",
+    "processing": "target-pause-v2",
+    "request_sha256": "7b95672c79207f896c3f30c38e85c10d671c24d8341806e4b25c888a309d1dd6",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_b": {
+    "audio_sha256": "f259a04372d5f4d272a35ed911e58479baab0fb211110848628c0cddb019bfcc",
+    "processing": "target-pause-v2",
+    "request_sha256": "ac69c7648194bbddd28da39f629fa8ad9bf42ce85518d8cee3f9e79d15834e28",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_c": {
+    "audio_sha256": "2d786145178c180c8a96f96a994b3a9cbf762f408886eceedbe4a0f795751967",
+    "processing": "target-pause-v2",
+    "request_sha256": "1309e196dbfcab0f74f01dcd1bc2941edd84b685ddba180a3fd314295e144521",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_d": {
+    "audio_sha256": "811abfe2c9bc3f1b25ae376127d7325d6552b8114ceeff0dc72d14f38bd2fd80",
+    "processing": "target-pause-v2",
+    "request_sha256": "c5cf15b0b0012403973508f7490d34442179c40e83c8215a0a2305a8b2171ce4",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_e": {
+    "audio_sha256": "4eb3a6476128d1777da51a541b3f940a059eb70f5b17b07333011e3f6be2e6ef",
+    "processing": "target-pause-v2",
+    "request_sha256": "2f997014807fa4cffb98c48591957a97c21e9ef12d5ff1dd989b6482b41f1eae",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_f": {
+    "audio_sha256": "e0289331ae1eb14a7e24703d3a0db28e7a1eb04000587c10b61720238aa92ffd",
+    "processing": "target-pause-v2",
+    "request_sha256": "340c18f74db8d86dc12361985b127587c7a5bf0c7f7b5cd6f8d0aa13dd2d4780",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_g": {
+    "audio_sha256": "a22a812a9ec514c3c1ee86aff35a7bcab0aec620cab9df556be13a9a0bad1271",
+    "processing": "target-pause-v2",
+    "request_sha256": "d1f209cd3b146c0cf4ffb011ed63ba25f3ad0e4a1ddf5dc67efd65da0f3e6fb7",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_h": {
+    "audio_sha256": "946dc6c09c60c54e41c50d33e15bd2a94f8d063be7caadaf5a685fbcb6442463",
+    "processing": "target-pause-v2",
+    "request_sha256": "b278851938689c5130556c9ae46eea4db1f4837e14b06d6b75afd8f3bc0247c4",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_i": {
+    "audio_sha256": "b567493a4fa816ed0b05ae2780f4938791abda79fe14eebd857160ccf72e04b0",
+    "processing": "target-pause-v2",
+    "request_sha256": "1eb84ce1f791f6ecca55b2e311f115ba82d7c8ad54d4781979474b9b83e37ee7",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_j": {
+    "audio_sha256": "35c1f001ea19dbaf47980de90ac998e6f8ae61451477122663482a79fbb88121",
+    "processing": "target-pause-v2",
+    "request_sha256": "a80138adddf6d4346cc3e1800be0e087abea400fabd50a801781b4576d143cf3",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_k": {
+    "audio_sha256": "94dcdeb8f1330ac8b0070e994482227082162031e7386ef1b01cf597c68cc4c6",
+    "processing": "target-pause-v2",
+    "request_sha256": "fc0d78d7092ab94964906442b3bb091c01d6c2ee8c74715ade44ea302c7f214e",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_l": {
+    "audio_sha256": "d02adbdf05fb2ee045480a2cb872203d9c12c0068709b8b383334ddf34e7886f",
+    "processing": "target-pause-v2",
+    "request_sha256": "ce2aef47f4c644a177ca51e089de177a12074f15d182fad30e6f8d02e45ab0c9",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_m": {
+    "audio_sha256": "d8795c2a9e26358e234f92fc71518a6968059f18b450719cb836f6aead009fcc",
+    "processing": "target-pause-v2",
+    "request_sha256": "2044e1b904ba78e0a3056bcda51300af87134a1c7061edb3451266223c62d858",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_n": {
+    "audio_sha256": "c13bb8735a92564d552c70e31b4b5dc1c4f039a5385618385dfeaee6081338f9",
+    "processing": "target-pause-v2",
+    "request_sha256": "3e0e81c82e6aafe70162765ff85b24aa41ea950cc45c63c0c4f18918759b9ed5",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_o": {
+    "audio_sha256": "35279db1325345d20f5a216fedf5a83b956653e8924dc56d40a8cb509d31c027",
+    "processing": "target-pause-v2",
+    "request_sha256": "aa5953d6713db18a34c82651c6802966b8ac4cbe53cf6d120e086a6f8e6d0580",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_p": {
+    "audio_sha256": "3dc5ec3491eb3725dff46b8f8023e6e23f64132b538d3537efc943a61a8750ff",
+    "processing": "target-pause-v2",
+    "request_sha256": "194e4e8b220cebdd5034046ea3f642d45f545ddf89be6bd58177c105a41c8cea",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_q": {
+    "audio_sha256": "0737376ec0d0fa892f7cefde1448053c9a07bdb5373fec6814416a754e6d8ee3",
+    "processing": "target-pause-v2",
+    "request_sha256": "570b8952dee361f66e799a2ddca2e152094f843713b8c7ed7bcc61eb5aed63bb",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_r": {
+    "audio_sha256": "20eff10f0c0a913964534da6f312dbd124df54d1491cab9fcf2a490360f53f6a",
+    "processing": "target-pause-v2",
+    "request_sha256": "0b9d0b5add1fcefb9e1f05a80f0be4d25bd7617192f07ac29c024488bd761c4e",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_s": {
+    "audio_sha256": "feaf6dd69595fab28756258c84a4fd22f3a7f62505381d85669b66cea6ad856b",
+    "processing": "target-pause-v2",
+    "request_sha256": "31758bbc3bc13fe6a579a6617877e3eda491956065ccb170ea229ffd8305e696",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_t": {
+    "audio_sha256": "f62e7957bded45a4020aa1276deac33903667114b8ca29070baabb8670c8cd76",
+    "processing": "target-pause-v2",
+    "request_sha256": "825930854fb578dc3e94c0c1beec92639e0d37db2c4a5422c4c0e82c4f38abd8",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_u": {
+    "audio_sha256": "2aa6f8220793160c021979be0adf2d67782cb8aecc116f24e2ee43e4eb98a653",
+    "processing": "target-pause-v2",
+    "request_sha256": "269ca1811a1e8b57cd0b46c5c00b3ca53bac0d22f0b19536092ec81f4d286602",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_v": {
+    "audio_sha256": "0c5c33b95ddea2135b03efe98b7db828f2227020bf21b77e964cdaf907d2340c",
+    "processing": "target-pause-v2",
+    "request_sha256": "5faa09a2fece00cc38ec64bd519c7651876a140da22bd35312e14983d8629c52",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_w": {
+    "audio_sha256": "b7d8bed3d67384fdbddd71831c20db1cf4daac8c13d5e4db9cc59ddb09564387",
+    "processing": "target-pause-v2",
+    "request_sha256": "60603f0a4b5976ebc60e708101d77dbc95d4384e67f34203bdec0571d7570014",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_x": {
+    "audio_sha256": "77a2672219fcd89f93ea0d7c4906de3ff39712ac58dcef3fa44c8b4c35ee579c",
+    "processing": "target-pause-v2",
+    "request_sha256": "d9ebc7e774f015cb31c7e9449763ee9db2dee408d6bd01347d1d5f4aeb96a593",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_y": {
+    "audio_sha256": "ba3f0334993917c9d9236f6b58a0b7d146812feb3aac00254dc416755782ced1",
+    "processing": "target-pause-v2",
+    "request_sha256": "cedbb066861b53b025745956a3642258d617ffadc878fcc8f4c088cd351cfe2f",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "lower_z": {
+    "audio_sha256": "346802d12fe5a1aa6d0041339489705874a56e6f7bd510bd767b48e3604ca5b7",
+    "processing": "target-pause-v2",
+    "request_sha256": "19e7bf6bf573f3a51ac29b99ec71914f158fbe4689975588df50f275a5b41144",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "match_lower": {
+    "audio_sha256": "f2ec1d5f8de5db8532bfa468870040957e203c5be3a4d9551da8c27920314374",
+    "request_sha256": "db4b0940fc0c5dd796b6ce496107323c4f5731d92a85cb75c272cd678391bfc0",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "match_upper": {
+    "audio_sha256": "ae8ab4a3317267952d261ed1466bcbcba878e9ea50d051cb1c8557231f2f1a4a",
+    "request_sha256": "82da89a8002fb840a7db81f302328cd3ea90300a0c0c0e3369262597ff2bed42",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_0": {
+    "audio_sha256": "9faf3f166ae2fa8823c5c2d1de767c013be4d0376b08ea7808d9304f890acd60",
+    "processing": "target-pause-v2",
+    "request_sha256": "75f133aba678db5c6dfa9d19679ef7a212ddc42f0ffa2e1cb5c71e627b82bc7c",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_1": {
+    "audio_sha256": "6f33de331b84093b671d3b433137fbe9a12b85988354031473613d125e1c6b6b",
+    "processing": "target-pause-v2",
+    "request_sha256": "d590e5dbf110d98f6505b890a3908c0cf42686b19c1700e6613a824dbdd64973",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_10": {
+    "audio_sha256": "6a0112db88bef22609504f7ec8a2c6dfece85ead489089f3968ee8ea64643df0",
+    "processing": "target-pause-v2",
+    "request_sha256": "96d4ad99874a399c0d7e7593fd1e80ad97a8718a684756eb23033ff98a627dc2",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_100": {
+    "audio_sha256": "f5c8bd21bab482f88817c67d7530363c7be47e3d9f996163d4c0e4ecb0268bb9",
+    "processing": "target-pause-v2",
+    "request_sha256": "161da2e676806f54b3bd02eed76faf6a831cf49d49fd023d155dbbc1b7ee50e3",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_11": {
+    "audio_sha256": "a11df1492991199ec6fe7f0b0984ca6bea3545a5f67c41fb0dd8c42b6b1bd175",
+    "processing": "target-pause-v2",
+    "request_sha256": "ca24ad564d2b9832af2ee8d6065c1d816140a70aece25cb88e9cc9c73a55504a",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_12": {
+    "audio_sha256": "1d79524b7b9b170735ea9dc298e6e0f173744f03bdd984cd293541275c0733d8",
+    "processing": "target-pause-v2",
+    "request_sha256": "0d7b164252756dc9e797d4a06bb6dd1bea47bd7c523817d41f3390fcf98fed6a",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_13": {
+    "audio_sha256": "d170e50eea13d83d02a6d7a7f73bfb4c482394345f60e0a96a7d2c8a6b5864b8",
+    "processing": "target-pause-v2",
+    "request_sha256": "f4a6a4a02fea7e1e96f2f2ac1055a8578d28c2e782370dbd523c5e85c4c84d92",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_14": {
+    "audio_sha256": "278f0048b40a97c28a9bb08b62b6e1895546fdf1e49a3691484ffd78c327687d",
+    "processing": "target-pause-v2",
+    "request_sha256": "d2c1d3910ece4dc7da1181254152d1a1ffd1af754f8789300c3f7ebeac9b8243",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_15": {
+    "audio_sha256": "081b6287f5dcd2670c149bef34968a006124ccb94268bbc1b41d104671d13aad",
+    "processing": "target-pause-v2",
+    "request_sha256": "8dc3d201c18a33daa2957f8111a17ef1c9947256603cddc6407635a5484c6ff2",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_16": {
+    "audio_sha256": "909aed655f327263c6738dc839ec5b87db0ac01b7d02b876ac55819a76721839",
+    "processing": "target-pause-v2",
+    "request_sha256": "25abcf28757aa46031c6385b8b6b5d9501e1b837fde61622aaf4c7abcc5f4607",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_17": {
+    "audio_sha256": "7d41d8de25050f4a347bb71aa59fff6747b318ff592246de7cba9099bc3a6dbc",
+    "processing": "target-pause-v2",
+    "request_sha256": "c67a1cb6ce67d6f43560dcca333aa9f003eb828fcc62599d3a9ce33679e48e43",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_18": {
+    "audio_sha256": "9d52d0376b952750bc068460c17927c98ebea9b7b4435567705e998742f2eb05",
+    "processing": "target-pause-v2",
+    "request_sha256": "3785cd773b70d112e695b179e8972597a5784cdeb2a367ff4df391d731830c11",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_19": {
+    "audio_sha256": "c5c644d128e5421490a9be39b7c9d8ccaf9d733f4b3715879589edbc47146217",
+    "processing": "target-pause-v2",
+    "request_sha256": "e9a85df7c8cd8e5374d084a2419da97594366283014bc08ca5721ff40e1843ee",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_2": {
+    "audio_sha256": "a28043754194b897e62ea8b284568d420f61f9f4864826353e8a71515f827a9b",
+    "processing": "target-pause-v2",
+    "request_sha256": "cc33cb02237f47b8ce325b67c1fbff675d4e74a4a07df5037b769fcd534dcda1",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_20": {
+    "audio_sha256": "63a1f144e3a9aa7d4e16058b0c500eedf965940ecede3a4cf65601cbf7ee4fac",
+    "processing": "target-pause-v2",
+    "request_sha256": "dee412b1556bbb85b4b7bb7dd16ba15f556aa3a868845ae476da06990588d829",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_21": {
+    "audio_sha256": "ac82599b297b566b152ea27a1ff94d6f652ed3ea7c74fbe3bb97776409637fb3",
+    "processing": "target-pause-v2",
+    "request_sha256": "6f596f52f8c0360e071e9d0a0f181bb0fced83d9bc713a59fa77a9145aaf7be5",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_22": {
+    "audio_sha256": "9f53472958d778a2e8110f20424f0457f6bb694b85769d7e490ffde6a6325908",
+    "processing": "target-pause-v2",
+    "request_sha256": "5da4aa3dc6b011f03406c79af8777e49b9ca6148ff433e2ae804395b0975c032",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_23": {
+    "audio_sha256": "6b164ee91ee52575b8e9adb9e739cddfdf22b80a22abbb61227d34ac3b636ad2",
+    "processing": "target-pause-v2",
+    "request_sha256": "336c5da4e2a3c7e3cb0c50536379f930e3e70610c4674af5efa38258ee4ad204",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_24": {
+    "audio_sha256": "e59310d0d6b2a3a9eaa23e7b74aaacd86b4a52300f8174969186971da8f39af5",
+    "processing": "target-pause-v2",
+    "request_sha256": "e79f23245b04a6733bdbea148a5254281affbaa8b1e45ccd4c0d77ff2f23aead",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_25": {
+    "audio_sha256": "a955c9a7bdf54ad77081d683239a9214da03997142bdaf27c39f2b83c5fc3475",
+    "processing": "target-pause-v2",
+    "request_sha256": "ff3c7a93e777e2c665fcfe3faa70cc402e6a2535b36555cb7b37d4acef9c0688",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_26": {
+    "audio_sha256": "ac9e4179c55c4ba6de576eb3bc824f311cfe6bfa789309c4f64bafd5373410b7",
+    "processing": "target-pause-v2",
+    "request_sha256": "8dd36a38dbc54c7ebb7fe28fe1a86f0154cf5ef80575fa56f78f948b88321bc8",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_27": {
+    "audio_sha256": "5b5cba347dad897bfd8abd184a6cd2d51f5e40af22cdae4c301aec39a23e428e",
+    "processing": "target-pause-v2",
+    "request_sha256": "8c5e6ad145622ef0c22411b76505823d87ed8b4573ab6b1dcb5cc2528227cc21",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_28": {
+    "audio_sha256": "81616c1db3baa8713ca2e21454ed836baea856feb04d7afc4fe4db65b243f891",
+    "processing": "target-pause-v2",
+    "request_sha256": "b67e3408390679b9e88bd9d1f6e38157852e35fc12f8659e1b1b1ccd6314030d",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_29": {
+    "audio_sha256": "e5948bc23745fcdac135fbc1c0dceff8a66e61a82c24215fedbb36b22f623405",
+    "processing": "target-pause-v2",
+    "request_sha256": "b828d233eb80ac449e6cd0f031e7c99d5bd6e740910e750876f74c1b9a880c3f",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_3": {
+    "audio_sha256": "672dedcc6d57bde5ed331be667bd22cc96e9a5eef669e8e1e06f340ed659bc20",
+    "processing": "target-pause-v2",
+    "request_sha256": "0092883d82766383a0c57d1a43966842761fb6f6a149edc8768dd1759c9f616d",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_30": {
+    "audio_sha256": "a0e31fbec5717d89b726207a5e2c2bb91c6f6e44728f2e18a5eae3ff3550caed",
+    "processing": "target-pause-v2",
+    "request_sha256": "faf6e42d9337228664e6bdea8328af17af53d144b42ea6f1efd39a42947095ac",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_31": {
+    "audio_sha256": "69f9cea85dc9e5bb4b4b6cd9fc825c864585316697b6e9b3f0005ca27c88e94b",
+    "processing": "target-pause-v2",
+    "request_sha256": "8900443b6496c60e97b09ca83fca85525782632f51e5665da27a50215a603742",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_32": {
+    "audio_sha256": "d7e298fe9cc5745391df3eeb6908ba739628c2d5c42cf269563b2a870b7a35b3",
+    "processing": "target-pause-v2",
+    "request_sha256": "1fe88f9bf051a2e03d784e1f68881887110ba0cc25b641293b11eb82ebfc6896",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_33": {
+    "audio_sha256": "0e770e45d65ef96081e922e1bf27df8d8447fad0bd49a67ff201f71057be1384",
+    "processing": "target-pause-v2",
+    "request_sha256": "108f2942a7941cdfbf4eae9644267b229c906c926da53e44d409f2b5b48e9c0c",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_34": {
+    "audio_sha256": "fa667b9b12dc3b626fef451e3f5e87d83cc53148f8e264f3d11344bf0b6656ca",
+    "processing": "target-pause-v2",
+    "request_sha256": "d79c0c7ab7fb7424aaee8089dc3753e32de0788bd30e59f8e873b61bac45c7c8",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_35": {
+    "audio_sha256": "1fa35a8c2adbb23a425b601f693c724c5265e7d28a97d2af70fdaa219d758f54",
+    "processing": "target-pause-v2",
+    "request_sha256": "008310227d5609b32228e4c1ab3a246af4e436371e73ce5f76298fb3db57bfce",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_36": {
+    "audio_sha256": "51993ec11ea12b17361284456be243be3154b5d53f83135a553a98c5fe038fe0",
+    "processing": "target-pause-v2",
+    "request_sha256": "6dc85ab1562e22438a71afff19c9d38aeb9c089a0da32912ef47b6a12b281ae8",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_37": {
+    "audio_sha256": "bbe9c5d4653315e25dc88ff18af5db5b8905b3356c90e155c4122dd7ae6a91f2",
+    "processing": "target-pause-v2",
+    "request_sha256": "05f514f42e20fed91a53870124364942cbcb65bac0cdb68dc94ce69f63b9993d",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_38": {
+    "audio_sha256": "e1f913b998f7e7b8999327bfae0d89748f8ff57687aba09ac4948daed666da2e",
+    "processing": "target-pause-v2",
+    "request_sha256": "9b810b466147f1927421e45bee2b64b037a706aeb4c9acd006fa2a6e802ebffb",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_39": {
+    "audio_sha256": "78e39b9507a9375d05dd1ab3d6a56a0820d08a81b905e2143460a6c2a0c469ab",
+    "processing": "target-pause-v2",
+    "request_sha256": "a060b56abe52f6b590c96006520dfee9ea74913cb2c642cb08b5e2cae218ae4a",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_4": {
+    "audio_sha256": "de6fa186909eb8c54771ccfb959c5a24f6272877073b848b53ed3c3ba2622aa5",
+    "processing": "target-pause-v2",
+    "request_sha256": "28fdf6a603775d6e3a5fecd8c564f28cefcfae5bef5c6c964424b99e321a49c3",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_40": {
+    "audio_sha256": "31b87fbaf6c374023517530f279ebe87110187eb91bb3baf410abda5e3bacd9f",
+    "processing": "target-pause-v2",
+    "request_sha256": "b8fd141f759e35c6a95c2714d7e6e49e4178d0194e365ae71e35e4150842794d",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_41": {
+    "audio_sha256": "774ed7e54a5ab3a2b0ace7362e53b53262697447ad4eb7bc212be8edd5ff9d92",
+    "processing": "target-pause-v2",
+    "request_sha256": "5f8003a585e50df07d7da1b38fa4d97d5d8d54d207e6ab48c36ac63a55d2b8e6",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_42": {
+    "audio_sha256": "5dbb81766b4782a4013d50a502bf68698034bb2165bcc6cd8b12fc2650c9f634",
+    "processing": "target-pause-v2",
+    "request_sha256": "e48e123f0f0695a20fed63f67dd604d5fa5b822f4ce279255e212a5570024ef7",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_43": {
+    "audio_sha256": "d64b8581e8b9f9d6469624846a63076214c23f09213174f3d94099ae29c4e33b",
+    "processing": "target-pause-v2",
+    "request_sha256": "c8369073e760c020825d12ae98c80d92bdf4aea2473389a7eaeb5277f7a31162",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_44": {
+    "audio_sha256": "25eb71bfd2ee84d35b94689e6e7549b1eb73ab34e80a94331a6fe1d6295752a1",
+    "processing": "target-pause-v2",
+    "request_sha256": "9d8fafffa2ab7b5fff0819618f59ca8f4083225a55847252b82a92ec5900dcd3",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_45": {
+    "audio_sha256": "e3538445417ee746557317d0a7a13c9beb3f87f495fbe8b4661daecd73ce82df",
+    "processing": "target-pause-v2",
+    "request_sha256": "478ab3b4f5f5bf697a63170fac6ca219cfc834383cfe34b8536819513470c106",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_46": {
+    "audio_sha256": "ec65b9c521cb1093696ff824c9839a3ff22e8be0b3cee33e0a69eceb164791ab",
+    "processing": "target-pause-v2",
+    "request_sha256": "83da4fe57cad69f549550c9889873850d6afe4306b26f1f7beeb6598373eba56",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_47": {
+    "audio_sha256": "95aaec9ee3b5e27f0b3ab0e82233846032ceef4dc42afda3f52da397606b78e5",
+    "processing": "target-pause-v2",
+    "request_sha256": "0d714379017f4f933fb970cc45c19cad75e1c38209d94f0e7c2cb9066902282e",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_48": {
+    "audio_sha256": "997f1919021faef50fb208fd2d33b27fc3bd3d367b9f61b6af466343d82ba152",
+    "processing": "target-pause-v2",
+    "request_sha256": "ab78f7325610f6a5bd78c158054b6d8f3a8643e2b3818e492abd82c9e5db239b",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_49": {
+    "audio_sha256": "3bf604b5a3ef99207007933f66b98125938bcb362355cad8cd490ae3d230e5e8",
+    "processing": "target-pause-v2",
+    "request_sha256": "4fd9b5674ef3e2d82c6b55ecd001620e94068318d8bba00204bff1f6f96220f0",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_5": {
+    "audio_sha256": "053a4bf8b93381366450af891f59fbc0a94a8e3ec8fb0541d0d3fb1ad6819d95",
+    "processing": "target-pause-v2",
+    "request_sha256": "26a3a86889b90c8166b0d62693908bdb00a8e5f3fd6086015c083e5c9f60ce42",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_50": {
+    "audio_sha256": "42987e72182d8fc64757b299216ff5ab413b4762498f35680a8bf39fd07cbf1a",
+    "processing": "target-pause-v2",
+    "request_sha256": "05aa50bfbfd248158c2c9970309ae04de4cf631d583430b8cdd0e46f27e4c60e",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_51": {
+    "audio_sha256": "a705662874d48ead5d8f39222aa30e3df66181b59b49e5a0236db100335b269b",
+    "processing": "target-pause-v2",
+    "request_sha256": "64aa21080d319d03972230a760e825b16bbe2bcfd6487b97dd6a2b6e7583c89f",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_52": {
+    "audio_sha256": "0c5e4143c0cb4adc86b0f4139763791cdb217ba4b5cce1e88a3da508d43691a6",
+    "processing": "target-pause-v2",
+    "request_sha256": "060f6275a0c1b9c091d987343de12d7c80c93d6a40d105efb45a832216e00ee0",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_53": {
+    "audio_sha256": "2fdfbdf1c319295d0824c973b7e7f2dbece1afe9bf7a070400e4932052407b09",
+    "processing": "target-pause-v2",
+    "request_sha256": "7d44ad7532d95dc15e12cc6549afc537ae045d29b74ec19a4fa6f64795610b92",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_54": {
+    "audio_sha256": "a7c0b3c17def4363a78ee720389f684499c9b359bf9bd0eaad46d7ae1662f816",
+    "processing": "target-pause-v2",
+    "request_sha256": "f87213080acf31035e74c399fb715cbe9a77797879fd57f8ebb9f0645d72b2f1",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_55": {
+    "audio_sha256": "f92a66e61f64c18b70f17929979f29a0d3aed129ceb570839a574462b373127a",
+    "processing": "target-pause-v2",
+    "request_sha256": "bfc28cea6dc43c977f303b6b680543f537415b5af0aae18554cde386196d9594",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_56": {
+    "audio_sha256": "632b42f8cd85f9333647af65eb5db6300f9deef6d2c2457531341c234bd66e7f",
+    "processing": "target-pause-v2",
+    "request_sha256": "b70220828e10bef4b111ac5c04989f790415d23e8b9b27473f430c915eb90e38",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_57": {
+    "audio_sha256": "2b8a4c0a0db8b967f48231f394477d831167c2033b4280c255cf587b135b2f32",
+    "processing": "target-pause-v2",
+    "request_sha256": "d5c9c802b5b05004474c2c30c23c9a266906e8fdaffa6018f07e8aa114c5fcb5",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_58": {
+    "audio_sha256": "081bc3fe8bbc98e1a5f7e257818719d3e2fd737e8576fa0fabcd878cdd533e40",
+    "processing": "target-pause-v2",
+    "request_sha256": "e8349f04c9851f4925219097712bab990debdeabe4fcc378921cc27d16e8fb98",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_59": {
+    "audio_sha256": "b480d7d5d5c1cb487ce2381dee01aea024548d53e6b4c3bd847a55bc41354d61",
+    "processing": "target-pause-v2",
+    "request_sha256": "0830d206b5fcb8bf83ca41808839d608ae2a28db69893647baa852cc85e2bb1c",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_6": {
+    "audio_sha256": "05f37c45701400096ca3a6d18380ae686ee8754143814aa54d73eefa1805e9c4",
+    "processing": "target-pause-v2",
+    "request_sha256": "539c23158f7dcb734e0f966b9684affcf0aaf2bb7d3738df21f756e7bd8d5d9d",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_60": {
+    "audio_sha256": "17682d1c341b8caaa72b7d8551e9de5667307a07312b462bb516dd6736c04f80",
+    "processing": "target-pause-v2",
+    "request_sha256": "4dded5b2844a27554aa551099b9d994675d619c9b68621957beea2beb3248d72",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_61": {
+    "audio_sha256": "7cd9efe25ccd6649cd27344eb2f23963c4d56794a6155499fc75267f16fa3808",
+    "processing": "target-pause-v2",
+    "request_sha256": "28b589b9076bd353b5f9f7de1a5af59be2204e03b73fda1052ddc97b23d4e57f",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_62": {
+    "audio_sha256": "fb2dcccbc23e7567d74a16bbaa31092f4acff09b080350e8eca06a3614d083fb",
+    "processing": "target-pause-v2",
+    "request_sha256": "142beeb6dfe9ce625ddc2148ef681fe852a4497b167a7035d429209c612ce9df",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_63": {
+    "audio_sha256": "b1dcab8131a6c5333bd1bae349acdfe8c6ebaa4cb79d9916a7200d2054e79a8a",
+    "processing": "target-pause-v2",
+    "request_sha256": "ead52b05072cca3f446f7e91c0e3a28127b5a14afa3720d624deb1297336b9c0",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_64": {
+    "audio_sha256": "5328cedcd15f7fe2d36b4f0314155de3976529b2336cc99aa192cddb49910c72",
+    "processing": "target-pause-v2",
+    "request_sha256": "acdc307a5d4138034c67b2108e5992502fde3c03b24afb12c33e4a916a5cc906",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_65": {
+    "audio_sha256": "bf8082f95cadde8278ff8ff83b8306e58534a1e7061a07d55a0958fc52ef2841",
+    "processing": "target-pause-v2",
+    "request_sha256": "4b4b2ae58cb58d4e61012f10461679fee843d4009803bf1cd30410c6fd3f18bf",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_66": {
+    "audio_sha256": "23f3b0d760af1ee11499a5893e0e9807f6d109f55896d78608d179fdd8d14a2a",
+    "processing": "target-pause-v2",
+    "request_sha256": "ef973a414a5de81e271b8c11d0147ad60e1f43bc44113377261e3751ae6cd04d",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_67": {
+    "audio_sha256": "088e17fa5f93381b352a45ff8063771a7c9768f699793b2f7e79397826f6e84a",
+    "processing": "target-pause-v2",
+    "request_sha256": "b90460faa2a0f2158377fb7d5c4ede93396c5abfc133587a3a43e04a2665c1de",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_68": {
+    "audio_sha256": "a68fff45e08c6a7b742dedbf8da7d23e3afa5ba60c6b457456a781863e5134fe",
+    "processing": "target-pause-v2",
+    "request_sha256": "b343058f91e3ec9a50ad6599d9c238b9037850c88d6ea715465eccbe623437ee",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_69": {
+    "audio_sha256": "de8f6838acd5602bfd7d1b8b75b68f277ec66b715290e3f20878296f6a507ba6",
+    "processing": "target-pause-v2",
+    "request_sha256": "ecee411e85452da5066b13c8818c09500c670465891d797872c5ed4d6b6787f1",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_7": {
+    "audio_sha256": "76cc2c3fd91535fc4b4ca9472bf52c8d623a768de8a33986344b03a64b0a1f13",
+    "processing": "target-pause-v2",
+    "request_sha256": "00ac3b132a0cc152d0f63e763184f14a33bdb8b1500d63a712f1696a70815806",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_70": {
+    "audio_sha256": "85f6d4ae36f6f2c15fb2363eb6d7b4472bfeb5843ef2c77fec5f061052aa4e63",
+    "processing": "target-pause-v2",
+    "request_sha256": "43909c403eab1e82173c9844d12ed1dfd8f508976e42177aa25cf2993047c2f2",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_71": {
+    "audio_sha256": "288aaf014d7f3489e0ea31a7ea285344660e96b84e9f8a7cb5cf7be60c55a41b",
+    "processing": "target-pause-v2",
+    "request_sha256": "e1729828942dbb22ef0b6ca3311ab97b686fb2e70eddeb4849bacd8dd8d71b61",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_72": {
+    "audio_sha256": "e5e44b86faa61fd0910ec6ad85768c095b849df9a23a8fd1df51f2b70bb9fa21",
+    "processing": "target-pause-v2",
+    "request_sha256": "6535d1c5081e15accb266dda6d2f82487cd2cdb10bafbde1f029f8e6f5811b53",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_73": {
+    "audio_sha256": "800e2e38877452a9ade97d1bfa8b6107e181dcdec69d901a847d43a59bbb1879",
+    "processing": "target-pause-v2",
+    "request_sha256": "76da7ee8a8aff6a2dbcb93202c7541ed95f7464894cd7ae368b9dc102c338589",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_74": {
+    "audio_sha256": "abefa562e51f08f1d53356c32f8cc1d87ebe8b4bdc6780790450e312bf7c2567",
+    "processing": "target-pause-v2",
+    "request_sha256": "5abcc298881a82839858be0e2e08ddf9941d348b28168a838e09514f788657f3",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_75": {
+    "audio_sha256": "e2f60b098476dc3ca0ce900fc9726ecd8f96e07f2cfcb1cbe2de56920c22d2f2",
+    "processing": "target-pause-v2",
+    "request_sha256": "0cc6e315c89886c088aba6145e51a6a3c95e9fe37ea8d49dcb73a9784e127eb3",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_76": {
+    "audio_sha256": "287f62f255b7aa801b7c0f4deabc914a505ff4535894d428f9de595dec3d1a4d",
+    "processing": "target-pause-v2",
+    "request_sha256": "3d54ca3aaa161f5efab94370b3ef0afb20e08eb8281cef7fc4ced11a56b58974",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_77": {
+    "audio_sha256": "d90b2deb84c80482e0ed6964b01794cdabbe7f2d999e31950f7406c5d51b6acd",
+    "processing": "target-pause-v2",
+    "request_sha256": "5a6b7f5a7b2fbb8a3fb6d3a835e7eb32174f0e175688bc1b1235e42651ab59ff",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_78": {
+    "audio_sha256": "71216e9170b8575d1831a0ba915e2543924362dc60f0c61f0d830d3263e79add",
+    "processing": "target-pause-v2",
+    "request_sha256": "cbcbd477a703645b1c9dbabe26d0ec9dec243e1526916a8db850618c85e159c3",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_79": {
+    "audio_sha256": "a034a08a5186e98eddf658be30b20a9ef50088f1cb32fcb61a86e3670f215ece",
+    "processing": "target-pause-v2",
+    "request_sha256": "263f53dca357180e4dd47ae3eff9b3c4f64633e1069a27fefc265e6c792f6b82",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_8": {
+    "audio_sha256": "7e7eb55ca6bd500bbfee32664b503f793401107d7836347e838c05219d48e4a6",
+    "processing": "target-pause-v2",
+    "request_sha256": "d065fa65abb46173420824cf0177093c93ac01338773bbd1ea30ccfdb24f0205",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_80": {
+    "audio_sha256": "13037956e6d0afc3244f419559b249882b22477a2c95bcc3bc6216ea3a1da38c",
+    "processing": "target-pause-v2",
+    "request_sha256": "4765e31a062c38633102cde13999b8778a13c63e98ccda95aaee371849b6d652",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_81": {
+    "audio_sha256": "419daeb69e53ce2f3f1b8bc8ab65cda3dd3bf0bc45bad451c3f3a491b54d595c",
+    "processing": "target-pause-v2",
+    "request_sha256": "a5a523e9fd584df2c439b9181c733cb8179931bf380f7866f3693a8ee0cfdea0",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_82": {
+    "audio_sha256": "9abae3eb50a4c73449a785e16e5c0407750369a0b2777f5e9cca04f16b03ef17",
+    "processing": "target-pause-v2",
+    "request_sha256": "cfc1d6c12f31692b5bda5198bfeefb0c5fbc5a49c8dfe70ed5dec52863a02bf2",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_83": {
+    "audio_sha256": "d1a8c8457b707b971c2105935d04dd8685d93367074f05ddda9de75a2adcf7fa",
+    "processing": "target-pause-v2",
+    "request_sha256": "2868562150579d4db4ffbdd8bf39ad1afedabbdd0c81b24be4546b7c473d2798",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_84": {
+    "audio_sha256": "27642cafbb5018c663c2b809be5ce72622a745eeefe2c325a7b2dc5ab552ee2a",
+    "processing": "target-pause-v2",
+    "request_sha256": "4cc115ca2b7dea046947e26df3888f7cd824180e508a8a6ccd0c8c205743501e",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_85": {
+    "audio_sha256": "da66e15e2df97acc285fb86846aaebdae8e8f5c660da138f54228c750fce14c0",
+    "processing": "target-pause-v2",
+    "request_sha256": "010c60e2f0214d35f322a9f9e8996aed958d4c939623756d8f3a3b0eaa9e2cc7",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_86": {
+    "audio_sha256": "319c120f69c1a8a62300081e5e1cbb9e5b1e7d71e6a3b6333f2cf7058cb3df43",
+    "processing": "target-pause-v2",
+    "request_sha256": "ac904bc54883cff627ae466cdbc749cdeaf60947bd4dc4cc1d41f29bb9871d63",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_87": {
+    "audio_sha256": "a80f5d8616e25366b69d034594cf08452fe5298afa3180f4b97eabdbc2f7056c",
+    "processing": "target-pause-v2",
+    "request_sha256": "ee9fdcdb6e11b2d7928c57f2b16c47a1f4e21043ed21f5bbacb0c5ed1ca65681",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_88": {
+    "audio_sha256": "662fb2a6628670bfd93011849b85a78c5c9c0acbfb32a88e6ec05810aecf3b39",
+    "processing": "target-pause-v2",
+    "request_sha256": "58464a6f4c68854e127a3ebc8b7008883d3052edd0d29c8212aff548c3785f7a",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_89": {
+    "audio_sha256": "3d8d13e693027ebfec66cd92fc5dae94fefaaaefd67d79f5be6308260ef32ae1",
+    "processing": "target-pause-v2",
+    "request_sha256": "0a4dfd80d9e0d0818e9765c4c7b9fa105aea289c7b14122071ce43c34b507ad5",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_9": {
+    "audio_sha256": "d68420840b386ab7e939879efe8eb5b5b344d40149e23637a61237674336ce7b",
+    "processing": "target-pause-v2",
+    "request_sha256": "300c5b4bcef03b079c27df378626b11d0a0915265fbfb5b71921c331db49a92c",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_90": {
+    "audio_sha256": "4e6ed53ada20040100af7b0858c545af09f4bf0b434621e75f59d6f3f3eaba66",
+    "processing": "target-pause-v2",
+    "request_sha256": "2cb4a4d533ce6340b1823ce67ff4419397bc08f1674b403b985b75d316858c7b",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_91": {
+    "audio_sha256": "f08b80ea2d24b0c5dcb6e4edba664dba4a39f202e60ef98641c8df5edb50d2d5",
+    "processing": "target-pause-v2",
+    "request_sha256": "9e5bfd5264d56a84853cb91b14e7d8bce6563f91dd62d523743b5b4f3291ee58",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_92": {
+    "audio_sha256": "497f766793906fead7a3715d0c687f0516c30d74d5be6602308654837b1d4b92",
+    "processing": "target-pause-v2",
+    "request_sha256": "a4e27ff81a94f2a9ea6c1fa24616a81683151e9f77ff8756ae93d7c54f3b2db1",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_93": {
+    "audio_sha256": "c2afdb0c4a228804e23b4d26bf09e5f3b8650fa7918e8bf43cf46271cd783fa4",
+    "processing": "target-pause-v2",
+    "request_sha256": "e0135182e425ae8cbaa8e063824398d1242e20b126dc0cd0c756900744bc1fdc",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_94": {
+    "audio_sha256": "01f7089fcb251e5cd1ec65b6e9009e82a608b000003d89c9dfed79aff2dae8c3",
+    "processing": "target-pause-v2",
+    "request_sha256": "eb3ee68c09859483f05242d8260e88d1b4d672a3bd466e6daac73733a8bb2876",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_95": {
+    "audio_sha256": "cd2f477a5320965af953ab6f54c6214c25d5559a05064ddca53d9dc1cd9751ef",
+    "processing": "target-pause-v2",
+    "request_sha256": "923cfa8cbfa56e39dd85ff5486609eebc7858a0c7b1529cd429f6527d3cf6a8a",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_96": {
+    "audio_sha256": "a027ab84c266cc408f3a6ed382d20806a8b025acf0fc89537b4f0e8b633e1637",
+    "processing": "target-pause-v2",
+    "request_sha256": "994b9e8215f41385a43b0f15a80305c323ae82b23af99fe2fe5f3394f9686cc0",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_97": {
+    "audio_sha256": "90477b2936c6a209d2e31f9e3dcc14269b7eb59a99680980ea1be5ef61bdf856",
+    "processing": "target-pause-v2",
+    "request_sha256": "226a6ca6b2da1fa44ce197c9deb440e4c78b2aaf3e18ac1f3f50e04f15f34f70",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_98": {
+    "audio_sha256": "0b439ce6553e9e18753190efdd47ec27f30d30fe270f1c4c5f9c6383cddf7f98",
+    "processing": "target-pause-v2",
+    "request_sha256": "51fbc074e054ed5c5f3f2d2dac26308d0b3123d942d450e179dc65efa9db0c7d",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "number_99": {
+    "audio_sha256": "e46567d4ca3793b59d8aeb2b54b19f31a658aaa43ab4727e563e575790773cc8",
+    "processing": "target-pause-v2",
+    "request_sha256": "57cd51a7550f527ec718de66578e84a0fcc68f25587a84851db6fade73c58fd5",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "sound_a": {
+    "audio_sha256": "291294e40c04dde8a272e98597a4207f49574898a1455508c2056a4294d012a7",
+    "model": "gemini-2.5-flash-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "93c1bd5bd15d2abe2389fa7580f13b47e74020ee77d7e030a79b7b81b554c814",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_b": {
+    "audio_sha256": "688fdc4b31a892c8956cb489fbe96ac0ae7a97c7906b2919de103844b22b3834",
+    "model": "gemini-2.5-pro-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "27f4ddcfc4b6acfeb2511d2eba04996dc73c616a8b40cc6d04d8bdad8ee00656",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_d": {
+    "audio_sha256": "279ea342025317b5a3ed3c3a6b78262ca90f735463ccf50865cb6a144f0a53ff",
+    "model": "gemini-2.5-pro-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "4f23d826b296a1658b7073f4111dac3823743e95fbe5aa1144c7d2c54b78a2eb",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_e": {
+    "audio_sha256": "c91724ff9cb33d9f886be6833799f214a0010e3dcc7da1cd0c935590971b2012",
+    "model": "gemini-2.5-flash-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "c69af138d87e89ebf8e932604b5ecf61720085e4b86bf42f842ab28bb294bc84",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_f": {
+    "audio_sha256": "2fa11b032fa6a2d6a8a82601ad126a0d8c12f0bf3d16cfb12f31a4e7f5c7a65b",
+    "model": "gemini-2.5-flash-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "95b578284502a6b0b33b537a73ba0dc6bfcbc626f976f1b9fcc841edd19c1609",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_g": {
+    "audio_sha256": "5d9a5749792aadc2d9bd3397bdf0ea4b703f1073e67eee9073f3594c4d36b7b0",
+    "model": "gemini-2.5-pro-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "f97c846ce4828387f5a8f6785e10da5bdfe01d8113b816e21e068236d248c0ed",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_h": {
+    "audio_sha256": "9ed3aac5a72822768ea483e5b6eddd12b5caec6dbfa9b5a221dc721b2d2df1fa",
+    "model": "gemini-2.5-pro-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "050b3fd714083cffc7e80f4ddc5d22521c564830c047d2d15dd535215945c2b1",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_i": {
+    "audio_sha256": "f52fc8b4f692c519b72ccc033e9778bbb259e68edfc5a3eb9a17b103d563b6ba",
+    "model": "gemini-2.5-flash-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "27b1f91189ee205fca3e8cbb03d0f6aa735b6f6a146b00ccc557fe4ae27234ed",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_j": {
+    "audio_sha256": "0f7541e97fb7c5ecae412e89d1997c405ad2024633dda5745b9baab726a5e528",
+    "model": "gemini-2.5-pro-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "937cd6484762ec4e897820d886344bb4ce7a0e06b46c485dac1417cdc4442078",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_k": {
+    "audio_sha256": "6f7c52c8e6f19d13dca62d37a4ac217fb4940de440f730afda367677d3b08b1d",
+    "model": "gemini-2.5-pro-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "6b8b27155dacd8f5813e444c12291b04a302597fbdca7d5f46ecae37e9a11e8d",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_l": {
+    "audio_sha256": "3c35a01fbbbb62c3c84bcd5a2059449c5c46ae08b01d2ab73e0ba6dc3daf7cb3",
+    "model": "gemini-2.5-flash-tts",
+    "processing": "phonics-directed-l-v3",
+    "request_sha256": "20fcec94f5fd32ec49f2aacd8a76a06a46d48d79ffd89c6d37c3ed1fbd137651",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_m": {
+    "audio_sha256": "03990febbd87e75dd74a31abfd128e0237975e9652e7bee85bb82d67035dfc25",
+    "model": "gemini-2.5-flash-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "c3b89af6dcff3e33c8c3f51cb7c18a02fb99924604ee1e122fb073a347d132aa",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_n": {
+    "audio_sha256": "21c4701933bcbf22617bdc8a9fe1e8e346d07f2a3c83122be19a6a02fcbe8b90",
+    "model": "gemini-2.5-flash-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "89574ab311e3cd2fae9925052f4af8c6f19c265af511d0f1fc190a17990ef5c1",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_o": {
+    "audio_sha256": "33d20c8b7e667e2af32c2435e211c3025632783189b9b75e3d267a028d466ed8",
+    "model": "gemini-2.5-flash-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "1b5a4915d7d5b70d95895d14d97b5785907439c6ab6615f634cc37f1da4e9326",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_p": {
+    "audio_sha256": "b891b0c6e3d9318b437e83f1a30e9ca7c2fe9836afc2f9254eda69bb4482d464",
+    "model": "gemini-2.5-pro-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "95faf674e437d415e1071c7091dd6ef7bf0aa043249c3e168c01eed6af6a58f3",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_r": {
+    "audio_sha256": "680792a11ff01c2e345872149a4207f2a3eabee8c2c8b5644db1a0027dbd5aa8",
+    "model": "gemini-2.5-flash-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "45122b741c18f890df9c195e3183510b6976e710086cf648c5d914c2e18b3cf5",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_s": {
+    "audio_sha256": "1176f204569539268ece32661dca00a85838fd0e75266ccb4811fe5b50aec007",
+    "model": "gemini-2.5-flash-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "3d29bb0947a0147a1cc3f76fbfafd16a9dce518eb3c89cc96a1461e666d2e110",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_t": {
+    "audio_sha256": "560c764dca3bbc2788211668a8d151a95c819aa7295ec8b3df057b210eca2330",
+    "model": "gemini-2.5-pro-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "1ad6036653438283c07f14e65cf1292a2567ae60242f8fa7a63fe1f913fc549b",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_u": {
+    "audio_sha256": "d155db32921fdead115e79290f8c0220869c1c4fffc715b87a1dcb5e4d3dc967",
+    "model": "gemini-2.5-flash-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "c542a428d59f01210d91b13e835aea8525f62471c5606a8fa08f1c17d259118d",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_v": {
+    "audio_sha256": "512721f9fe161eed7ad1d54583fae45cbccc388d771b93d4cfe959c05246903c",
+    "model": "gemini-2.5-flash-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "31c1db75dcb2cc7f45b0e48193d4603b4187ff575f63c7338cd07a3cc209981b",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_w": {
+    "audio_sha256": "44d3ce230b7475160b3f57b249843c69a2912ee1df878a758011c137c35ab099",
+    "model": "gemini-2.5-pro-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "97522ad0cf61148706af789a2eb982e1be86c1a4b5d8d8cbc2eccc7faa7ecb33",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_y": {
+    "audio_sha256": "40c034d2f3d04fd5ab0431003b2a37a6a0903b09c8aec75123f1562206dd7fe4",
+    "model": "gemini-2.5-flash-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "0d67e7217f21da4d7277f16ed87e00de6782a5a6eb4911be70fa78689698a34f",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "sound_z": {
+    "audio_sha256": "cf8a485f278727f5ba3bc3a50b0ca1854069dd389507bb2f276b57540b2c111e",
+    "model": "gemini-2.5-flash-tts",
+    "processing": "phonics-directed-v2",
+    "request_sha256": "db3121eca1c52eb24972afe1316728136a54577dfd7158392b6ad52deb7daa95",
+    "speaking_rate": 1.0,
+    "voice": "Puck"
+  },
+  "upper_a": {
+    "audio_sha256": "b8c436015e8bc1d57eb80259ffc57cb346d54b08091719985be621eb1ce44b0b",
+    "processing": "target-pause-v2",
+    "request_sha256": "1bf383c4e7e98407081a55fd1ccab4545487792e74f7a0d48cfb43b516bce309",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_b": {
+    "audio_sha256": "1efc2fca3f7a6bc5e5cc226de9331cad4fd92f38705bf503a06f0caf6809128d",
+    "processing": "target-pause-v2",
+    "request_sha256": "d1ad00ab9843c5b84964d04e741caf68e5e870b105867c20a29ce9bcedf0d553",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_c": {
+    "audio_sha256": "4819b98a2ab665bc44ca5069ec81c1d798b9913872bba2b596ec3d7502446d7c",
+    "processing": "target-pause-v2",
+    "request_sha256": "542fe91bb3c42fda8224fd1fd6fbe7dbfa6f18598f0214343917caa170022f70",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_d": {
+    "audio_sha256": "6da0d075b7a12568da4447551ad188639b195a34a89e4fc6ee81de5ea2128677",
+    "processing": "target-pause-v2",
+    "request_sha256": "d8bde125ed01e548b33275674c5824ece68eb7ca65a0182647d84321fb0e41a2",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_e": {
+    "audio_sha256": "e3cceda9bdcd47e2d4c38d6faa7f006fd29045555daee7153b9b458eda6295ef",
+    "processing": "target-pause-v2",
+    "request_sha256": "db3b6f317827de23130801e448b47d9533fad5618e6ee996524805daca6bdc95",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_f": {
+    "audio_sha256": "d9a0e282a42aca40585dd933872d9611514109926fc606aecc497a31c54aa569",
+    "processing": "target-pause-v2",
+    "request_sha256": "58687f3c266358d7b5702c83cd88c5f9f559c39b53645aec3ba31ccefcd02172",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_g": {
+    "audio_sha256": "380a188e6873b50eab98484d7ccf6a65c8140faa401bf05a8fe740beb93818d2",
+    "processing": "target-pause-v2",
+    "request_sha256": "c3aa5ca004c9d594a8506539210628a976d8a78d242fab35a3e499d5bca99433",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_h": {
+    "audio_sha256": "d76a36ce71ddb1bd844d239c55284ddc8f05d64f8f98cbc2097c11b6bb9dd5c3",
+    "processing": "target-pause-v2",
+    "request_sha256": "f8b34aaaf905f4bf247f758e716f5fa8d9abc1df35cd560c67fa202dd5442ce7",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_i": {
+    "audio_sha256": "49e933424c7aa1f3386e902a8da68cadcd1297dea84979fd364460e66fce2a39",
+    "processing": "target-pause-v2",
+    "request_sha256": "fbd5aea96bdaac93c526352de383bde81e52d147cf9ea869aa8170515a3187b9",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_j": {
+    "audio_sha256": "abd26b6ab39015a8c9b961e04a066d0f37e385ab9ef3fc66a50fbeb53d604ec2",
+    "processing": "target-pause-v2",
+    "request_sha256": "790eeefd32fe31edd63c164846e698536f820f602b6372a9fe795312f5b3d838",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_k": {
+    "audio_sha256": "d6c34274bf798ddf14b9f3adf9ee4a87d971aad30b69bc95efeaaf7e455ad231",
+    "processing": "target-pause-v2",
+    "request_sha256": "8b27c301fe3017214ecca904e63a15d5ae75b0c73b3b76d26a5352fa21da89f9",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_l": {
+    "audio_sha256": "8de5fa8791f92d9de1e74c9df40523cfd687d77ed17bb8c27a184ec7df729334",
+    "processing": "target-pause-v2",
+    "request_sha256": "a1bc5fc59d3d6646cda4757079c156f7f0a3a0a0d539f7b5c4974dd34e137afc",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_m": {
+    "audio_sha256": "2ce962880ae702c3489db26a872edb10d0116bf88617546dd7c8f371e862ce52",
+    "processing": "target-pause-v2",
+    "request_sha256": "1110b8a025cfee192eab48bac3da6d1a05cb607f4f79e66e10d12ab487ff9800",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_n": {
+    "audio_sha256": "86b81f4e85109f6f44c6904025574a8db51f27d0b44b5fdfd77c9b838c2bcb1d",
+    "processing": "target-pause-v2",
+    "request_sha256": "89adc60bb74fe8c4bf8f547370783c066f574f85d522486b4abdee2074bb0cea",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_o": {
+    "audio_sha256": "6878da600bf0e268921b171b52947940e3f286fa296ec31aca29185b21259d45",
+    "processing": "target-pause-v2",
+    "request_sha256": "3a83c8bac5d14382163726a999b457ef6fcc0b644077e8c864b753021cd62003",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_p": {
+    "audio_sha256": "7275c83496fc74240a2679a372e1f373789ab595ccaf9e5053fc731a7814f071",
+    "processing": "target-pause-v2",
+    "request_sha256": "32e9e78a668b08463171e51e6fb580f5a13bbb4ba16039ff849fe667ace03d16",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_q": {
+    "audio_sha256": "c74564b7aec09aaef4525a21edb61267459cad857cb50da561cace5a5b728e50",
+    "processing": "target-pause-v2",
+    "request_sha256": "4c1134b151037758480d00923acedfec8cf883138b4c329310d42853bacb4b68",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_r": {
+    "audio_sha256": "49656cebfd18c783fb515b0cfff507ca76601a88b32b08367bab03d039ee985c",
+    "processing": "target-pause-v2",
+    "request_sha256": "7424e628047b8a1db77ffb00534c476f56c4d939f46683b23125ac26e3a5e398",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_s": {
+    "audio_sha256": "5327415fa5355f1fb082012aae7a48b27a2b237ec22f1e2da3369f7c247b622d",
+    "processing": "target-pause-v2",
+    "request_sha256": "ae7556d778b5ec4277ad8e47008d38c27ea3224437b453edd41f36febb04f987",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_t": {
+    "audio_sha256": "16fdf6e94a59252cef1ec32e8f49091653699be3879d4856d462a3ddd0aff3b2",
+    "processing": "target-pause-v2",
+    "request_sha256": "4c95a54593bd1364e9a4b128911718ba202f9c624f3a66ebcbf7c1c631230da3",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_u": {
+    "audio_sha256": "20cbf84126002c349e2fe27f01df61906ebf7e65f33f30c074e5bc5e3443f1df",
+    "processing": "target-pause-v2",
+    "request_sha256": "f9d8684aa138bbe0ec0bf1c0858ecd171d6eb9b4a936656d604ede69cafc6339",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_v": {
+    "audio_sha256": "049c8d80b218d5bdb483ba22777b34b0dc28d1e111f40d6c45070170ea8ce294",
+    "processing": "target-pause-v2",
+    "request_sha256": "1297fe5d355dff93f8317e74b636db34f452317d51ac34306c7525ac59a3382c",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_w": {
+    "audio_sha256": "410380cd1d95eba3e6274a05daf39d594491198a65bbf1d703a268eecd23f5dd",
+    "processing": "target-pause-v2",
+    "request_sha256": "542b66c92a9f45e403892f6e75f369c5d9f075ad295631e2a125ff582c4a8470",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_x": {
+    "audio_sha256": "bfc6d33b25d258d4dea6d7405b65f84ba79e6101e703967fce2cf0b7bc8d3980",
+    "processing": "target-pause-v2",
+    "request_sha256": "e17ccac30a1e67c06efad4f33fa33a1758c2ecf9a3bd0a0ef1520ea80a80cb58",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_y": {
+    "audio_sha256": "f22d81c68af2c1abc63dde2ed04e3dca1f430223a8bb1b975182cb62c2f5ba4f",
+    "processing": "target-pause-v2",
+    "request_sha256": "c69ec70d3011d65d3afd68d4b6a1f5887baba4512d2824f360246737cfd00578",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "upper_z": {
+    "audio_sha256": "54a2c977951150d68a23321ca59fc9593c1d90340f0957a6e7e88064c06bf444",
+    "processing": "target-pause-v2",
+    "request_sha256": "c62e62ff455d4e385dfbbc615d1cdc4c37e2cd3a17ec58f43ca1315e48157e56",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_a": {
+    "audio_sha256": "9ea2b4479ce4063f05469c0cc51143cdba685369d0eaa00cce9053c0b5102513",
+    "processing": "target-pause-v2",
+    "request_sha256": "0fb814e05f294ace7b0355ee8255335437a49c72a937d14625cd628117e98175",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_are": {
+    "audio_sha256": "813dc4f6ccb363b756dc7cc9fd21391d3a023bd4ee567baf4dda5631f06ecb9c",
+    "processing": "target-pause-v2",
+    "request_sha256": "1c6e8dcdbc0bd61c120acd896fe3ac5ddbb55fdfba08c072d81de332fc07c705",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_as": {
+    "audio_sha256": "155b9a66b3812f5cdc7c680c6d372d9019e580642abf049a030ad5820cf5e718",
+    "processing": "target-pause-v2",
+    "request_sha256": "b8273accce579fcf1696647ca219a818d94d577719e36bc6199adef838442345",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_be": {
+    "audio_sha256": "4381a64c8f76075d0169f5944da4cdcf68aa878a93e2caa8ac7d4bf0f10dd36c",
+    "processing": "target-pause-v2",
+    "request_sha256": "b5a16c486f2cc904972544efb178e343bd12b2634cd67d2c2679fdc2e71e3fce",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_by": {
+    "audio_sha256": "774488a0e3856a42ad99775b60fbc2f01f3ac4eeb4cabbcd9ddbab254aad05dc",
+    "processing": "target-pause-v2",
+    "request_sha256": "0c547803b879851ca3e0e414551607370ec4351a74c42fe78932366fd871a909",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_come": {
+    "audio_sha256": "5bc543f3f4d1c7e5a5c311d14a91c6ed6e7d20ccbebbdd32f91916ef6c070ac8",
+    "processing": "target-pause-v2",
+    "request_sha256": "364e30d9847b86b2a5c06eb3aa77e17fdd4366fd53fd24fccae673403081ccda",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_do": {
+    "audio_sha256": "2352489595da1720c25713442a03299061d58acbd9800c4f64787b8db0b52bb4",
+    "processing": "target-pause-v2",
+    "request_sha256": "6ccaf89b8505c01fa9baa787c01baf6088f5f45848a15cfdfa821bfce7a4b3b5",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_for": {
+    "audio_sha256": "536a051d18330533850b68555ae53a815185ccb17c530579a41a72dbf2e05318",
+    "processing": "target-pause-v2",
+    "request_sha256": "e196c59f53a46bca4ddc86886a7d18b9d9955b3eb017b7ce3348977df6039e8c",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_from": {
+    "audio_sha256": "ab34289eb2dee889353d523fc3b7ea64eaac61f60fc1da148f0c1a070a8cc7dc",
+    "processing": "target-pause-v2",
+    "request_sha256": "7b89d3c89f660baa64d9ee076ad28e6aab2deb6e680405bf7da17a13152a4fb6",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_go": {
+    "audio_sha256": "be7d47c0126f156b2a950a9df0eb7babb7b8fea95f5eabe2a789ff36eb518c01",
+    "processing": "target-pause-v2",
+    "request_sha256": "1fb1d8beb453c7601f3340ffc71819e95778bbfe67f0ba620432696b52f016fe",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_good": {
+    "audio_sha256": "fa20c50e1526642b2dd5fd194c873bd77187bb4b7bda38c4c3307e7d37037dba",
+    "processing": "target-pause-v2",
+    "request_sha256": "7043888d3da53fa8cf8aa5aba77ae0e854dc8b405a37425589340ac2047bb209",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_has": {
+    "audio_sha256": "bf43c663dcaec7d3dbebbc8d267255e9fc6ca3af08c085413e76c448b257b206",
+    "processing": "target-pause-v2",
+    "request_sha256": "c6b9d2b8f84a9e65e41b5fe8ed98fcb06776fa4e3dcc61fb7d001b70307a07c5",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_have": {
+    "audio_sha256": "58708ac8962613769f922ddfa9f3435cc880bf90f70b55a32cd099841cbbde9b",
+    "processing": "target-pause-v2",
+    "request_sha256": "3cb94cb467d75fc2feb8f3994f20ebabbd88437694b4d09dd6400139bb131240",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_he": {
+    "audio_sha256": "ff15f9ad199a4b6cd9301314953bf766cfd4148683d836b19c3216b6140d6c58",
+    "processing": "target-pause-v2",
+    "request_sha256": "31b6c0bc17e6d88225bfa2d87a7cd691731015b7741b4d1742d05c2c84694884",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_her": {
+    "audio_sha256": "1dca49fbbc20500e6cca4ec503164ee8d81342e5dc6b0d9bb999dab212b1e7bc",
+    "processing": "target-pause-v2",
+    "request_sha256": "87a0ff3f130801c7de191a7f5aa82eb5febac6ec52b57d5e64203fd2ae43e50c",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_here": {
+    "audio_sha256": "74103d9a9bf02c497d40c1494715ef5792e55dddb87727185f9f148620473b91",
+    "processing": "target-pause-v2",
+    "request_sha256": "3e22850ee89d3069942c747e96884d98834f33d237fbde55eec79c17cf466284",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_his": {
+    "audio_sha256": "e853d2114e09f05a73aa7610dec592b8b125b101876191bc7595b07f1a349048",
+    "processing": "target-pause-v2",
+    "request_sha256": "2f71b3a4bbcdd99630f2556b354d50de120db4ce62939312eefe30e06ab95717",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_i": {
+    "audio_sha256": "864a7bd6df79f89571a32cb2bf76db1570590774af091f567c7a76d9e7c88428",
+    "processing": "target-pause-v2",
+    "request_sha256": "632363e6a1a28481b3f2b8bc58ddd37b5a6da11f2892183161c3225a6e64d0a9",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_is": {
+    "audio_sha256": "8dba2646a316048d32de431934e755ccd02c03a45633bad8b6399cfa0025f47c",
+    "processing": "target-pause-v2",
+    "request_sha256": "a50cf97a64532329997df5fdb5935ce01f2b72ebfc4a789174a372e9b50fa68b",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_look": {
+    "audio_sha256": "bc96c9bdac8088130fb1e551ed024f417194cbf9ad72f9e4259dead89318c741",
+    "processing": "target-pause-v2",
+    "request_sha256": "358a0244e4607125ce2d7180d46aeb374418be7b232db11542ed34a10d513c37",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_me": {
+    "audio_sha256": "83050e9938ec58d26d4a6c9ff9fe34d82609dc6401f09b9cb653b62c52139ed5",
+    "processing": "target-pause-v2",
+    "request_sha256": "1677686eff1ecdaffb81e394aa36da0f5273d5b4be58840c774c34e968715994",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_more": {
+    "audio_sha256": "4429531aa50782203a540541d335aeef06770ee9620605628b15e4954cdbb43d",
+    "processing": "target-pause-v2",
+    "request_sha256": "9c17f81d5f5cf99bfd1b0905d5854fa190e19494bee99a8ff38aea07a86fc6ad",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_my": {
+    "audio_sha256": "d1699eb5222fac3a084d3c9c5fcba6f19cfc26427b46ce400a29045254a1f2f1",
+    "processing": "target-pause-v2",
+    "request_sha256": "3649f3392d095ebbb5e314ab3518b7817fc24cbab77c2f49c97db7575bbf9164",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_no": {
+    "audio_sha256": "042ad1c55808621b4d64a85a574046ca6acae0e7b8bdc727c9c36d59859b8b5b",
+    "processing": "target-pause-v2",
+    "request_sha256": "7f8a81686930d4641fc8fa13f193c7127bbbff80885204f672ee815a571e10af",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_of": {
+    "audio_sha256": "521986e713f5049a4b012da5ecd5e0c1561cb7d03039f8a48d63a58c0af349de",
+    "processing": "target-pause-v2",
+    "request_sha256": "8afcd1838847f74657deb5221786412a56d9e492f8a40436e747413679bb003d",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_or": {
+    "audio_sha256": "8c53065b64d1b1367da15119597f1adcf778a0514b22104360cc6ee2da944599",
+    "processing": "target-pause-v2",
+    "request_sha256": "e0e0c1565047a0b4f0172b670935e1be13d09a2ce6adb03eb3c4ec02156e3d71",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_our": {
+    "audio_sha256": "4ab89d22174606b1ad1c536f072e6a8677bb64fbbe8ac064e14957e0ae79a45b",
+    "processing": "target-pause-v2",
+    "request_sha256": "70e46f3f0cbffb116e5726ac312ff2d349e1337c50c97bb7b1b817312c28665c",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_put": {
+    "audio_sha256": "78b240a93822f98be5740382a2ce44d02284f7904fe3b99d2657f62932278a7c",
+    "processing": "target-pause-v2",
+    "request_sha256": "40ed9917d96c82d29ae7ab0cdd58da4cccff3a5a4a0aaac5a9125e85f2ab6626",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_see": {
+    "audio_sha256": "a02ae713f36aadd5219e082f64ba1257ecda23448aeed23b5664c00738835294",
+    "processing": "target-pause-v2",
+    "request_sha256": "2f7e1ed900cfe068d7d8a96d7f62d0236f51d73d7c406cdf47bd2c36540bfc68",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_she": {
+    "audio_sha256": "b2b8c8503158fccce7e49152c121d577f7711d776eb8a24fe266e644389b4b4e",
+    "processing": "target-pause-v2",
+    "request_sha256": "5dce9149b8b3c99d77d17397b7bbcba9cedd2348f38ec7e61c9ab39f504b3724",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_some": {
+    "audio_sha256": "c28bf9906a81e63140503082098a97066b2e73b44cd9a0a9df2506bd9367a545",
+    "processing": "target-pause-v2",
+    "request_sha256": "5965fdf5efb84ada41e9b00ea789fb2dbeeaa59f195f38adff117a44dfc384d7",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_that": {
+    "audio_sha256": "0d1608d9ecaa996cd3b9bbdfd056114a31bc3a51a770771921e924d18fb5a3d1",
+    "processing": "target-pause-v2",
+    "request_sha256": "2a6cef8bcffe566279d78aa1a61aeccfdbc400029c6bfbb64803d81f2b3c73a1",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_the": {
+    "audio_sha256": "aa73b0277048d0baa6398fbba9dee51ce37c1f1c09e1098ebd9809a65ee088e4",
+    "processing": "target-pause-v2",
+    "request_sha256": "08ffafb8d49cb8896b215e10a43517872929b9f76885700f0af16eb72d6d907c",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_they": {
+    "audio_sha256": "fa2c644c9eba3516ea7b230e3e25dbdab7fb634c98c30341058f48780b85f1e6",
+    "processing": "target-pause-v2",
+    "request_sha256": "ed19971982fb1e8f03d376d25b32e9c43d158ffd39eae44a624121afcd333ba2",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_to": {
+    "audio_sha256": "829ab24177165a11d664772a3b5042d27d9480b0e190df7c5404f4eed43d4654",
+    "processing": "target-pause-v2",
+    "request_sha256": "960c5a26a9846abfa96cc6d3d542a704b658e7bc30467893b527d055f1cf970f",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_too": {
+    "audio_sha256": "32a8b8a6ccbee0a5f9c93f314f4286449ea497a2db797c8a419aafa43014be78",
+    "processing": "target-pause-v2",
+    "request_sha256": "58baeab051a0d2d8874a2d3fec3217ab32cf488d8cccd57971c6fd9ea36bd356",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_very": {
+    "audio_sha256": "02025502bc00c99be6932f701a13f223d8d61f3f0076b7ecd062ae2bb1e83938",
+    "processing": "target-pause-v2",
+    "request_sha256": "2c4524d3a13163c25ed2093325dcd39c4cdc0d65fd76804d66579fc067a777bf",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_want": {
+    "audio_sha256": "3353c68978986723eba23c5e5e861e40f26fe4c8dd2b241831a8086561e79e84",
+    "processing": "target-pause-v2",
+    "request_sha256": "cc9e61294696cd08c29f499e7b1cb2cbfc49b18230dd0e72b9de12ab00796de3",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_was": {
+    "audio_sha256": "93be12976a886a31e769fcde553ef2aaaf09a760ab8bf29698a1b4ad75280a97",
+    "processing": "target-pause-v2",
+    "request_sha256": "d551833d6753a72442c0ace65dddc71a19492ceabd88033fa659ecd9146ffab4",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_we": {
+    "audio_sha256": "5c2e4950c6132f690c83ea1e6daa9ae4e72ee13a1f8887f76dacc8d3fcde69cb",
+    "processing": "target-pause-v2",
+    "request_sha256": "0b6ccb4438389dd9441cde8a277a3392b20c02c1d432595e013044a5858bff0f",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_where": {
+    "audio_sha256": "ed83b9fa8720bb04927a4735c7d2f132382da6da85309888337ab461cb86914a",
+    "processing": "target-pause-v2",
+    "request_sha256": "7ae8d9d048da7ceae05a3bfc4302ae035bb65e056639dfd38085e5680aebd14f",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_with": {
+    "audio_sha256": "402f58b18a718e42761ce142a368b9676b87f0ebd4b7fd3ba44dc178f83fff10",
+    "processing": "target-pause-v2",
+    "request_sha256": "c580b27e54abd2954eabf69301e177bcb6ee9b88e9d87696761d41c7279a185d",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  },
+  "word_you": {
+    "audio_sha256": "275bfc454c8e0ed06cb824e933b9f6dfa308217c3c8027d94945ba2318fce03a",
+    "processing": "target-pause-v2",
+    "request_sha256": "22341aa4d9eeeb77582afca63b6393a801a3eca74dd9fc14ff452a02ad0b2d90",
+    "speaking_rate": 0.9,
+    "voice": "en-US-Chirp3-HD-Puck"
+  }
+}

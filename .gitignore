@@ -1,0 +1,76 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Python tooling caches
+__pycache__/
+.pytest_cache/
+
+# Agent tooling: Claude Code and Codex only.
+# Skill links are absolute paths into ~/agent_toolkit; recreate them with
+# `~/agent_toolkit/bin/link_skills.py sync .` instead of committing them.
+/.agents/skills/
+/.claude/skills/
+/.claude/settings.local.json
+/.gemini/
+/GEMINI.md
+/.playwright-mcp/
+
+# Dev work: APKs, release evidence, review captures and investigation output.
+# Build with tools/build_apk.sh; the current checksum and validation notes live
+# in docs/testing.md.
+/artifacts/
+*.apk
+*.aab
+/docs/screenshots/
+
+# Extra art: retired 2D studies, review renders and brainstorming archives.
+# The production Blender master, required references and authoring scripts in
+# art/foal/ stay tracked; bundled exports live in assets/.
+/output/
+/art/foal/archive/
+/art/foal/review/
+*.blend1
+*.blend2

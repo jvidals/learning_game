@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 2,
+  "fps": 60,
+  "size": 1024,
+  "segmentFrames": 15,
+  "clips": {
+    "idle": {
+      "durationMs": 8000,
+      "loop": true
+    },
+    "happy": {
+      "durationMs": 550,
+      "loop": false
+    },
+    "simple": {
+      "durationMs": 1400,
+      "loop": false
+    },
+    "hop": {
+      "durationMs": 1400,
+      "loop": false
+    },
+    "bowing": {
+      "durationMs": 2000,
+      "loop": false
+    },
+    "twirl": {
+      "durationMs": 2000,
+      "loop": false
+    }
+  },
+  "headwear": [
+    "none",
+    "flower",
+    "bow",
+    "star",
+    "heart"
+  ],
+  "wings": [
+    "none",
+    "feather",
+    "butterfly",
+    "rainbow",
+    "fairy"
+  ],
+  "framing": {
+    "full": [
+      0,
+      0,
+      1000,
+      1000
+    ],
+    "head": [
+      80,
+      30,
+      540,
+      550
+    ],
+    "wings": [
+      330,
+      280,
+      610,
+      530
+    ]
+  },
+  "packedPlanes": [
+    "color",
+    "hair",
+    "hooves",
+    "headwear",
+    "wings"
+  ]
+}

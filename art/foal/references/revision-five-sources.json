@@ -1,0 +1,35 @@
+[
+  {
+    "preview": "meshy-1.png",
+    "source": "https://www.meshy.ai/3d-models/Stylized-Unicorn-Gold-019929ad-1ca7-7e60-be5c-ba024a6726b4?page=landing",
+    "image_url": "https://cdn.meshy.ai/uploads/prod/309a9d4d6ab303d0a855bc5ad1afec9fb672d908e831ad8a476d8cadaed9ed80/publish/cover-portrait/019929dd-aaa1-7dbf-a6bd-6c1aa691aac5.png",
+    "sha256": "f8e8c97f01eb0dab433364d7b5e7469464304b3e5fbb5cf7f6bf885d7c0b3cc4",
+    "use": "Visual anatomy reference only; no model imported"
+  },
+  {
+    "preview": "meshy-2.png",
+    "source": "https://www.meshy.ai/3d-models/Stylized-Unicorn-Gold-019929de-f657-73a4-937d-ace45c0fbf98?page=landing",
+    "image_url": "https://cdn.meshy.ai/uploads/prod/309a9d4d6ab303d0a855bc5ad1afec9fb672d908e831ad8a476d8cadaed9ed80/publish/cover-portrait/019929e1-04ce-73d3-907b-9bf47afa6b85.png",
+    "sha256": "5ef3bcce465b4ee55a043f9773c91763383d4538d76cb50688a714bf83994947",
+    "use": "Visual anatomy reference only; no model imported"
+  },
+  {
+    "preview": "meshy-3.png",
+    "source": "https://www.meshy.ai/3d-models/Auric-Unicorn-on-a-Cloud-019e7e84-3140-77e6-b3c5-de4bad0d0de0?page=landing",
+    "image_url": "https://cdn.meshy.ai/uploads/prod/b816aa423ffd978963d6135b2e4fdcfdca4be79b398f8af4a5d4cb716af727d6/publish/cover-square/019e7e88-6f61-7ed2-a75d-a150710be9f8.png",
+    "sha256": "91a423dcbe7c2bc9a03e3aa4a10837505cb127ccc64099588860d7eb3e742f37",
+    "use": "Visual anatomy reference only; no model imported"
+  },
+  {
+    "preview": "horse-front.png",
+    "source": "User attachment: Image 1",
+    "sha256": "c8806f37d3997ec75229a4b0142b7717f6dae8d9060f60a2fafe1276658bad95",
+    "usage": "User-provided horse anatomy reference; no mesh imported"
+  },
+  {
+    "preview": "horse-three-quarter.png",
+    "source": "User attachment: Image 2",
+    "sha256": "c474e0f5909c46fe8bfe222da9ee79eb47a68da466ccd2713738480117565322",
+    "usage": "User-provided horse anatomy reference; no mesh imported"
+  }
+]

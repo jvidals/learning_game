@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "google-design": {
+      "type": "http",
+      "url": "https://design.googleapis.com/mcp"
+    },
+    "google-developer-knowledge": {
+      "type": "http",
+      "url": "https://developerknowledge.googleapis.com/mcp",
+      "headersHelper": "/usr/bin/python3 /home/jvidals/Documents/ScriptWork/learning_game/tools/google_knowledge_headers.py"
+    },
+    "dart": {
+      "type": "stdio",
+      "command": "dart",
+      "args": ["mcp-server", "--force-roots-fallback"]
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    }
+  }
+}

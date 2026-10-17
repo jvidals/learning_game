@@ -1,0 +1,19 @@
+# Project-only development tools; no runtime integration into the Android app.
+# Keep this server set in step with .mcp.json (Claude Code). context7 is global
+# in both tools (user-level config), so it is not listed here.
+
+[mcp_servers.google-design]
+url = "https://design.googleapis.com/mcp"
+
+[mcp_servers.google-developer-knowledge]
+url = "https://developerknowledge.googleapis.com/mcp"
+http_headers_helper = "/usr/bin/python3 /home/jvidals/Documents/ScriptWork/learning_game/tools/google_knowledge_headers.py"
+startup_timeout_sec = 45
+
+[mcp_servers.dart]
+command = "dart"
+args = ["mcp-server", "--force-roots-fallback"]
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "@playwright/mcp@latest"]
