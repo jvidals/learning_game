@@ -58,24 +58,20 @@ Workers must never run these.
    **disjoint file sets**. Two parallel workers must never edit the same file.
    Shared files (`pubspec.yaml`, `lib/main.dart`, docs) go to one worker, or the
    lead edits them afterwards. Run 2–4 workers at a time.
-2. **Snapshot.** The workspace is not a Git repository (check first with
-   `git rev-parse` in case that changes). Before launching, copy the source.
-   `docs/` is about 400 MB of screenshots, so copy only its Markdown:
+2. **Snapshot.** Record the starting point without committing:
 
    ```bash
-   snap=/tmp/learning-corner-pre-codex-$(date +%Y%m%d-%H%M%S)
-   rsync -a --prune-empty-dirs \
-     --exclude='/build/' --exclude='/.dart_tool/' --exclude='/artifacts/' --exclude='/output/' \
-     --exclude='/assets/' --exclude='/art/' --exclude='/android/.gradle/' --exclude='*.log' \
-     --include='*/' --include='/docs/**.md' --exclude='/docs/**' \
-     ./ "$snap/"
+   tools/git_snapshot.sh <batch>-before
    ```
 
-   Keep the excludes before `--include='*/'`. Verified at about 3 MB.
-
-   If a task edits `assets/` or `art/`, snapshot those paths too. Later,
-   `diff -ru --exclude=build --exclude=.dart_tool "$snap/lib" lib` (and the
-   other touched paths) shows exactly what the workers changed.
+   This stores the whole working tree (tracked and untracked files, minus
+   `.gitignore`) as a commit under `refs/snapshots/<batch>-before`. HEAD, `main`,
+   the index and files are untouched, so the lead's uncommitted work and the
+   user's staging are safe, and plain `git push` doesn't send snapshot refs.
+   `assets/` and `art/` are covered automatically; ignored paths
+   (`artifacts/`, `docs/screenshots/`) are not, and workers must not edit them.
+   Workers can't write to `.git` (Codex keeps it read-only in
+   `workspace-write`, verified 2026-10-17), so they can't commit or move refs.
 3. **Brief.** Write one brief per task to `/tmp/codex-briefs/<task>.md`
    using the template below.
 4. **Launch.** Start each worker with Bash `run_in_background: true`, one
@@ -88,8 +84,19 @@ Workers must never run these.
    Output goes to `/tmp/codex-runs/<task-name>/`: `brief.md`, `final.md` (the
    worker's report), `log.txt` (full transcript with session id) and
    `exit_code`. Wait for completion notifications. Don't poll.
-5. **Review.** Read each `final.md`, then check the actual diff against the
-   snapshot. Don't trust the report alone. Check scope, the preserved behavior
+5. **Review.** Read each `final.md`, then check the actual diff. Take a second
+   snapshot and compare, which includes new and deleted files:
+
+   ```bash
+   tools/git_snapshot.sh <batch>-after
+   git diff --stat refs/snapshots/<batch>-before refs/snapshots/<batch>-after
+   git diff refs/snapshots/<batch>-before refs/snapshots/<batch>-after -- <path>
+   ```
+
+   Restore a file with `git restore --source=refs/snapshots/<batch>-before -- <path>`.
+   Labels can't be reused; after review, list snapshots with
+   `git for-each-ref refs/snapshots` and delete finished ones with
+   `git update-ref -d refs/snapshots/<label>`. Don't trust the report alone. Check scope, the preserved behavior
    listed in `AGENTS.md`, and test quality. Then run the focused tests and the
    full suite and analysis yourself, as in `docs/testing.md`.
 6. **Follow up.** For fixes, write a new brief that includes the review
@@ -167,8 +174,10 @@ behavior to preserve from AGENTS.md, and the snippets you already read>
 
 ## Forbidden
 No APK builds/installs, adb, emulators, gcloud, audio generation, pub get/add,
-new dependencies, version bumps, handoff/testing-note edits, or edits outside the
-listed files. Do not start other Codex or agent sessions.
+new dependencies, version bumps, handoff/testing-note edits, Git commands that
+write (commit, stash, checkout, restore, reset), or edits outside the listed
+files. Read-only `git diff`/`git status` are fine. Do not start other Codex or
+agent sessions.
 
 ## Report (final message)
 Files changed, a short summary per file, each check command with its exit
@@ -184,4 +193,5 @@ status and summary line, and any open questions or deviations.
 | `"libimobiledevice"/"libusbmuxd" was downloaded, but Flutter failed to update its stamp file` | Expected with the read-only SDK cache. It appears even with networking off, so nothing is downloaded. Harmless |
 | `bwrap: Can't mkdir parents ... Not a directory` | A custom `writable_roots` entry is a file (for example `~/.flutter`). Don't add writable roots |
 | Running `codex sandbox -c 'sandbox_mode="workspace-write"' -- <cmd>` from the workspace | Tests a command under the same sandbox without a model or tokens |
+| A worker reports `.git` permission errors | Expected: `.git` is read-only for workers. Briefs must not ask workers to run Git write commands |
 | Warnings about ignored `projects.*` config settings | Unrelated entries in the user's `~/.codex/config.toml`. Harmless. Don't edit that file |
