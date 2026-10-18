@@ -13,6 +13,37 @@ class InkPoint {
 
 typedef InkStroke = List<InkPoint>;
 
+/// Constant-distance travel within a stroke. Pen lifts jump to the next start
+/// instead of drawing an imaginary joining line. Dots receive a short dwell.
+/// Immutable letter templates supply cached [lengths] for animation frames.
+InkPoint watchPointAlong(
+  List<InkStroke> strokes,
+  double progress, {
+  List<double>? lengths,
+}) {
+  final strokeLengths = lengths ?? strokes.map((s) => inkLength([s])).toList();
+  final durations = strokeLengths
+      .map((length) => math.max(.12, length))
+      .toList();
+  var remaining = progress.clamp(0, 1) * durations.reduce((a, b) => a + b);
+  for (var i = 0; i < strokes.length; i++) {
+    if (remaining <= durations[i] || i == strokes.length - 1) {
+      final stroke = strokes[i];
+      var distance = remaining / durations[i] * strokeLengths[i];
+      for (var j = 1; j < stroke.length; j++) {
+        final length = stroke[j - 1].distance(stroke[j]);
+        if (distance <= length && length > 0) {
+          return stroke[j - 1].lerp(stroke[j], distance / length);
+        }
+        distance -= length;
+      }
+      return stroke.last;
+    }
+    remaining -= durations[i];
+  }
+  return strokes.last.last;
+}
+
 class LetterTemplate {
   LetterTemplate(this.character, List<InkStroke> strokes)
     : strokes = List.unmodifiable(
@@ -23,6 +54,12 @@ class LetterTemplate {
   late final List<InkStroke> samples = strokes.map(sampleStroke).toList();
   late final List<InkPoint> points = samples.expand((s) => s).toList();
   late final double length = inkLength(strokes);
+  late final List<double> _lengths = strokes
+      .map((s) => inkLength([s]))
+      .toList();
+
+  InkPoint watchPoint(double progress) =>
+      watchPointAlong(strokes, progress, lengths: _lengths);
 }
 
 /// Small, authored vector alphabet, not a system font. Each string is a taught

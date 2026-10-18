@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:async';
 import 'dart:ui' show Tristate;
 
@@ -9,9 +10,58 @@ import 'package:rainbow_garden/profiles.dart';
 import 'package:rainbow_garden/progress_controller.dart';
 import 'package:rainbow_garden/screens/word_sprint_page.dart';
 import 'package:rainbow_garden/widgets/sound_it_out.dart';
+import 'package:rainbow_garden/widgets/voice_button.dart';
 import 'package:rainbow_garden/word_sprint.dart';
 
 class SprintDevice implements DeviceServices {
+  @override
+  Stream<void> get shortcutRequests => const Stream.empty();
+
+  @override
+  Future<String?> takeShortcut() async => null;
+
+  @override
+  Future<int> displayRotation() async => 0;
+
+  @override
+  Stream<int> get displayRotationChanges => const Stream.empty();
+
+  @override
+  Future<void> setSketchWindow(bool active) async {}
+
+  final sketches = <String, SketchSnapshot>{};
+
+  @override
+  Future<SketchSnapshot> loadSketch(String playerId) async =>
+      sketches[playerId] ?? const SketchSnapshot();
+
+  @override
+  Future<void> saveSketch(
+    String playerId, {
+    required Uint8List png,
+    required String settings,
+  }) async {
+    sketches[playerId] = SketchSnapshot(
+      png: Uint8List.fromList(png),
+      settings: settings,
+    );
+  }
+
+  @override
+  Future<void> deleteSketch(String playerId) async {
+    sketches.remove(playerId);
+  }
+
+  @override
+  Future<bool> canSaveToGallery() async => false;
+
+  @override
+  Future<String> saveToGallery(
+    Uint8List png,
+    String displayName, {
+    String? replaceUri,
+  }) async => replaceUri ?? 'content://media/external/images/media/1';
+
   String document = ProfileStore.initial().encode();
   int writes = 0, stops = 0;
   bool failSave = false, failAudio = false;
@@ -136,6 +186,12 @@ void main() {
             matching: find.byType(Scrollable),
           ),
         );
+        // The shuffled run can leave the word under the fixed bottom bar.
+        await Scrollable.ensureVisible(
+          tester.element(find.text('lix')),
+          alignment: .5,
+        );
+        await tester.pump();
         await tester.longPress(find.text('lix'));
       } else {
         await tester.longPress(word(0));
@@ -161,6 +217,159 @@ void main() {
       }
       await tester.pumpWidget(const SizedBox());
     });
+  }
+
+  for (final mode in [WordSprintMode.makeBelieve, WordSprintMode.realWords]) {
+    testWidgets('${mode.name} waits for each clip before requesting the next', (
+      tester,
+    ) async {
+      final d = SprintDevice();
+      await mount(tester, d);
+      final option = find.byKey(ValueKey('sprint-mode-${mode.name}'));
+      await tester.ensureVisible(option);
+      await tester.tap(option);
+      await tester.pump();
+      await tap(tester, 'Start');
+      if (mode == WordSprintMode.makeBelieve) {
+        final jav = find.text('jav');
+        await tester.scrollUntilVisible(
+          jav,
+          150,
+          scrollable: find.descendant(
+            of: find.byType(CustomScrollView),
+            matching: find.byType(Scrollable),
+          ),
+        );
+        await Scrollable.ensureVisible(
+          tester.element(jav.first),
+          alignment: .5,
+        );
+        await tester.pump();
+        await tester.longPress(jav.first);
+      } else {
+        await tester.longPress(word(0));
+      }
+      await tester.pumpAndSettle();
+      final hint = tester.widget<SoundItOut>(find.byType(SoundItOut));
+      if (mode == WordSprintMode.makeBelieve) {
+        expect(hint.word.spelling, 'jav');
+      }
+      final expected = [
+        ...hint.word.letterSounds.expand((sounds) => sounds),
+        if (hint.word.real) hint.word.clip,
+      ];
+      d.audioHold = Completer<void>();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(SoundItOut),
+          matching: find.text('Sound it out'),
+        ),
+      );
+      await tester.pump();
+      for (var i = 0; i < expected.length; i++) {
+        expect(d.clips, expected.take(i + 1).toList());
+        await tester.pump(const Duration(milliseconds: 500));
+        expect(d.clips, expected.take(i + 1).toList());
+        final playing = d.audioHold!;
+        d.audioHold = Completer<void>();
+        playing.complete();
+        await tester.pump();
+      }
+      expect(d.clips, expected);
+      expect(d.clips.where((clip) => clip.startsWith('nonsense_')), isEmpty);
+      await tester.pumpWidget(const SizedBox());
+    });
+  }
+
+  for (final dark in [false, true]) {
+    testWidgets(
+      '320px 2x ${dark ? 'dark' : 'light'} sound help toggle saves silently and cancels playback',
+      (tester) async {
+        tester.view.physicalSize = const Size(320, 640);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final semantics = tester.ensureSemantics();
+        final d = SprintDevice(),
+            c = await mount(tester, d, scale: 2, dark: dark);
+        await c.setSound(false);
+        await tester.pump();
+        await tap(tester, 'Start');
+        // At 320px/2x the card's center can be under the fixed Stop area.
+        await Scrollable.ensureVisible(tester.element(word(0)), alignment: 0);
+        await tester.pump();
+        await tester.longPressAt(
+          tester.getTopLeft(word(0)) + const Offset(24, 24),
+        );
+        // The muted voice button pulses continuously, so do not pumpAndSettle.
+        await tester.pump(const Duration(milliseconds: 400));
+        final voice = find.byType(VoiceButton);
+        final halo = find.byKey(const ValueKey('voice-attention-halo'));
+        expect(voice.hitTestable(), findsOneWidget);
+        expect(halo, findsOneWidget);
+        final beforePulse = tester.widget<DecoratedBox>(halo).decoration;
+        await tester.pump(const Duration(milliseconds: 450));
+        expect(
+          tester.widget<DecoratedBox>(halo).decoration,
+          isNot(beforePulse),
+        );
+        expect(
+          tester.getSemantics(voice).label,
+          'Turn voice on to hear the word sounds',
+        );
+        final play = find.descendant(
+          of: find.byType(SoundItOut),
+          matching: find.byWidgetPredicate((widget) => widget is FilledButton),
+        );
+        expect(tester.widget<FilledButton>(play).onPressed, isNull);
+        final remaining = tester
+            .widget<Text>(find.byKey(const ValueKey('sprint-time')))
+            .data;
+
+        await tester.tap(voice);
+        await tester.pump();
+        expect(c.soundOn, isTrue);
+        expect(ProfileStore.decode(d.document).active.settings.soundOn, isTrue);
+        expect(d.clips, isEmpty);
+        expect(halo, findsNothing);
+        expect(tester.widget<FilledButton>(play).onPressed, isNotNull);
+
+        // Keep a settings write pending: the toggle must still accept edits.
+        d.saveHold = Completer<void>();
+        unawaited(c.setWordSprintTimer(false));
+        await tester.pump();
+        expect(c.blocked.value, isTrue);
+        expect(tester.widget<VoiceButton>(voice).onPressed, isNotNull);
+        d.audioHold = Completer<void>();
+        await tester.ensureVisible(play);
+        await tester.tap(play);
+        await tester.pump();
+        expect(d.clips, hasLength(1));
+        final stops = d.stops;
+        await tester.ensureVisible(voice);
+        await tester.tap(voice);
+        await tester.pump();
+        expect(c.soundOn, isFalse);
+        expect(d.stops, greaterThan(stops));
+        expect(tester.widget<FilledButton>(play).onPressed, isNull);
+        d.audioHold!.complete();
+        d.saveHold!.complete();
+        await tester.pump();
+        expect(
+          ProfileStore.decode(d.document).active.settings.soundOn,
+          isFalse,
+        );
+        expect(d.clips, hasLength(1));
+        await tester.pump(const Duration(seconds: 5));
+        expect(
+          tester.widget<Text>(find.byKey(const ValueKey('sprint-time'))).data,
+          remaining,
+        );
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox());
+        semantics.dispose();
+      },
+    );
   }
 
   testWidgets('timer preference saves immediately and Start waits for saving', (

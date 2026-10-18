@@ -1,9 +1,21 @@
 package com.rainbowgarden.rainbow_garden
 
+import android.content.ContentValues
+import android.content.Intent
+import android.content.pm.ShortcutInfo
+import android.content.pm.ShortcutManager
+import android.graphics.drawable.Icon
+import android.hardware.display.DisplayManager
+import android.os.Environment
+import android.provider.MediaStore
+import android.util.AtomicFile
+import java.io.File
 import android.os.Build
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.HapticFeedbackConstants
+import android.view.WindowManager
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.media.MediaDataSource
@@ -17,6 +29,7 @@ import org.json.JSONArray
 
 class MainActivity : FlutterActivity() {
     companion object {
+        private const val SHORTCUT_EXTRA = "learning_corner.shortcut"
         // A failed SharedPreferences commit can still change its in-memory map.
         // Keep the exact migration until it is durable, including across activity recreation.
         private var pendingProfileMigration: String? = null
@@ -26,6 +39,109 @@ class MainActivity : FlutterActivity() {
     private val storageWorker = Executors.newSingleThreadExecutor()
     private val feedbackHandler = Handler(Looper.getMainLooper())
     private var finishingFeedback: Runnable? = null
+    private var deviceChannel: MethodChannel? = null
+    private var pendingShortcut: String? = null
+    private var sketchDisplayListener: DisplayManager.DisplayListener? = null
+    private var previousRotationAnimation: Int? = null
+    private var lastSentRotation = 0
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        // A restored activity must not reopen the shortcut that originally launched it.
+        if (savedInstanceState == null) pendingShortcut = validatedShortcut(intent)
+        super.onCreate(savedInstanceState)
+        pendingShortcut?.let { reportShortcutUsed(it) }
+        publishShortcuts()
+    }
+
+    private fun validatedShortcut(intent: Intent): String? {
+        if (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) return null
+        return try {
+            // Any app can start this exported activity, so accept only the two shortcut ids.
+            val id = intent.getStringExtra(SHORTCUT_EXTRA)
+            if (id == "sketchPad" || id == "game2048") id else null
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        val id = validatedShortcut(intent) ?: return
+        pendingShortcut = id
+        reportShortcutUsed(id)
+        deviceChannel?.invokeMethod("shortcutRequested", null)
+    }
+
+    private fun reportShortcutUsed(id: String) {
+        if (Build.VERSION.SDK_INT < 25) return
+        try {
+            getSystemService(ShortcutManager::class.java)?.reportShortcutUsed(id)
+        } catch (_: Exception) { /* Launcher integration is best effort. */ }
+    }
+
+    private fun publishShortcuts() {
+        if (Build.VERSION.SDK_INT < 25) return
+        try {
+            fun shortcut(id: String, label: String, longLabel: String, icon: Int, rank: Int) =
+                ShortcutInfo.Builder(this, id)
+                    .setShortLabel(label)
+                    .setLongLabel(longLabel)
+                    .setIcon(Icon.createWithResource(this, icon))
+                    .setRank(rank)
+                    .setIntent(Intent(Intent.ACTION_VIEW).setClass(this, MainActivity::class.java)
+                        .putExtra(SHORTCUT_EXTRA, id)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
+                    .build()
+            getSystemService(ShortcutManager::class.java)?.setDynamicShortcuts(listOf(
+                shortcut("sketchPad", "Sketch Pad", "Open Sketch Pad", R.drawable.ic_shortcut_sketch, 0),
+                shortcut("game2048", "2048", "Play 2048", R.drawable.ic_shortcut_2048, 1)
+            ))
+        } catch (_: Exception) { /* Launcher integration is best effort. */ }
+    }
+
+    private fun displayRotation(): Int {
+        return if (Build.VERSION.SDK_INT >= 30) display?.rotation ?: 0
+        else {
+            @Suppress("DEPRECATION")
+            windowManager.defaultDisplay.rotation
+        }
+    }
+
+    private fun setSketchWindow(active: Boolean) {
+        val manager = getSystemService(DISPLAY_SERVICE) as DisplayManager
+        if (active) {
+            if (sketchDisplayListener != null) return
+            lastSentRotation = displayRotation()
+            val listener = object : DisplayManager.DisplayListener {
+                override fun onDisplayAdded(displayId: Int) {}
+                override fun onDisplayRemoved(displayId: Int) {}
+                override fun onDisplayChanged(displayId: Int) {
+                    if (sketchDisplayListener !== this) return
+                    val rotation = displayRotation()
+                    if (rotation != lastSentRotation) {
+                        lastSentRotation = rotation
+                        deviceChannel?.invokeMethod("displayRotationChanged", rotation)
+                    }
+                }
+            }
+            manager.registerDisplayListener(listener, feedbackHandler)
+            sketchDisplayListener = listener
+            val attributes = window.attributes
+            previousRotationAnimation = attributes.rotationAnimation
+            attributes.rotationAnimation = WindowManager.LayoutParams.ROTATION_ANIMATION_CROSSFADE
+            window.attributes = attributes
+        } else {
+            sketchDisplayListener?.let { manager.unregisterDisplayListener(it) }
+            sketchDisplayListener = null
+            previousRotationAnimation?.let {
+                val attributes = window.attributes
+                attributes.rotationAnimation = it
+                window.attributes = attributes
+            }
+            previousRotationAnimation = null
+        }
+    }
 
     private fun stopFeedback() {
         finishingFeedback?.let { feedbackHandler.removeCallbacks(it) }
@@ -63,9 +179,28 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         val preferences = getSharedPreferences("garden", MODE_PRIVATE)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "rainbow_garden/device")
-            .setMethodCallHandler { call, result ->
+        val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "rainbow_garden/device")
+        deviceChannel = channel
+        channel.setMethodCallHandler { call, result ->
                 when (call.method) {
+                    "takeShortcut" -> {
+                        result.success(pendingShortcut)
+                        pendingShortcut = null
+                    }
+                    "displayRotation" -> result.success(displayRotation())
+                    "setSketchWindow" -> {
+                        val active = call.arguments as? Boolean
+                        if (active == null) {
+                            result.error("invalid_sketch_window", "Expected active boolean", null)
+                        } else {
+                            try {
+                                setSketchWindow(active)
+                                result.success(null)
+                            } catch (_: Exception) {
+                                result.error("sketch_window_failed", "Could not update Sketch window", null)
+                            }
+                        }
+                    }
                     "loadProfiles" -> storageWorker.execute {
                         try {
                             // The new key is authoritative even when its content is malformed.
@@ -124,6 +259,125 @@ class MainActivity : FlutterActivity() {
                             }
                         }
                     }
+                    "loadSketch", "saveSketch", "deleteSketch" -> {
+                        val id = call.argument<Any>("playerId") as? String
+                        if (id == null || !id.matches(Regex("^[A-Za-z0-9_-]{1,100}$"))) {
+                            result.error("invalid_player", "Invalid sketch player ID", null)
+                        } else storageWorker.execute {
+                            try {
+                                val directory = File(filesDir, "sketch")
+                                if (!directory.isDirectory && !directory.mkdirs()) {
+                                    throw IllegalStateException("Could not create sketch directory")
+                                }
+                                val pngFile = AtomicFile(File(directory, "$id.png"))
+                                val settingsFile = AtomicFile(File(directory, "$id.json"))
+                                when (call.method) {
+                                    "loadSketch" -> {
+                                        val snapshot = hashMapOf<String, Any?>(
+                                            "png" to readSketchFile(pngFile),
+                                            "settings" to readSketchFile(settingsFile)?.let {
+                                                String(it, Charsets.UTF_8)
+                                            }
+                                        )
+                                        runOnUiThread { result.success(snapshot) }
+                                    }
+                                    "saveSketch" -> {
+                                        val png = call.argument<ByteArray>("png")
+                                            ?: throw IllegalArgumentException("Expected sketch PNG")
+                                        val settings = call.argument<String>("settings")
+                                            ?: throw IllegalArgumentException("Expected sketch settings")
+                                        if (png.size > 25 * 1024 * 1024) {
+                                            throw IllegalArgumentException("Sketch PNG is too large")
+                                        }
+                                        writeSketchFile(pngFile, png)
+                                        writeSketchFile(settingsFile, settings.toByteArray(Charsets.UTF_8))
+                                        runOnUiThread { result.success(null) }
+                                    }
+                                    "deleteSketch" -> {
+                                        pngFile.delete()
+                                        settingsFile.delete()
+                                        runOnUiThread { result.success(null) }
+                                    }
+                                }
+                            } catch (_: Exception) {
+                                runOnUiThread { result.error("sketch_failed", "Could not access sketch", null) }
+                            }
+                        }
+                    }
+                    "canSaveToGallery" -> result.success(Build.VERSION.SDK_INT >= 29)
+                    "saveToGallery" -> {
+                        if (Build.VERSION.SDK_INT < 29) {
+                            result.error("unsupported", "Gallery export requires Android 10", null)
+                        } else storageWorker.execute {
+                            var inserted: android.net.Uri? = null
+                            try {
+                                val png = call.argument<ByteArray>("png")
+                                    ?: throw IllegalArgumentException("Expected sketch PNG")
+                                if (png.size > 25 * 1024 * 1024) {
+                                    throw IllegalArgumentException("Sketch PNG is too large")
+                                }
+                                // Restored URIs may be missing or no longer writable by this install.
+                                // Never delete the previous photo when replacement fails.
+                                try {
+                                    val replaceUri = call.argument<String>("replaceUri")
+                                    if (replaceUri != null) {
+                                        val uri = android.net.Uri.parse(replaceUri)
+                                        if (uri.scheme == "content" && uri.authority == "media") {
+                                            val exists = contentResolver.query(uri,
+                                                arrayOf(MediaStore.Images.Media._ID), null, null, null
+                                            )?.use { it.count == 1 && it.moveToFirst() } ?: false
+                                            if (exists) {
+                                                val output = contentResolver.openOutputStream(uri, "wt")
+                                                    ?: throw IllegalStateException("Could not open gallery image")
+                                                output.use { it.write(png) }
+                                                try {
+                                                    contentResolver.update(uri, ContentValues().apply {
+                                                        put(MediaStore.Images.Media.DATE_MODIFIED,
+                                                            System.currentTimeMillis() / 1000)
+                                                    }, null, null)
+                                                } catch (_: Exception) { /* Timestamp is best-effort. */ }
+                                                runOnUiThread { result.success(uri.toString()) }
+                                                return@execute
+                                            }
+                                        }
+                                    }
+                                } catch (_: Exception) { /* Fall back to a new photo. */ }
+                                val requestedName = call.argument<String>("name") ?: "Sketch.png"
+                                var name = requestedName.replace(Regex("[^A-Za-z0-9 ._-]"), "_")
+                                    .take(80).trim()
+                                if (!name.endsWith(".png", ignoreCase = true)) {
+                                    name = name.take(76) + ".png"
+                                }
+                                if (name == ".png") name = "Sketch.png"
+                                val values = ContentValues().apply {
+                                    put(MediaStore.Images.Media.DISPLAY_NAME, name)
+                                    put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+                                    put(MediaStore.Images.Media.RELATIVE_PATH,
+                                        Environment.DIRECTORY_PICTURES + "/Learning Corner")
+                                    put(MediaStore.Images.Media.IS_PENDING, 1)
+                                }
+                                val uri = contentResolver.insert(
+                                    MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY),
+                                    values
+                                ) ?: throw IllegalStateException("Could not create gallery image")
+                                inserted = uri
+                                val output = contentResolver.openOutputStream(uri)
+                                    ?: throw IllegalStateException("Could not open gallery image")
+                                output.use { it.write(png) }
+                                val published = contentResolver.update(uri, ContentValues().apply {
+                                    put(MediaStore.Images.Media.IS_PENDING, 0)
+                                }, null, null)
+                                if (published == 0) throw IllegalStateException("Could not publish gallery image")
+                                runOnUiThread { result.success(uri.toString()) }
+                            } catch (_: Exception) {
+                                inserted?.let { uri ->
+                                    try { contentResolver.delete(uri, null, null) }
+                                    catch (_: Exception) { /* Preserve the original export failure. */ }
+                                }
+                                runOnUiThread { result.error("sketch_failed", "Could not save to Gallery", null) }
+                            }
+                        }
+                    }
                     "feedback" -> {
                         try {
                             playFeedback(call.arguments as? String)
@@ -164,8 +418,6 @@ class MainActivity : FlutterActivity() {
                                 next.setOnPreparedListener {
                                     if (player === it) {
                                         it.start()
-                                        pendingAudio?.success(null)
-                                        pendingAudio = null
                                     }
                                 }
                                 next.setOnCompletionListener { if (player === it) stopAudio() }
@@ -191,6 +443,24 @@ class MainActivity : FlutterActivity() {
             }
     }
 
+    private fun readSketchFile(file: AtomicFile): ByteArray? {
+        // Older AtomicFile implementations may retain only the backup after a
+        // crash. Let readFully restore it instead of treating the page as empty.
+        if (!file.baseFile.exists() && !File(file.baseFile.path + ".bak").exists()) return null
+        return file.readFully()
+    }
+
+    private fun writeSketchFile(file: AtomicFile, bytes: ByteArray) {
+        val output = file.startWrite()
+        try {
+            output.write(bytes)
+            file.finishWrite(output)
+        } catch (error: Exception) {
+            file.failWrite(output)
+            throw error
+        }
+    }
+
     private fun stopAudio() {
         // Replay/back may cancel a clip while it is preparing. This is normal.
         pendingAudio?.success(null)
@@ -206,6 +476,8 @@ class MainActivity : FlutterActivity() {
     }
 
     override fun onDestroy() {
+        setSketchWindow(false)
+        deviceChannel = null
         stopFeedback()
         stopAudio()
         storageWorker.shutdown()

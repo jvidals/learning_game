@@ -129,7 +129,7 @@ void main() {
         );
         await settle(tester);
         await capture('garden');
-        await tapVisible(tester, find.text('My unicorn'));
+        await tapVisible(tester, find.text('My Unicorn'));
         await settle(tester);
         await capture('colors');
         await tester.tap(find.byKey(const ValueKey('customization-preview')));

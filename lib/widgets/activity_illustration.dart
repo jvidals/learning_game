@@ -251,6 +251,14 @@ class NumberPartsIllustration extends StatelessWidget {
       _activityIcon(context, _ActivityIcon.numberParts);
 }
 
+class SketchPadIllustration extends StatelessWidget {
+  const SketchPadIllustration({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      _activityIcon(context, _ActivityIcon.sketchPad);
+}
+
 enum _ActivityIcon {
   cursive,
   sameNumber,
@@ -258,6 +266,7 @@ enum _ActivityIcon {
   readAndFind,
   makeBelieve,
   numberParts,
+  sketchPad,
 }
 
 Widget _activityIcon(BuildContext context, _ActivityIcon icon) =>
@@ -362,6 +371,56 @@ class _ActivityIconPainter extends CustomPainter {
     }
 
     switch (icon) {
+      case _ActivityIcon.sketchPad:
+        // The thumb hole uses even-odd filling to reveal the card beneath it.
+        shape(
+          Path()
+            ..fillType = PathFillType.evenOdd
+            ..moveTo(48, 18)
+            ..cubicTo(46, 5, 28, 1, 15, 8)
+            ..cubicTo(2, 14, 1, 30, 10, 40)
+            ..cubicTo(17, 48, 33, 49, 39, 42)
+            ..cubicTo(44, 36, 34, 33, 36, 27)
+            ..cubicTo(38, 22, 49, 28, 48, 18)
+            ..close()
+            ..addOval(const Rect.fromLTWH(28, 16, 8, 10)),
+          3,
+          textSurface: true,
+        );
+        circle(const Offset(19, 13), 3.5, 0);
+        circle(const Offset(11, 23), 3.5, 1);
+        circle(const Offset(13, 34), 3.5, 2);
+        circle(const Offset(24, 40), 3.5, 4);
+        circle(const Offset(39, 12), 3.5, 5);
+        // A diagonal handle, dark ferrule and paint-loaded bristles.
+        shape(
+          Path()
+            ..moveTo(56, 24)
+            ..quadraticBezierTo(60, 20, 60, 25)
+            ..lineTo(45, 44)
+            ..lineTo(40, 40)
+            ..close(),
+          4,
+        );
+        final ferrule = Path()
+          ..moveTo(40, 39)
+          ..lineTo(46, 44)
+          ..lineTo(42, 48)
+          ..lineTo(36, 43)
+          ..close();
+        canvas.drawPath(
+          ferrule,
+          Paint()..color = colors.resolve(colors.foreground, colors.panel),
+        );
+        canvas.drawPath(ferrule, outline);
+        shape(
+          Path()
+            ..moveTo(36, 43)
+            ..quadraticBezierTo(30, 44, 29, 52)
+            ..quadraticBezierTo(39, 53, 42, 48)
+            ..close(),
+          0,
+        );
       case _ActivityIcon.cursive:
         final rule = Paint()
           ..color = colors.writingRule

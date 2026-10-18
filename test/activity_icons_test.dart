@@ -15,6 +15,7 @@ const newIcons = <Widget>[
   ReadAndFindIllustration(),
   MakeBelieveIllustration(),
   NumberPartsIllustration(),
+  SketchPadIllustration(),
 ];
 
 void main() {
@@ -93,6 +94,7 @@ void main() {
         GameCategory.words,
         GameCategory.numbers,
         GameCategory.writing,
+        GameCategory.artHub,
       ]) {
         testWidgets(
           '${category.name} cards at $size/$scale/${appearance.name}',
@@ -125,6 +127,7 @@ void main() {
               Activity.wordSprint: WordSprintIllustration,
               Activity.handwriting: HandwritingIllustration,
               Activity.cursive: CursiveIllustration,
+              Activity.sketchPad: SketchPadIllustration,
             };
             for (final activity in category.activities) {
               final card = cards.singleWhere((c) => c.title == activity.title);

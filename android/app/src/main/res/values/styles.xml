@@ -7,7 +7,6 @@
         <item name="android:windowBackground">@drawable/launch_background</item>
         <item name="android:windowSplashScreenBackground">@color/garden_background</item>
         <item name="android:forceDarkAllowed">false</item>
-        <item name="android:statusBarColor">@color/garden_background</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
     <!-- Theme applied to the Android Window as soon as the process has started.
@@ -19,7 +18,6 @@
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
         <item name="android:windowBackground">@color/garden_background</item>
         <item name="android:forceDarkAllowed">false</item>
-        <item name="android:statusBarColor">@color/garden_background</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>

@@ -254,7 +254,21 @@ class ProgressController extends ChangeNotifier {
           throw StateError('The pending save belongs to another player');
         }
         await services.saveProfiles(pending.store.encode());
+        final retainedIds = pending.store.players.map((p) => p.id).toSet();
+        final removedIds = profiles
+            .map((p) => p.id)
+            .where((id) => !retainedIds.contains(id))
+            .toList();
         _accept(pending.store, savedProgress: pending.progress);
+        for (final id in removedIds) {
+          // Profile deletion is already durable; optional art cleanup must not
+          // turn it into a failed profile write or block the remaining players.
+          unawaited(
+            Future<void>.sync(
+              () => services.deleteSketch(id),
+            ).catchError((Object _) {}),
+          );
+        }
         last2048Move = pending.gameMove;
         _pending = null;
         if (pending.key == 'reset') {

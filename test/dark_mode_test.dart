@@ -1,3 +1,4 @@
+import 'package:rainbow_garden/game.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -266,7 +267,7 @@ void main() {
       await tester.pumpWidget(RainbowGardenApp(services: device));
       await settle(tester);
       await tapVisible(tester, find.text('Numbers'));
-      await tapVisible(tester, find.text('Number hunt'));
+      await tapVisible(tester, find.text(Activity.numbers.title));
       final clip = device.clips.last;
       final choice = find.byKey(ValueKey('choice-${clip.substring(7)}'));
       await tester.ensureVisible(choice);

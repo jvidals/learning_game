@@ -79,10 +79,12 @@ class WritingPad extends StatefulWidget {
     required this.template,
     required this.trace,
     required this.enabled,
+    this.watchProgress,
   });
   final WritingInk ink;
   final LetterTemplate template;
   final bool trace, enabled;
+  final double? watchProgress;
   @override
   State<WritingPad> createState() => _WritingPadState();
 }
@@ -169,6 +171,7 @@ class _WritingPadState extends State<WritingPad> {
                     widget.template,
                     widget.trace,
                     GardenColors.of(context),
+                    widget.watchProgress,
                   ),
                   child: const SizedBox.expand(),
                 ),
@@ -182,12 +185,18 @@ class _WritingPadState extends State<WritingPad> {
 }
 
 class _WritingPainter extends CustomPainter {
-  _WritingPainter(this.ink, this.template, this.trace, this.colors)
-    : super(repaint: ink);
+  _WritingPainter(
+    this.ink,
+    this.template,
+    this.trace,
+    this.colors,
+    this.watchProgress,
+  ) : super(repaint: ink);
   final WritingInk ink;
   final LetterTemplate template;
   final bool trace;
   final GardenColors colors;
+  final double? watchProgress;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -296,6 +305,18 @@ class _WritingPainter extends CustomPainter {
         }
       }
     }
+    if (trace && watchProgress != null) {
+      final point = geometry.position(template.watchPoint(watchProgress!));
+      canvas.drawCircle(point, 8, Paint()..color = colors.writingInk);
+      canvas.drawCircle(
+        point,
+        9,
+        Paint()
+          ..color = colors.writingDirection
+          ..strokeWidth = 2
+          ..style = PaintingStyle.stroke,
+      );
+    }
     canvas.drawRRect(
       RRect.fromRectAndRadius(Offset.zero & size, const Radius.circular(18)),
       Paint()
@@ -310,5 +331,6 @@ class _WritingPainter extends CustomPainter {
       oldDelegate.ink != ink ||
       oldDelegate.template != template ||
       oldDelegate.trace != trace ||
-      oldDelegate.colors != colors;
+      oldDelegate.colors != colors ||
+      oldDelegate.watchProgress != watchProgress;
 }

@@ -83,12 +83,12 @@ void main() {
           );
           await settle(tester);
           appTheme = tester.widget<MaterialApp>(find.byType(MaterialApp)).theme;
-          await tester.ensureVisible(find.text('My unicorn'));
+          await tester.ensureVisible(find.text('My Unicorn'));
           await tester.pump();
-          final label = tester.getRect(find.text('My unicorn'));
+          final label = tester.getRect(find.text('My Unicorn'));
           final button = tester.getRect(
             find.ancestor(
-              of: find.text('My unicorn'),
+              of: find.text('My Unicorn'),
               matching: find.byType(OutlinedButton),
             ),
           );
@@ -114,7 +114,7 @@ void main() {
             boundary,
             'home-$count-$name-${scale.toInt()}x',
           );
-          await tapVisible(tester, find.text('My unicorn'));
+          await tapVisible(tester, find.text('My Unicorn'));
           expect(tester.takeException(), isNull);
           await tester.pumpWidget(const SizedBox());
         }

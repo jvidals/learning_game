@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Include only player preferences and sketches. Separate includes allow encrypted cloud OR device transfer; each include requires all its flags. Android 7–8 ignore requireFlags. This offline app has no network permission; Android performs the backup. -->
+    <include domain="sharedpref" path="garden.xml" requireFlags="clientSideEncryption" />
+    <include domain="sharedpref" path="garden.xml" requireFlags="deviceToDeviceTransfer" />
+    <include domain="file" path="sketch/" requireFlags="clientSideEncryption" />
+    <include domain="file" path="sketch/" requireFlags="deviceToDeviceTransfer" />
+</full-backup-content>

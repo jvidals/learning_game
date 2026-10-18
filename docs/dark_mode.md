@@ -99,6 +99,10 @@ selection borders and semantics so information never depends on hue alone.
   brightness follows the resolved app theme, including Home and app-bar routes.
   Keep Android edge-to-edge behavior and existing safe areas.
 
+## Sketch pad paper exception (0.23.0)
+
+Sketch pad's drawing page is always white (`sketchPaperColor`) in both palettes, unlike the dark Handwriting/Cursive pads, because it is artwork that should look the same on screen and in exported photos. Everything around it (the full-screen icon strips on `GardenColors.background`, page outline, sheets, buttons, color/size indicators with `outline` borders) follows the active palette.
+
 ## Extending the design
 
 1. Use `Theme.of(context).colorScheme` for Material components and

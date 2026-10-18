@@ -192,6 +192,11 @@ class GardenTheme {
     }
     return ThemeData(
       useMaterial3: true,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+        },
+      ),
       brightness: brightness,
       colorScheme: scheme,
       extensions: [colors],

@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'handwriting.dart';
 
 class CursiveFamily {
@@ -39,26 +37,8 @@ class CursiveLetter {
 
   /// Constant-distance travel within a stroke. Pen lifts jump to the next start
   /// instead of drawing an imaginary joining line. Dots receive a short dwell.
-  InkPoint watchPoint(double progress) {
-    final durations = _lengths.map((length) => math.max(.12, length)).toList();
-    var remaining = progress.clamp(0, 1) * durations.reduce((a, b) => a + b);
-    for (var i = 0; i < strokes.length; i++) {
-      if (remaining <= durations[i] || i == strokes.length - 1) {
-        final stroke = strokes[i];
-        var distance = remaining / durations[i] * _lengths[i];
-        for (var j = 1; j < stroke.length; j++) {
-          final length = stroke[j - 1].distance(stroke[j]);
-          if (distance <= length && length > 0) {
-            return stroke[j - 1].lerp(stroke[j], distance / length);
-          }
-          distance -= length;
-        }
-        return stroke.last;
-      }
-      remaining -= durations[i];
-    }
-    return strokes.last.last;
-  }
+  InkPoint watchPoint(double progress) =>
+      watchPointAlong(strokes, progress, lengths: _lengths);
 }
 
 /// Gentle spatial coverage only: no timing, direction, or stroke-order grade.

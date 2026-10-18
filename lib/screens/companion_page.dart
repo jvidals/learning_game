@@ -271,7 +271,7 @@ class _CompanionPageState extends State<CompanionPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('My unicorn')),
+    appBar: AppBar(title: const Text('My Unicorn')),
     body: SafeArea(
       child: ListenableBuilder(
         listenable: widget.controller,

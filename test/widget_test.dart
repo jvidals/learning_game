@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:typed_data';
 import 'dart:math';
 import 'dart:convert';
 import 'package:rainbow_garden/profiles.dart';
@@ -14,6 +16,91 @@ import 'package:rainbow_garden/main.dart';
 import 'package:rainbow_garden/screens/game_page.dart';
 
 class MemoryDevice implements DeviceServices {
+  String? pendingShortcut;
+  final _shortcutRequests = StreamController<void>.broadcast();
+  Completer<void>? saveProfilesHold, loadProfilesHold;
+
+  @override
+  Stream<void> get shortcutRequests => _shortcutRequests.stream;
+
+  @override
+  Future<String?> takeShortcut() async {
+    final id = pendingShortcut;
+    pendingShortcut = null;
+    return id;
+  }
+
+  void requestShortcut(String id) {
+    pendingShortcut = id;
+    _shortcutRequests.add(null);
+  }
+
+  int rotation = 0;
+  final _rotations = StreamController<int>.broadcast();
+  final sketchWindowCalls = <bool>[];
+
+  @override
+  Future<int> displayRotation() async => rotation;
+
+  @override
+  Stream<int> get displayRotationChanges => _rotations.stream;
+
+  void rotate(int value) {
+    rotation = value;
+    _rotations.add(value);
+  }
+
+  @override
+  Future<void> setSketchWindow(bool active) async {
+    sketchWindowCalls.add(active);
+  }
+
+  final sketches = <String, SketchSnapshot>{};
+  bool failSketchLoad = false, failSketchSave = false, gallerySupported = true;
+  int sketchWrites = 0;
+  final deletedSketches = <String>[];
+  final gallery = <String>[];
+
+  @override
+  Future<SketchSnapshot> loadSketch(String playerId) async {
+    if (failSketchLoad) throw StateError('Unavailable');
+    return sketches[playerId] ?? const SketchSnapshot();
+  }
+
+  @override
+  Future<void> saveSketch(
+    String playerId, {
+    required Uint8List png,
+    required String settings,
+  }) async {
+    if (failSketchSave) throw StateError('Unavailable');
+    sketches[playerId] = SketchSnapshot(
+      png: Uint8List.fromList(png),
+      settings: settings,
+    );
+    sketchWrites++;
+  }
+
+  @override
+  Future<void> deleteSketch(String playerId) async {
+    sketches.remove(playerId);
+    deletedSketches.add(playerId);
+  }
+
+  @override
+  Future<bool> canSaveToGallery() async => gallerySupported;
+
+  @override
+  Future<String> saveToGallery(
+    Uint8List png,
+    String displayName, {
+    String? replaceUri,
+  }) async {
+    gallery.add(displayName);
+    return replaceUri ??
+        'content://media/external/images/media/${gallery.length}';
+  }
+
   NumberRange range = NumberRange.defaults;
   NumberGameRanges? _ranges;
   NumberGameRanges get ranges =>
@@ -110,6 +197,7 @@ class MemoryDevice implements DeviceServices {
   String? profileDocument;
   @override
   Future<String> loadProfiles() async {
+    await loadProfilesHold?.future;
     if (failLoad) throw StateError('Unavailable');
     return profileDocument ??= ProfileStore(
       activeId: 'player-1',
@@ -126,6 +214,7 @@ class MemoryDevice implements DeviceServices {
 
   @override
   Future<void> saveProfiles(String value) async {
+    await saveProfilesHold?.future;
     if (failSave) throw StateError('Unavailable');
     final next = ProfileStore.decode(value);
     try {
@@ -206,7 +295,7 @@ void main() {
     await settle(tester);
     expect(find.text('Level 3'), findsOneWidget);
     await tapVisible(tester, find.text('Letters'));
-    await tapVisible(tester, find.text('Uppercase letters'));
+    await tapVisible(tester, find.text(Activity.uppercase.title));
     expect(find.text('Listen, then tap!'), findsOneWidget);
     expect(device.clips.last, startsWith('upper_'));
     await tester.binding.handlePopRoute();
@@ -272,7 +361,7 @@ void main() {
         ..failLoad = true;
       await tester.pumpWidget(RainbowGardenApp(services: device));
       await settle(tester);
-      expect(find.text('Uppercase letters'), findsNothing);
+      expect(find.text(Activity.uppercase.title), findsNothing);
       expect(find.text('Hi!'), findsOneWidget);
       device.failLoad = false;
       await tapVisible(tester, find.text('Try again'));
@@ -361,7 +450,7 @@ void main() {
       expect(tester.takeException(), isNull);
       await tapVisible(tester, find.text('Letters'));
       expect(tester.takeException(), isNull);
-      await tapVisible(tester, find.text('Letter friends'));
+      await tapVisible(tester, find.text(Activity.matching.title));
       expect(tester.takeException(), isNull);
       await tapVisible(tester, find.text('Show a hint'));
       expect(tester.takeException(), isNull);

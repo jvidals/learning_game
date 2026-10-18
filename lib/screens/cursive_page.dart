@@ -8,6 +8,7 @@ import '../progress_controller.dart';
 import '../widgets/cursive_pad.dart';
 import '../widgets/success_celebration.dart';
 import '../widgets/writing_pad.dart';
+import '../widgets/watch_button.dart';
 
 /// Visit-local lowercase practice: no player progress or settings are touched.
 class CursivePage extends StatefulWidget {
@@ -357,7 +358,7 @@ class _CursivePageState extends State<CursivePage>
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Text('Cursive play'),
+      title: const Text('Cursive Play'),
       leading: IconButton(
         tooltip: 'Back to writing',
         onPressed: () => Navigator.pop(context),
@@ -486,14 +487,10 @@ class _CursivePageState extends State<CursivePage>
             trace ? 'Trace the example' : 'Now write it yourself',
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           );
-          final watch = Semantics(
-            label: 'Watch how to write cursive $_character',
-            child: OutlinedButton.icon(
-              key: const ValueKey('cursive-watch'),
-              onPressed: _enabled ? _replay : null,
-              icon: const Icon(Icons.play_arrow_rounded),
-              label: const ExcludeSemantics(child: Text('Watch')),
-            ),
+          final watch = WatchButton(
+            buttonKey: const ValueKey('cursive-watch'),
+            semanticsLabel: 'Watch how to write cursive $_character',
+            onPressed: _enabled ? _replay : null,
           );
           // Give large text the full label width instead of breaking words
           // into fragments beside the Watch button on narrow windows.
@@ -509,9 +506,7 @@ class _CursivePageState extends State<CursivePage>
             );
           }
           return ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: wide ? 56 : (trace ? 48 : 0),
-            ),
+            constraints: BoxConstraints(minHeight: wide || trace ? 48 : 0),
             child: Row(
               children: [
                 Expanded(child: label),

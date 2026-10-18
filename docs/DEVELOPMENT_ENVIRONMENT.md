@@ -303,14 +303,16 @@ remain running). The user's AVD and unrelated processes were untouched.
 
 ## Codex workers (2026-10-17)
 
-`tools/codex_task.sh` runs `codex exec` (codex-cli 0.160.1, `gpt-6.1-sol`)
-with an explicit `workspace-write` sandbox. The user's global
+The toolkit's `cli-workers` skill (linked at `.claude/skills/cli-workers/`
+since 2026-10-18) runs `codex exec` (`gpt-6.1-sol`) through its
+`scripts/run_worker.sh codex` with an explicit `workspace-write` sandbox. The user's global
 `~/.codex/config.toml` sets `danger-full-access`, so every run must override it.
 Do not edit that file. Workers can write only to the workspace and `/tmp`;
 nothing under `~/` is writable. They run Flutter and Dart through
 `tools/sdk_direct.sh`, which bypasses the launcher scripts' SDK-cache writes,
 the cache lockfile and analytics. `flutter test` needs network access enabled
-because it uses loopback sockets. Smoke tests passed: a focused `flutter test`,
+because it uses loopback sockets, and the skill defaults to off, so launch with
+`WORKER_NETWORK=1`. Smoke tests passed: a focused `flutter test`,
 `dart analyze`/`format`, parallel runs, and denial of writes outside the
 workspace. Workflow, brief template and
 troubleshooting: [Codex orchestration](CODEX_ORCHESTRATION.md).
@@ -434,7 +436,7 @@ python3 -m unittest discover -s tools -p 'test_*.py'
 python3 tools/generate_audio.py --verify
 
 ./tools/build_apk.sh
-sha256sum -c artifacts/learning-garden.apk.sha256
+sha256sum -c artifacts/learning-corner.apk.sha256
 "$ADB_BIN" devices -l
 ./tools/install_apk.sh PHONE_SERIAL
 ```
@@ -755,9 +757,11 @@ $adb -s $s shell settings put system screen_off_timeout 2147483647
 ADB_BIN=$adb tools/install_apk.sh $s   # install -r preserves app data
 ```
 
+**Renderer (2026-10-18):** if the emulator exits 139 with `glWaitSync ... error 0x501` in the log (seen three times with `swiftshader_indirect` when Sketch pad popovers animated during `uiautomator dump` or a closing tap), boot with `-gpu swangle_indirect` instead; it ran all 0.25.0 checks without a crash. Pause about 2 s after a tap before dumping.
+
 Stop it only with `$adb -s emulator-5570 emu kill` after re-checking `emu avd name`. Its app data persists between boots (cold boot, no snapshot), so it doubles as an upgrade fixture; record the fixture state you leave behind in the handoff.
 
-**Codex workers and the emulator.** Codex's `workspace-write` sandbox cannot write `$HOME`, so a worker cannot start the emulator or an adb server. The lead boots and verifies the emulator (which also starts the adb server on `tcp:5037`); the worker then runs the adb *client* against `-s emulator-5570`. This requires sandbox network access (`CODEX_NETWORK=1`, the wrapper default): without it the client tries to start its own daemon and fails with `cannot connect to daemon`. Verified 2026-10-17 inside the sandbox: `shell getprop`, `exec-out screencap -p > /tmp/x.png`, `uiautomator dump` + `pull`. Quick check without spending tokens:
+**Codex workers and the emulator.** Codex's `workspace-write` sandbox cannot write `$HOME`, so a worker cannot start the emulator or an adb server. The lead boots and verifies the emulator (which also starts the adb server on `tcp:5037`); the worker then runs the adb *client* against `-s emulator-5570`. This requires sandbox network access (launch with `WORKER_NETWORK=1`; the wrapper defaults to off): without it the client tries to start its own daemon and fails with `cannot connect to daemon`. Verified 2026-10-17 inside the sandbox: `shell getprop`, `exec-out screencap -p > /tmp/x.png`, `uiautomator dump` + `pull`. Quick check without spending tokens:
 
 ```bash
 codex sandbox -c 'sandbox_mode="workspace-write"' -c sandbox_workspace_write.network_access=true \
@@ -766,7 +770,34 @@ codex sandbox -c 'sandbox_mode="workspace-write"' -c sandbox_workspace_write.net
 
 To recreate the AVD (if the folder is lost), write `$HOME/Android/avd-learning-corner/LearningCornerTest.ini` (`avd.ini.encoding=UTF-8`, `path=$HOME/Android/avd-learning-corner/LearningCornerTest.avd`, `path.rel=LearningCornerTest.avd`, `target=android-36.1`) and `LearningCornerTest.avd/config.ini` with: `AvdId=LearningCornerTest`, `abi.type=x86_64`, `hw.cpu.arch=x86_64`, `hw.cpu.ncore=4`, `hw.ramSize=4096`, `disk.dataPartition.size=6G`, `hw.lcd.width=1080`, `hw.lcd.height=2400`, `hw.lcd.density=420`, `hw.keyboard=yes`, `hw.gpu.enabled=yes`, `hw.audioInput=no`, `hw.camera.back=none`, `hw.camera.front=none`, `hw.sdCard=no`, `fastboot.forceColdBoot=yes`, `PlayStore.enabled=true`, `tag.id=google_apis_playstore`, `target=android-36.1`, `image.sysdir.1=system-images/android-36.1/google_apis_playstore/x86_64/`.
 
+### Disposable tablet emulator: LearningCornerTablet (2026-10-17)
+
+A second disposable AVD for tablet and rotation checks, in the same `ANDROID_AVD_HOME=$HOME/Android/avd-learning-corner`. It was written by hand by copying `LearningCornerTest.avd/config.ini` with `AvdId=LearningCornerTablet`, `avd.ini.displayname=Learning Corner Tablet (disposable)`, `hw.lcd.width=2560`, `hw.lcd.height=1600`, `hw.lcd.density=320`, `hw.initialOrientation=landscape` (1280×800 dp, **natural orientation landscape**, like most tablets), plus a matching `LearningCornerTablet.ini`. Boot it the same way with `-avd LearningCornerTablet -port 5572` (serial **`emulator-5572`**, log `/tmp/learning-corner-tablet.log`), verify `emu avd name` prints `LearningCornerTablet`, then apply the same offline commands. Codex workers may not drive it (the orchestration guide's emulator exception names only `emulator-5570`); the lead does tablet checks. Rotation checks (lead only): `settings put system accelerometer_rotation 0` and `settings put system user_rotation 0..3`; restore `accelerometer_rotation 1` / `user_rotation 0` afterward. `cmd uimode night yes|no` and `settings put system font_scale 2.0|1.0` toggle dark mode and large text.
+
 The headless emulator is muted: playback completion and the absence of the app's "Sound could not play" message are the only audio evidence; listening still needs the phone.
+
+### Backup and launcher-shortcut checks (0.24.0, lead only, disposable emulators)
+
+Backup rules can be exercised offline with Android's local transport. First note the starting state (`bmgr enabled`, `bmgr list transports`; the Google Play images start disabled on the GMS transport), then:
+
+```bash
+a="$HOME/Android/Sdk/platform-tools/adb -s emulator-5572"; P=com.rainbowgarden.rainbow_garden
+$a shell bmgr enable true
+$a shell bmgr transport com.android.localtransport/.LocalTransport
+$a shell settings put secure backup_local_transport_parameters 'is_encrypted=true'   # cloud with encryption
+$a shell bmgr backupnow $P            # logcat FullBackup_native "measured" lists the included files
+# change something (e.g. a 2048 move), then:
+$a shell bmgr restore 1 $P            # token from `bmgr list sets`; the change reverts
+$a shell settings put secure backup_local_transport_parameters 'is_encrypted=false'  # expect: nothing backed up
+$a shell settings put secure backup_local_transport_parameters 'is_device_transfer=true'
+$a shell bmgr backupnow $P
+# restore the starting state:
+$a shell settings delete secure backup_local_transport_parameters
+$a shell bmgr transport com.google.android.gms/.backup.BackupTransportService
+$a shell bmgr enable false
+```
+
+The local transport overwrites its single backup set, and restoring replaces the app's data with it, so use this only on disposable emulators, never a physical device. A launcher shortcut can be simulated without the launcher: `am start -a android.intent.action.VIEW -n $P/.MainActivity --es learning_corner.shortcut sketchPad -f 0x34000000` (NEW_TASK | CLEAR_TOP | SINGLE_TOP, as the launcher sends it). A warm launch prints "intent has been delivered to currently running top-most instance". `dumpsys shortcut` lists the published shortcuts.
 
 ## Companion adventure validation (0.4.0)
 

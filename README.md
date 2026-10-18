@@ -13,22 +13,22 @@ The main screen is **Home**, greeting the active player with **Hi, [profile name
 
 ## Play
 
-The game includes five categories. **Letters** opens Uppercase letters, Lowercase letters, Letter friends, Alphabet Order, and Letter Sounds. **Numbers** opens Number hunt, Number Order, 2048, How many?, Make a group, Same number and Number parts. **Words** opens Sight Words, Read and find, Make-believe words and Word Sprint. **Writing** opens Handwriting and Cursive play. **Reflex** opens Tap Challenge. Game Back returns to its category; **Back to home** in the reward sheet returns directly home.
+The game includes six categories. **Letters** opens Uppercase Letters, Lowercase Letters, Letter Friends, Alphabet Order, and Letter Sounds. **Numbers** opens Number Hunt, Number Order, 2048, How Many?, Make a Group, Same Number and Number Parts. **Words** opens Sight Words, Read and Find, Make-Believe Words and Word Sprint. **Writing** opens Handwriting and Cursive Play. **Reflex** opens Tap Challenge. **Art Hub** opens Sketch Pad. Game Back returns to its category; **Back to home** in the reward sheet returns directly home.
 
-- **Uppercase letters:** hear a letter and find its uppercase form.
-- **Lowercase letters:** hear a letter and find its lowercase form.
-- **Letter friends:** match uppercase and lowercase in both directions. The upper-right speaker toggles voice for this visit, including Next round. It starts from the Home’s sound setting each time you open the game. Muting stops speech; turning it on is silent. Silent play still asks you to find the match; **Show a hint** reveals the answer.
-- **Number hunt:** recognize shuffled numbers, starting at **0–10**. A grown-up can choose any inclusive range within **0–100**. One wrong choice is a look-alike when the range allows (12/21, 6/9, 13/30).
+- **Uppercase Letters:** hear a letter and find its uppercase form.
+- **Lowercase Letters:** hear a letter and find its lowercase form.
+- **Letter Friends:** match uppercase and lowercase in both directions. The upper-right speaker toggles voice for this visit, including Next round. It starts from the Home’s sound setting each time you open the game. Muting stops speech; turning it on is silent. Silent play still asks you to find the match; **Show a hint** reveals the answer.
+- **Number Hunt:** recognize shuffled numbers, starting at **0–10**. A grown-up can choose any inclusive range within **0–100**. One wrong choice is a look-alike when the range allows (12/21, 6/9, 13/30).
 - **Letter Sounds:** hear only a sound and select its lowercase letter. Parents choose among 24 basic letter spellings; short vowels and common consonants are included. c and k share /k/ and cannot compete as answers. Show a hint reveals a letter, reference picture and word. q, x and multi-letter spellings are deferred.
-- **How many?:** count still objects and select their numeral. Tap objects to mark/unmark them while counting. There is no running total or narration; Show a hint numbers the objects and reveals the answer.
-- **Make a group:** match the displayed numeral/object picture by adding objects to an open tray, tap placed objects to remove them, then Check. Zero accepts an empty tray. Hints show an example without filling the tray. Each counting game has an independent parent-selected range within 0–20 (default 0–10); both have five questions, saved 50 XP rewards and fixed Next/Check controls.
+- **How Many?:** count still objects and select their numeral. Tap objects to mark/unmark them while counting. There is no running total or narration; Show a hint numbers the objects and reveals the answer.
+- **Make a Group:** match the displayed numeral/object picture by adding objects to an open tray, tap placed objects to remove them, then Check. Zero accepts an empty tray. Hints show an example without filling the tray. Each counting game has an independent parent-selected range within 0–20 (default 0–10); both have five questions, saved 50 XP rewards and fixed Next/Check controls.
 - **Sight Words:** hear “Find the word” followed by a word and choose it from three cards. Pack 1 starts enabled; parents can independently enable three bundled packs totaling 43 words. Both targets and distractors come from enabled packs.
-- **Read and find:** read a printed word (no voice) and tap its picture. **Show a hint** opens **Sound it out**: each letter lights up with its sound, then the whole word plays; tap a letter to hear just that sound.
-- **Make-believe words:** read a pretend word, tap the three sound cards to hear options, select one and Check. The hint plays only the separate sounds.
+- **Read and Find:** read a printed word (no voice) and tap its picture. **Show a hint** opens **Sound it out**: each letter lights up with its sound, then the whole word plays; tap a letter to hear just that sound.
+- **Make-Believe Words:** read a pretend word, tap the three sound cards to hear options, select one and Check. The hint plays only the separate sounds.
 - **Word Sprint:** read each word aloud and tap it (tap again to undo); hold a word to sound it out. Real, Make-believe or Mix words; the saved 1-minute timer can be switched off. Completed timed runs keep a personal best; there is no XP.
-- **Same number:** complete a Numeral | Ten frame | Picture row by choosing the missing one. Silent.
-- **Number parts:** find the missing part of a whole, ending with Make 10 on a ten frame. Silent.
-- **Cursive play:** optional practice-only lowercase cursive: pick a family and letter, Watch the dot, Trace, then Write. No XP; nothing saved.
+- **Same Number:** complete a Numeral | Ten frame | Picture row by choosing the missing one. Silent.
+- **Number Parts:** find the missing part of a whole, ending with Make 10 on a ten frame. Silent.
+- **Cursive Play:** optional practice-only lowercase cursive: pick a family and letter, Watch the dot, Trace, then Write. No XP; nothing saved.
 - **Alphabet Order:** arrange all 26 letters across rows, then down. The live **A/a** button changes every letter without changing the puzzle and remembers its case across replay, visits and restarts.
 - **Number Order:** arrange every value in the saved inclusive range, smallest first. Both ordering games use floating square cards: hold and drag or tap two cards to swap. Correct cards sparkle, turn green with a check, and lock. A full board earns **50 XP**. Boards fit the screen when possible; large ranges and constrained accessible layouts scroll, including near-edge scrolling during drags. Leaving an unfinished board starts fresh next time.
 
@@ -36,17 +36,19 @@ The game includes five categories. **Letters** opens Uppercase letters, Lowercas
 
 - **2048:** swipe the 4×4 board or use an attached keyboard’s arrow/WASD keys to merge matching tiles. There are no on-screen directional buttons. Reaching 2048 earns **500 XP once per game**, with an in-game celebration by your customized unicorn. **Keep playing** continues for a higher score. The board, score, high score and win state save automatically; reopening resumes your game. **Start over** asks first and preserves high score and earned XP. The parent’s number range does not apply.
 
-**Voice policy:** Letter Sounds plays only isolated target sounds. Counting is silent, with picture/numeral instructions; existing screen-reader semantics remain available. Uppercase letters, Lowercase letters, Number hunt and Sight Words use spoken targets and Listen again when the shared sound setting is on. Home and identification speaker buttons remember the last choice across app restarts. Muted identification gently pulses its speaker; reduced motion uses a steady highlight. Answers appear only after **Show a hint**, including when audio fails. Turning voice on during an unanswered identification plays its current target. Letter friends offers optional instructions using its local toggle, which is hidden while the silent reward sheet is open and retained across Next round. All rewards and retry feedback are silent, as are ordering games, Tap Challenge and My unicorn. Visual instructions, haptics and screen-reader announcements remain available.
+**Voice policy:** Letter Sounds plays only isolated target sounds. Counting is silent, with picture/numeral instructions; existing screen-reader semantics remain available. Uppercase Letters, Lowercase Letters, Number Hunt and Sight Words use spoken targets and Listen again when the shared sound setting is on. Home and identification speaker buttons remember the last choice across app restarts. Muted identification gently pulses its speaker; reduced motion uses a steady highlight. Answers appear only after **Show a hint**, including when audio fails. Turning voice on during an unanswered identification plays its current target. Letter Friends offers optional instructions using its local toggle, which is hidden while the silent reward sheet is open and retained across Next round. All rewards and retry feedback are silent, as are ordering games, Tap Challenge and My Unicorn. Visual instructions, haptics and screen-reader announcements remain available.
 
 Each recognition round has five targets (unique when the range contains at least five numbers) and three answer choices per question. Correct-answer positions are balanced in shuffled order: each position is correct once or twice per round. Replay a prompt, reveal a hint, or take as long as needed. Wrong answers show a small coral × for 600 ms (a brief hold, then fade), show “Try again” and give an optional retry haptic. Answers stay available; a correct tap clears the marker immediately. Correct answers stop speech, sparkle, pop the newly earned progress star and give the equipped pet a short happy response. Reduced motion uses a static happy expression and filled star. Tap Next is on by default; switching it off advances questions 1–4 after 800 ms. Accessible navigation always uses Next. After the fifth answer saves, **50 XP earned!** appears on the finished game. **Next round** continues the same activity directly; with Tap Next off it starts automatically after two seconds. A small gift button is always available, and **Rewards** at completion opens the optional reward sheet. The sheet shows current level/XP and lets you collect gifts without losing the current question or board. Closing returns to that same work and restarts any applicable delay. Saved level-ups celebrate once inline. Failed saves block continuation and remain retryable after navigation. Ordering boards use this same completion flow. Five finds earn **50 learning XP**, saved immediately after the fifth correct answer. Each level earns one unicorn reward choice while more catalog choices can be earned. Unclaimed gifts can select new items; adding rewards does not create gifts for past levels. Unfinished rounds earn no XP.
 
-**My unicorn** uses five picture tabs for mane colors, headwear, wings, nail polish and celebrations. A large preview stays visible while choosing shaded portraits and matching pictures of owned items. Head choices use a close-up portrait. Tap the gift button to collect an earned surprise; the same picture cards appear in the optional in-game reward sheet. One tap saves and wears a choice; a checkmark identifies the saved selection. Celebrations have a short demonstration and a replay button.
+**My Unicorn** uses five picture tabs for mane colors, headwear, wings, nail polish and celebrations. A large preview stays visible while choosing shaded portraits and matching pictures of owned items. Head choices use a close-up portrait. Tap the gift button to collect an earned surprise; the same picture cards appear in the optional in-game reward sheet. One tap saves and wears a choice; a checkmark identifies the saved selection. Celebrations have a short demonstration and a replay button.
+
+**Sketch Pad** (Art Hub) is a full-screen white drawing page for free art. The page fills the screen and stays put like a sheet of paper: turn the phone or tablet any way you like and the drawing turns with it, while the buttons move to stay upright. Back and the Brush/Eraser/Fill, color (a small menu with your recent colors on top and three picture tabs: 12 crayons, special inks — **Rainbow**, plus **Glitter** (twinkles) and **Neon** effects that stay on while you change colors — and a color wheel) and brush-size buttons sit on one short end; tapping one opens a small picture-only menu right under your finger, and every change applies at once. Undo, Redo, Clear (which asks only when the drawing isn't saved to photos) and **Save to photos** sit on the other end. Rainbow draws a line that changes color as you go, and Rainbow Fill paints rainbow stripes. Fill colors in an enclosed shape; if a shape has a gap the color spreads, and Undo fixes it. Save to photos copies the drawing, the way you're holding the device, to Photos › Pictures/Learning Corner on Android 10 and later; saving again updates the same photo until you clear the page, and a grown-up can hide the button in Settings (**Save drawings to photos**). Sketch Pad always starts with the Brush. Each player's drawing, recent colors and brush size are kept on the device; reset progress keeps them. Sketch Pad is silent and earns no XP.
 
 **Tap Challenge** is freely replayable under Reflex. Each round lasts 30 active seconds: tap stars for **+1**, rainbows for **+3**, and avoid cartoon bombs (**−2**, with a zero score minimum). Up to three stationary targets appear in a nine-position arena. Misses are okay. The timer and targets pause when the app is interrupted; tap Resume to continue. Leaving an unfinished round earns nothing.
 
 Each player has a saved personal best. A completed final score above that best earns **50 XP**, including the first positive score. Ties and lower scores earn none. The high score and XP save together; failures can be retried without duplicate rewards. There is no untimed mode. Target roles and scoring are independent of artwork, allowing a future companion to provide its own icon set.
 
-Current distributable: **Learning Corner 0.22.2+49**, **671 MB**. Adds Read and find, Make-believe words, Word Sprint, Same number, Number parts and Cursive play (simplified in 0.22.0), with icons for every new card. [Gallery](docs/screenshots/0210/README.md) · [Validation](docs/testing.md) · [APK audit](artifacts/new-games-0210/apk-verification-0222.json).
+Current distributable: **Learning Corner 0.27.0+58**, **672 MB**. Glitter and Neon now stay on when you change color (a Plain tile turns them off), and Glitter twinkles on screen. In 0.26.0, Sketch Pad's color menu is a small tabbed pane (crayons, special inks, color wheel) with new **Glitter** and **Neon** inks; 0.25.1 brought Title Case titles, a compact Watch button and a Word Sprint sound toggle. In 0.25.0, Sketch Pad's pickers open from their icons (icon-first, instant changes), Clear asks only for unsaved drawing, saving replaces the same photo, and a parent toggle controls Save to photos; Word Sprint runs are 48 words and Handwriting gains Watch. Since 0.24.0: long-press the app icon for **Sketch Pad** and **2048** shortcuts (pinnable); adaptive launcher icon with themed-icon support, predictive back transitions, and encrypted Android backup of progress and drawings. Builds on 0.23.x Art Hub / Sketch Pad. [Validation](docs/testing.md) · [Emulator report](artifacts/0.24.0-emulator/report.md).
 
 The previous **0.17.0+34** release: Adventure, board moves, saved-play restrictions and its exclusive assets have been removed. Existing XP, unicorn rewards, profiles/settings, Writing and 2048 carry forward; retired destination scores do not transfer to Tap Challenge. [Screenshots](docs/screenshots/0170/README.md) · [Validation](docs/testing.md).
 
@@ -69,7 +71,7 @@ and name. Portraits automatically show saved mane colors and headwear.
 
 Settings belong to the current player. Open the Home cog and answer the grown-up gate. Every valid change applies immediately and saves automatically; Back keeps changes. **Appearance** offers System (default), Light and AMOLED Midnight Rainbow Dark. **Tap Next** and **Haptics** default on; haptics also respect Android settings.
 
-Each number game has its own range button in the upper-right. The compact settings icon and range on the right of its Numbers activity card open that game and its parent-gated editor. Number hunt and Number Order allow **0–100**; How many? and Make a group allow **0–20**. Set inclusive start/end values using the slider or exact +/− controls, with 0–5/0–10/0–20 presets. Each range contains at least three numbers and defaults to **0–10**. For example, Number Order can use **1–20** while Make a group uses **1–15**. 2048 remains independent.
+Each number game has its own range button in the upper-right. The compact settings icon and range on the right of its Numbers activity card open that game and its parent-gated editor. Number Hunt and Number Order allow **0–100**; How Many? and Make a Group allow **0–20**. Set inclusive start/end values using the slider or exact +/− controls, with 0–5/0–10/0–20 presets. Each range contains at least three numbers and defaults to **0–10**. For example, Number Order can use **1–20** while Make a Group uses **1–15**. 2048 remains independent.
 
 The game pauses during range editing. Edits save automatically; closing starts one fresh round when the final range differs. An unchanged range preserves current work. Unfinished work earns no XP. The game waits for pending saves before resuming; a failed save offers retry even after leaving the editor. Existing saved numeral/counting settings migrate into the corresponding independent ranges.
 
@@ -116,7 +118,7 @@ export ADB_BIN="$HOME/Android/Sdk/platform-tools/adb"
 ./tools/install_apk.sh DEVICE_SERIAL
 ```
 
-`tools/codex_task.sh` runs a sandboxed Codex worker (GPT-6.1-Sol) on a task brief. Workers run Flutter/Dart through `tools/sdk_direct.sh`, which writes nothing outside the workspace and `/tmp`. Claude uses these to delegate implementation; see [Codex orchestration](docs/CODEX_ORCHESTRATION.md).
+Claude delegates implementation to sandboxed Codex workers (GPT-6.1-Sol) through the toolkit's `cli-workers` skill. Workers run Flutter/Dart through `tools/sdk_direct.sh`, which writes nothing outside the workspace and `/tmp`; see [Codex orchestration](docs/CODEX_ORCHESTRATION.md).
 
 The 0.15.3 icon update passed **509 Flutter tests**, plus **16 capture scenarios with 64 images**. Formatting passed. Full analysis completed with no errors/warnings and 45 pre-existing informational style notices. See the [new icon gallery](docs/screenshots/0153/README.md) and [current validation](docs/testing.md) for APK evidence and limits.
 
@@ -126,7 +128,7 @@ Earlier ordering captures: [phone/landscape/tablet gallery](docs/screenshots/060
 
 [Saved identification sound captures and pulse recording](docs/screenshots/081/README.md).
 
-Earlier Letter friends captures: [voice on](docs/screenshots/052/emulator-voice-on.png), [voice off](docs/screenshots/052/emulator-voice-off.png), and [phone/landscape/tablet layout gallery](docs/screenshots/052/README.md) at normal and 200% text. The [0.5.1 gallery](docs/screenshots/051/README.md) retains home button and retry-animation evidence.
+Earlier Letter Friends captures: [voice on](docs/screenshots/052/emulator-voice-on.png), [voice off](docs/screenshots/052/emulator-voice-off.png), and [phone/landscape/tablet layout gallery](docs/screenshots/052/README.md) at normal and 200% text. The [0.5.1 gallery](docs/screenshots/051/README.md) retains home button and retry-animation evidence.
 
 Historical screenshots: [home](docs/screenshots/home.png), [letter activity](docs/screenshots/letters.png), [reward](docs/screenshots/reward.png), [settings](docs/screenshots/settings.png), [Letters category](docs/screenshots/letters-category.png), [Numbers category](docs/screenshots/numbers-category.png), [success animation](docs/screenshots/success.mp4). See [current validation](docs/testing.md) for companion-adventure checks and their limits.
 
@@ -153,16 +155,22 @@ Historical screenshots: [home](docs/screenshots/home.png), [letter activity](doc
 | `lib/screens/tap_challenge_page.dart` | Timed play, record rewards and lifecycle handling |
 | `lib/handwriting.dart` | Authored vector alphabet and offline geometric handwriting matching |
 | `lib/word_bank.dart` | Curated CVC real/make-believe words, pictures and phoneme clip mapping |
-| `lib/decoding.dart`, `lib/widgets/decoding_visuals.dart` | Read and find / Make-believe builders and visuals |
+| `lib/decoding.dart`, `lib/widgets/decoding_visuals.dart` | Read and Find / Make-believe builders and visuals |
 | `lib/widgets/sound_it_out.dart` | Shared explicit blending hint |
 | `lib/word_sprint.dart`, `lib/screens/word_sprint_page.dart` | Word Sprint session, timer, hint sheet and personal best |
-| `lib/number_sense.dart`, `lib/widgets/number_visuals.dart` | Same number / Number parts builders, ten frames and dot patterns |
+| `lib/number_sense.dart`, `lib/widgets/number_visuals.dart` | Same Number / Number Parts builders, ten frames and dot patterns |
 | `lib/widgets/visual_question.dart` | `QuestionVisual` context and dispatcher used by GamePage |
 | `lib/cursive.dart`, `lib/screens/cursive_page.dart`, `lib/widgets/cursive_pad.dart` | Original cursive stroke paths, families, pad and practice page |
 | `tools/render_word_pictures.py` | Authoring-only renderer for `assets/words/` |
 | `lib/writing.dart` | Saved shuffled alphabet and paired-form completion rules |
 | `lib/screens/writing_page.dart` | Handwriting, letter picker, saved rewards and lifecycle |
 | `lib/widgets/writing_pad.dart` | Bounded finger/stylus ink, practice rules and direction guides |
+| `lib/sketch.dart`, `lib/flood_fill.dart` | Sketch Pad model: page shape from the screen, presets, recent colors, stroke builder, undo history, saved sketch settings; isolate flood fill |
+| `lib/sketch_store.dart` | Per-player sketch autosave queue (separate from the progress save guard) |
+| `lib/screens/sketch_page.dart`, `lib/widgets/sketch_canvas.dart`, `lib/widgets/sketch_popover.dart` | Sketch Pad full-screen strips, icon-anchored picker popovers, rotation-fixed canvas input/rendering, fills, persistence and Save to photos |
+| `lib/widgets/stable_route_insets.dart` | Keeps covered Home/category routes from relaying out while Sketch Pad hides the system bars |
+| `lib/sketch_ink.dart` | Sketch inks: solid vs. special (`SketchSpecial.rainbow`), rainbow stroke painter, striped rainbow fill, swatch gradient |
+| `lib/widgets/color_wheel.dart`, `lib/widgets/brush_size_sheet.dart` | Sketch color sheet (recent colors, special colors, crayons, HSV wheel) and brush-size sheet |
 | `lib/letter_sounds.dart` | Basic sound spellings, reference pictures and parent selection validation |
 | `lib/counting.dart` | Stable collection scenes and temporary marking/building state |
 | `lib/widgets/counting_board.dart` | Silent tappable objects and counting frames |
@@ -174,7 +182,7 @@ Historical screenshots: [home](docs/screenshots/home.png), [letter activity](doc
 | `lib/widgets/ordering_board.dart` | Responsive card grid, dragging, snapping, tap swaps and scrolling |
 | `lib/widgets/learning_reward.dart` | Shared learning reward presentation |
 | `lib/screens/home_page.dart` | Home, categories and root navigation |
-| `lib/screens/category_page.dart` | Games grouped under Letters, Numbers, Words, Writing and Reflex |
+| `lib/screens/category_page.dart` | Games grouped under Letters, Numbers, Words, Writing, Reflex and Art Hub |
 | `lib/widgets/selection_card.dart` | Shared selection cards and responsive grid |
 | `lib/screens/game_page.dart` | Questions, feedback, rewards |
 | `lib/widgets/success_celebration.dart` | Short decorative sparkle animation |
@@ -183,8 +191,8 @@ Historical screenshots: [home](docs/screenshots/home.png), [letter activity](doc
 | `art/foal/` | Editable Blender source, skeleton/actions and authoring instructions |
 | `assets/companion/foal_3d/` | Fitted WebP clips, independent material masks, posters, item atlas and checksums |
 | `shaders/companion_hair.frag` | Shaded hair recoloring |
-| `lib/device_services.dart` | Testable interface to Android audio and storage |
-| `android/app/src/main/kotlin/com/rainbowgarden/rainbow_garden/MainActivity.kt` | Plays bundled WAVs; atomically migrates and stores the player collection |
+| `lib/device_services.dart` | Testable interface to Android audio, player storage, per-player sketch files, Save to photos, display rotation and the Sketch window mode |
+| `android/app/src/main/kotlin/com/rainbowgarden/rainbow_garden/MainActivity.kt` | Plays bundled WAVs; atomically migrates and stores the player collection; writes per-player sketch files (`filesDir/sketch/`, AtomicFile) and exports PNGs to MediaStore on Android 10+; reports display rotation changes and uses a crossfade rotation while Sketch Pad is open |
 | `android/app/src/main/kotlin/com/rainbowgarden/rainbow_garden/PromptAudio.kt` | Adds playback-only silence while preserving original speech samples |
 | `assets/audio/` | 221 learning recordings, including 23 sound-only phoneme clips |
 | `assets/audio_phrases.json` | Audio filenames and corresponding phrases |

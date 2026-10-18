@@ -6,7 +6,7 @@ import 'counting.dart';
 import 'decoding.dart';
 import 'number_sense.dart';
 
-enum GameCategory { letters, numbers, words, writing, reflex }
+enum GameCategory { letters, numbers, words, writing, reflex, artHub }
 
 extension GameCategoryContent on GameCategory {
   String get title => switch (this) {
@@ -15,6 +15,7 @@ extension GameCategoryContent on GameCategory {
     GameCategory.words => 'Words',
     GameCategory.writing => 'Writing',
     GameCategory.reflex => 'Reflex',
+    GameCategory.artHub => 'Art Hub',
   };
   String get example => switch (this) {
     GameCategory.letters => 'Aa',
@@ -22,6 +23,7 @@ extension GameCategoryContent on GameCategory {
     GameCategory.words => 'the',
     GameCategory.writing => 'Aa',
     GameCategory.reflex => '',
+    GameCategory.artHub => '',
   };
   int get colorIndex => switch (this) {
     GameCategory.letters => 5,
@@ -29,6 +31,7 @@ extension GameCategoryContent on GameCategory {
     GameCategory.words => 2,
     GameCategory.writing => 4,
     GameCategory.reflex => 0,
+    GameCategory.artHub => 3,
   };
   List<Activity> get activities => Activity.values
       .where((activity) => activity.category == this)
@@ -55,6 +58,7 @@ enum Activity {
   sameNumber,
   numberParts,
   cursive,
+  sketchPad,
 }
 
 extension ActivityContent on Activity {
@@ -71,6 +75,7 @@ extension ActivityContent on Activity {
       !isVisualChoice &&
       this != Activity.wordSprint &&
       this != Activity.cursive &&
+      this != Activity.sketchPad &&
       !isOrdering &&
       this != Activity.game2048 &&
       this != Activity.handwriting &&
@@ -98,8 +103,11 @@ extension ActivityContent on Activity {
     Activity.sameNumber => 1,
     Activity.numberParts => 3,
     Activity.cursive => 5,
+    Activity.sketchPad => 3,
   };
-  GameCategory get category => this == Activity.tapChallenge
+  GameCategory get category => this == Activity.sketchPad
+      ? GameCategory.artHub
+      : this == Activity.tapChallenge
       ? GameCategory.reflex
       : this == Activity.handwriting || this == Activity.cursive
       ? GameCategory.writing
@@ -117,10 +125,10 @@ extension ActivityContent on Activity {
       ? GameCategory.numbers
       : GameCategory.letters;
   String get title => switch (this) {
-    Activity.uppercase => 'Uppercase letters',
-    Activity.lowercase => 'Lowercase letters',
-    Activity.matching => 'Letter friends',
-    Activity.numbers => 'Number hunt',
+    Activity.uppercase => 'Uppercase Letters',
+    Activity.lowercase => 'Lowercase Letters',
+    Activity.matching => 'Letter Friends',
+    Activity.numbers => 'Number Hunt',
     Activity.alphabetOrder => 'Alphabet Order',
     Activity.numberOrder => 'Number Order',
     Activity.game2048 => '2048',
@@ -128,14 +136,15 @@ extension ActivityContent on Activity {
     Activity.handwriting => 'Handwriting',
     Activity.tapChallenge => 'Tap Challenge',
     Activity.letterSounds => 'Letter Sounds',
-    Activity.howMany => 'How many?',
-    Activity.makeGroup => 'Make a group',
-    Activity.readAndFind => 'Read and find',
-    Activity.makeBelieve => 'Make-believe words',
+    Activity.howMany => 'How Many?',
+    Activity.makeGroup => 'Make a Group',
+    Activity.readAndFind => 'Read and Find',
+    Activity.makeBelieve => 'Make-Believe Words',
     Activity.wordSprint => 'Word Sprint',
-    Activity.sameNumber => 'Same number',
-    Activity.numberParts => 'Number parts',
-    Activity.cursive => 'Cursive play',
+    Activity.sameNumber => 'Same Number',
+    Activity.numberParts => 'Number Parts',
+    Activity.cursive => 'Cursive Play',
+    Activity.sketchPad => 'Sketch Pad',
   };
   String get example => switch (this) {
     Activity.uppercase => 'ABC',
@@ -157,6 +166,7 @@ extension ActivityContent on Activity {
     Activity.sameNumber => '5',
     Activity.numberParts => '2+3',
     Activity.cursive => 'ce',
+    Activity.sketchPad => '',
   };
   String get subtitle => switch (this) {
     Activity.uppercase => 'Find uppercase letters',
@@ -178,6 +188,7 @@ extension ActivityContent on Activity {
     Activity.sameNumber => 'Match numbers, ten frames and pictures',
     Activity.numberParts => 'Find the missing part',
     Activity.cursive => 'Trace and write cursive letters',
+    Activity.sketchPad => 'Draw, erase and fill',
   };
 }
 

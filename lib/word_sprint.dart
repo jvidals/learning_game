@@ -11,7 +11,7 @@ enum WordSprintMode {
   final String label;
 }
 
-const wordSprintSessionLength = 50;
+const wordSprintSessionLength = 48;
 
 /// Reading is self-reported. This session owns marks, never time or rewards.
 class WordSprintSession {

@@ -54,7 +54,13 @@ class PlayerProfile {
     if (map.containsKey('relaxed') && map['relaxed'] is! bool) {
       throw const FormatException('Invalid legacy settings');
     }
-    for (final key in ['tapNext', 'haptics', 'orderingLowercase', 'soundOn']) {
+    for (final key in [
+      'tapNext',
+      'haptics',
+      'orderingLowercase',
+      'soundOn',
+      'sketchSaveToPhotos',
+    ]) {
       if (map.containsKey(key) && map[key] is! bool) {
         throw const FormatException('Invalid setting');
       }

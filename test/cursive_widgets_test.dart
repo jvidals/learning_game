@@ -8,6 +8,7 @@ import 'package:rainbow_garden/handwriting.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rainbow_garden/app_theme.dart';
 import 'package:rainbow_garden/cursive.dart';
+import 'package:rainbow_garden/game.dart';
 import 'package:rainbow_garden/main.dart';
 import 'package:rainbow_garden/progress_controller.dart';
 import 'package:rainbow_garden/screens/cursive_page.dart';
@@ -89,9 +90,9 @@ void main() {
       await tester.pumpWidget(RainbowGardenApp(services: device));
       await settle(tester);
       await tapVisible(tester, find.text('Writing'));
-      await tester.ensureVisible(find.text('Cursive play').first);
+      await tester.ensureVisible(find.text(Activity.cursive.title).first);
       await settle(tester);
-      await tester.tap(find.text('Cursive play').first);
+      await tester.tap(find.text(Activity.cursive.title).first);
       await tester.pump();
       final writes = device.writes, settingsWrites = device.settingsWrites;
       final document = device.profileDocument;
@@ -343,6 +344,20 @@ void main() {
       await tester.pump();
       final t = tester.getRect(tracePad), w = tester.getRect(writePad);
       final watch = tester.getRect(find.byKey(const ValueKey('cursive-watch')));
+      final outline = tester.getSize(
+        find.descendant(
+          of: find.byKey(const ValueKey('cursive-watch')),
+          matching: find.byType(Material),
+        ),
+      );
+      final label = tester.getRect(find.text('Trace the example'));
+      expect(outline.height, lessThanOrEqualTo(40));
+      expect(watch.width, greaterThanOrEqualTo(48));
+      expect(watch.height, greaterThanOrEqualTo(48));
+      expect(watch.center.dy, closeTo(label.center.dy, 1));
+      expect(watch.left, greaterThanOrEqualTo(label.right));
+      expect(find.text('Cursive Play'), findsOneWidget);
+      debugPrint('CURSIVE Watch outline=$outline touch=${watch.size}');
       final check = tester.getRect(find.byKey(const ValueKey('cursive-check')));
       // Printed positions are part of the review evidence.
       debugPrint('PHONE trace=$t write=$w watch=$watch check=$check');

@@ -289,6 +289,15 @@ class _SettingsPageState extends State<SettingsPage> {
                     ? (v) => _change((s) => s.copyWith(haptics: v))
                     : null,
               ),
+              SwitchListTile(
+                key: const ValueKey('settings-sketch-save-photos'),
+                title: const Text('Save drawings to photos'),
+                subtitle: const Text('Shows the save button in Sketch Pad'),
+                value: settings.sketchSaveToPhotos,
+                onChanged: enabled
+                    ? (v) => _change((s) => s.withSketchSaveToPhotos(v))
+                    : null,
+              ),
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 20),
                 child: Divider(),

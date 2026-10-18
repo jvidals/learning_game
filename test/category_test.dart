@@ -26,6 +26,7 @@ void main() {
       Activity.sameNumber,
       Activity.numberParts,
     ]);
+    expect(GameCategory.artHub.activities, [Activity.sketchPad]);
     expect(
       GameCategory.values.expand((c) => c.activities).toSet(),
       Activity.values.toSet(),
@@ -44,7 +45,7 @@ void main() {
         tester
             .widgetList<SelectionCard>(find.byType(SelectionCard))
             .map((c) => c.title),
-        ['Letters', 'Numbers', 'Words', 'Writing', 'Reflex'],
+        ['Letters', 'Numbers', 'Words', 'Writing', 'Reflex', 'Art Hub'],
       );
       expect(find.text('Level 3'), findsOneWidget);
       expect(find.byTooltip('Settings'), findsOneWidget);
@@ -55,9 +56,9 @@ void main() {
             .widgetList<SelectionCard>(find.byType(SelectionCard))
             .map((c) => c.title),
         [
-          'Uppercase letters',
-          'Lowercase letters',
-          'Letter friends',
+          'Uppercase Letters',
+          'Lowercase Letters',
+          'Letter Friends',
           'Alphabet Order',
           'Letter Sounds',
         ],
@@ -65,10 +66,10 @@ void main() {
       await tapVisible(tester, find.byTooltip('Back to home'));
       await tapVisible(tester, find.text('Numbers'));
       expect(find.text('Numbers'), findsOneWidget);
-      expect(find.text('Number hunt'), findsOneWidget);
+      expect(find.text(Activity.numbers.title), findsOneWidget);
       expect(find.byType(GamePage), findsNothing);
       expect(find.text('20–30'), findsNWidgets(2));
-      await tapVisible(tester, find.text('Number hunt'));
+      await tapVisible(tester, find.text(Activity.numbers.title));
       expect(
         int.parse(device.clips.last.substring(7)),
         inInclusiveRange(20, 30),

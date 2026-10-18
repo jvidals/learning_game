@@ -64,6 +64,220 @@ Future<void> drawSample(
 
 void main() {
   setUpAll(loadCaptureFonts);
+  WritingPad tracePad(WidgetTester tester) =>
+      tester.widget<WritingPad>(find.byKey(const ValueKey('trace-pad')));
+
+  testWidgets(
+    'Watch auto-plays, stops for tracing, and replays without saving',
+    (tester) async {
+      final device = seeded();
+      await openWriting(tester, device);
+      final watch = find.byKey(const ValueKey('writing-watch'));
+      expect(watch, findsOneWidget);
+      expect(find.text('Watch'), findsOneWidget);
+      expect(find.bySemanticsLabel('Watch how to write A'), findsOneWidget);
+      // The default 800×600 tablet keeps Watch beside Skip to preserve pad fit.
+      final skip = tester.getRect(find.text('Skip letter'));
+      expect(tester.getRect(watch).center.dy, closeTo(skip.center.dy, 1));
+      expect(
+        tester.getRect(watch).bottom,
+        lessThanOrEqualTo(
+          tester.getRect(find.byKey(const ValueKey('trace-pad'))).top,
+        ),
+      );
+      final document = device.profileDocument;
+      final writes = device.writes;
+      final first = tracePad(tester).watchProgress!;
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(tracePad(tester).watchProgress, greaterThan(first));
+      expect(
+        tester
+            .widget<WritingPad>(find.byKey(const ValueKey('freehand-pad')))
+            .watchProgress,
+        isNull,
+      );
+      await tester.ensureVisible(find.byKey(const ValueKey('trace-pad')));
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byKey(const ValueKey('trace-pad'))),
+      );
+      await tester.pump();
+      expect(tracePad(tester).watchProgress, isNull);
+      await gesture.up();
+      final completedInk = tracePad(tester).ink.strokes;
+      final unfinished = await tester.startGesture(
+        tester.getCenter(find.byKey(const ValueKey('trace-pad'))),
+      );
+      await tapVisible(tester, watch);
+      await unfinished.up();
+      expect(tracePad(tester).watchProgress, isNotNull);
+      expect(tracePad(tester).ink.drawing, isFalse);
+      expect(tracePad(tester).ink.strokes, completedInk);
+      await tester.pump(const Duration(seconds: 5));
+      expect(tracePad(tester).watchProgress, isNull);
+      await tapVisible(tester, watch);
+      expect(tracePad(tester).watchProgress, inExclusiveRange(0, 1));
+      expect(device.profileDocument, document);
+      expect(device.writes, writes);
+      expect(device.xp, 0);
+      expect(device.clips, isEmpty);
+      expect(device.feedbacks, isEmpty);
+    },
+  );
+
+  testWidgets('Watch auto-plays after creating the first saved alphabet', (
+    tester,
+  ) async {
+    await openWriting(tester, MemoryDevice());
+    expect(tracePad(tester).watchProgress, isNotNull);
+    expect(tracePad(tester).enabled, isTrue);
+  });
+
+  testWidgets('Watch replays on Skip, case changes, picker and shuffle', (
+    tester,
+  ) async {
+    await openWriting(tester, seeded());
+    await tester.pump(const Duration(seconds: 5));
+    await tapVisible(tester, find.text('Skip letter'));
+    expect(tracePad(tester).template.character, 'B');
+    expect(tracePad(tester).watchProgress, isNotNull);
+    await tester.pump(const Duration(seconds: 5));
+    await tapVisible(tester, find.byKey(const ValueKey('case-lower')));
+    expect(tracePad(tester).template.character, 'b');
+    expect(tracePad(tester).watchProgress, isNotNull);
+    await tester.pump(const Duration(seconds: 5));
+    await tapVisible(tester, find.byTooltip('Choose a letter'));
+    await tapVisible(tester, find.byKey(const ValueKey('pick-letter-C')));
+    expect(tracePad(tester).template.character, 'C');
+    expect(tracePad(tester).watchProgress, isNotNull);
+    await tester.pump(const Duration(seconds: 5));
+    await tapVisible(tester, find.byTooltip('Choose a letter'));
+    await tapVisible(tester, find.text('Shuffled alphabet'));
+    expect(tracePad(tester).template.character, 'b');
+    expect(tracePad(tester).watchProgress, isNotNull);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Watch stops for backgrounding and stays stopped on resume', (
+    tester,
+  ) async {
+    await openWriting(tester, seeded());
+    expect(tracePad(tester).watchProgress, isNotNull);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    await tester.pump();
+    expect(tracePad(tester).watchProgress, isNull);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pump();
+    expect(tracePad(tester).watchProgress, isNull);
+    await tapVisible(tester, find.byKey(const ValueKey('writing-watch')));
+    expect(tracePad(tester).watchProgress, isNotNull);
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    await tester.pump();
+    expect(tracePad(tester).watchProgress, isNull);
+  });
+
+  testWidgets('Watch respects reduced motion on entry and after replay', (
+    tester,
+  ) async {
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    await openWriting(tester, seeded());
+    expect(tracePad(tester).watchProgress, isNull);
+    await tapVisible(tester, find.byKey(const ValueKey('writing-watch')));
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(tracePad(tester).watchProgress, isNull);
+    await tapVisible(tester, find.byKey(const ValueKey('case-lower')));
+    expect(tracePad(tester).watchProgress, isNull);
+  });
+
+  testWidgets('phone Watch sits beside the trace label', (tester) async {
+    tester.view.physicalSize = const Size(393, 852);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await openWriting(tester, seeded());
+    final header = tester.getRect(find.text('Trace the example'));
+    final watch = tester.getRect(find.byKey(const ValueKey('writing-watch')));
+    final button = find.byKey(const ValueKey('writing-watch'));
+    final outline = tester.getSize(
+      find.descendant(of: button, matching: find.byType(Material)),
+    );
+    expect(outline.height, lessThanOrEqualTo(40));
+    expect(watch.width, greaterThanOrEqualTo(48));
+    expect(watch.height, greaterThanOrEqualTo(48));
+    debugPrint('WRITING Watch outline=$outline touch=${watch.size}');
+    expect(watch.center.dy, closeTo(header.center.dy, 1));
+    expect(watch.left, greaterThanOrEqualTo(header.right));
+    expect(tester.takeException(), isNull);
+  });
+
+  for (final brightness in Brightness.values) {
+    testWidgets(
+      'Watch header stacks at large text and Check stays fixed $brightness',
+      (tester) async {
+        tester.view.physicalSize = const Size(320, 640);
+        tester.view.devicePixelRatio = 1;
+        tester.platformDispatcher.textScaleFactorTestValue = 2;
+        tester.platformDispatcher.platformBrightnessTestValue = brightness;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+        await openWriting(tester, seeded());
+        final header = tester.getRect(find.text('Trace the example'));
+        final watch = tester.getRect(
+          find.byKey(const ValueKey('writing-watch')),
+        );
+        expect(watch.top, greaterThanOrEqualTo(header.bottom));
+        expect(watch.right, closeTo(304, 1));
+        final check = find.byKey(const ValueKey('writing-check'));
+        final before = tester.getRect(check);
+        await tester.ensureVisible(find.byKey(const ValueKey('freehand-pad')));
+        await tester.pump();
+        expect(tester.getRect(check), before);
+        expect(before.bottom, lessThanOrEqualTo(640));
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets(
+      'tablet keeps Skip above pads and Check outside scrolling $brightness',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 1100);
+        tester.view.devicePixelRatio = 1;
+        tester.platformDispatcher.platformBrightnessTestValue = brightness;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+        await openWriting(tester, seeded());
+        final trace = tester.getRect(find.byKey(const ValueKey('trace-pad')));
+        final freehand = tester.getRect(
+          find.byKey(const ValueKey('freehand-pad')),
+        );
+        expect(
+          tester.getRect(find.text('Skip letter')).bottom,
+          lessThan(trace.top),
+        );
+        expect(trace.height, 240);
+        expect(freehand.height, 240);
+        expect(trace.top, freehand.top);
+        final check = find.byKey(const ValueKey('writing-check'));
+        expect(
+          find.ancestor(
+            of: check,
+            matching: find.byType(SingleChildScrollView),
+          ),
+          findsNothing,
+        );
+        expect(tester.getRect(check).top, greaterThan(freehand.bottom));
+        expect(check.hitTestable(), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   testWidgets(
     'case tabs preserve both drawings, Clear is local, and lowercase may finish first',
     (tester) async {
@@ -182,6 +396,7 @@ void main() {
     await tapVisible(tester, find.text('Check'));
     expect(device.xp, 0);
     await tapVisible(tester, find.text('Next: lowercase'));
+    expect(tracePad(tester).watchProgress, isNotNull);
     await drawSample(tester, 'a', kind: PointerDeviceKind.stylus);
     await tapVisible(tester, find.text('Check'));
     expect(device.xp, 10);
@@ -199,6 +414,7 @@ void main() {
     await tapVisible(tester, find.text('Check'));
     expect(device.xp, 10);
     await tapVisible(tester, find.text('Next letter'));
+    expect(tracePad(tester).watchProgress, isNotNull);
     expect(
       tester
           .widget<WritingPad>(find.byKey(const ValueKey('freehand-pad')))
@@ -288,6 +504,13 @@ void main() {
       await drawSample(tester, 'a');
       device.pending = Completer<void>();
       await tapVisible(tester, find.text('Check'));
+      expect(tracePad(tester).watchProgress, isNull);
+      expect(
+        tester
+            .widget<OutlinedButton>(find.byKey(const ValueKey('writing-watch')))
+            .onPressed,
+        isNull,
+      );
       await tester.pump(const Duration(seconds: 30));
       expect(device.xp, 0);
       expect(find.text('Both letters complete! 10 XP earned!'), findsNothing);
@@ -417,7 +640,7 @@ void main() {
         addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
         final key = GlobalKey();
         await openWriting(tester, seeded(), boundary: key);
-        void padsVisibleWithoutScrolling() {
+        void padsVisible() {
           if (scale != 1.0 || (name != 'phone' && name != 'tablet')) return;
           final freehand = find.byKey(const ValueKey('freehand-pad'));
           final viewport = tester.getRect(
@@ -435,7 +658,7 @@ void main() {
           }
         }
 
-        padsVisibleWithoutScrolling();
+        padsVisible();
         await capture(
           tester,
           key,
@@ -474,7 +697,7 @@ void main() {
         await tester.tap(find.byKey(const ValueKey('writing-check')));
         await settle(tester);
         visibleAction('writing-continue');
-        padsVisibleWithoutScrolling();
+        padsVisible();
         await capture(
           tester,
           key,
@@ -494,7 +717,11 @@ void main() {
         await tester.pump();
         visibleAction('writing-check');
         visibleAction('writing-continue');
-        padsVisibleWithoutScrolling();
+        // The extra repeat-check action shrinks the viewport. Watch adds a
+        // header control, so use the existing scroll area to reveal the pad.
+        await tester.ensureVisible(find.byKey(const ValueKey('freehand-pad')));
+        await tester.pump();
+        padsVisible();
         await capture(
           tester,
           key,

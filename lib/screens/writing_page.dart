@@ -9,6 +9,7 @@ import '../writing.dart';
 import '../widgets/progress_widgets.dart';
 import '../widgets/success_celebration.dart';
 import '../widgets/writing_pad.dart';
+import '../widgets/watch_button.dart';
 
 class _FormDraft {
   final trace = WritingInk(), freehand = WritingInk();
@@ -61,7 +62,7 @@ class WritingPage extends StatefulWidget {
 }
 
 class _WritingPageState extends State<WritingPage>
-    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
+    with WidgetsBindingObserver, TickerProviderStateMixin {
   final _shuffledDraft = _PairDraft(), _practiceDraft = _PairDraft();
   _PairDraft get _pairDraft => _practice ? _practiceDraft : _shuffledDraft;
   _FormDraft get _draft => _pairDraft.current;
@@ -74,10 +75,14 @@ class _WritingPageState extends State<WritingPage>
   String get _message => _draft.message;
   set _message(String value) => _draft.message = value;
   bool _pendingEarned = false;
+  late final AnimationController _watch;
   late final AnimationController _sparkle;
   final _scroll = ScrollController();
   bool _foreground = true, _visible = true;
   bool _checking = false;
+  // A new saved letter can arrive while its write still blocks input. Play
+  // once it is ready, without replaying for ordinary controller rebuilds.
+  bool _reducedMotion = false, _watchPending = true;
   int? _practiceLetter;
   int _practiceForms = 0;
   String? _position, _pendingSuccess;
@@ -91,16 +96,29 @@ class _WritingPageState extends State<WritingPage>
   String get _character => _lowercase ? _upper.toLowerCase() : _upper;
   int get _forms => _practice ? _practiceForms : (_progress?.currentForms ?? 0);
   String get _formToken => '${_progress?.id}:${_progress?.index}:$_lowercase';
+  Iterable<WritingInk> get _traceInks => [
+    _shuffledDraft.upper.trace,
+    _shuffledDraft.lower.trace,
+    _practiceDraft.upper.trace,
+    _practiceDraft.lower.trace,
+  ];
 
   @override
   void initState() {
     super.initState();
+    _watch = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 4500),
+    );
     _sparkle = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 550),
     );
     WidgetsBinding.instance.addObserver(this);
     _controller.addListener(_changed);
+    for (final ink in _traceInks) {
+      ink.addListener(_traceChanged);
+    }
     _position = '${_progress?.id}:${_progress?.index}';
     _lowercase = _forms == 1;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -126,6 +144,7 @@ class _WritingPageState extends State<WritingPage>
 
   void _changed() {
     if (!mounted) return;
+    if (_controller.blocked.value) _watch.stop();
     final nextPosition = '${_progress?.id}:${_progress?.index}';
     if (nextPosition != _position && !_practice) {
       _position = nextPosition;
@@ -133,6 +152,7 @@ class _WritingPageState extends State<WritingPage>
       _lowercase = _forms == 1;
       _pendingSuccess = null;
       _clearInk();
+      _watchPending = true;
     }
     if (_pendingSuccess == _formToken &&
         !_controller.blocked.value &&
@@ -140,6 +160,7 @@ class _WritingPageState extends State<WritingPage>
       _pendingSuccess = null;
       _success(earned: _pendingEarned);
     }
+    _playPendingWatch();
     setState(() {});
   }
 
@@ -148,10 +169,43 @@ class _WritingPageState extends State<WritingPage>
     super.didChangeDependencies();
     _visible =
         (ModalRoute.isCurrentOf(context) ?? true) && TickerMode.of(context);
+    _reducedMotion = MediaQuery.disableAnimationsOf(context);
+    if (_reducedMotion) {
+      _watch.stop();
+      _sparkle.stop();
+    }
     if (!_visible) _interrupt();
+    _playPendingWatch();
+  }
+
+  void _traceChanged() {
+    if (_trace.drawing && _watch.isAnimating) setState(_watch.stop);
+  }
+
+  void _playPendingWatch() {
+    if (!_watchPending ||
+        !_enabled ||
+        _progress == null ||
+        (!_practice && _progress!.finished)) {
+      return;
+    }
+    _watchPending = false;
+    if (!_reducedMotion) _watch.forward(from: 0);
+  }
+
+  void _replay() {
+    if (!_enabled) return;
+    _trace.cancel();
+    setState(() {
+      _watch.stop();
+      _watchPending = true;
+      _playPendingWatch();
+    });
   }
 
   void _interrupt() {
+    _watchPending = false;
+    _watch.stop();
     _shuffledDraft.cancel();
     _practiceDraft.cancel();
     _sparkle.stop();
@@ -173,6 +227,10 @@ class _WritingPageState extends State<WritingPage>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _controller.removeListener(_changed);
+    for (final ink in _traceInks) {
+      ink.removeListener(_traceChanged);
+    }
+    _watch.dispose();
     _shuffledDraft.dispose();
     _practiceDraft.dispose();
     _sparkle.dispose();
@@ -204,7 +262,10 @@ class _WritingPageState extends State<WritingPage>
         _freehand.drawing ||
         _freehand.overflow)
       return;
-    setState(() => _checking = true);
+    setState(() {
+      _watch.stop();
+      _checking = true;
+    });
     final result = evaluateWriting(
       letterTemplates[_character]!,
       _freehand.strokes,
@@ -256,7 +317,11 @@ class _WritingPageState extends State<WritingPage>
   void _selectCase(bool lowercase) {
     if (!_enabled || lowercase == _lowercase) return;
     _interrupt();
-    setState(() => _lowercase = lowercase);
+    setState(() {
+      _lowercase = lowercase;
+      _watchPending = true;
+      _playPendingWatch();
+    });
     _toTop();
   }
 
@@ -423,6 +488,8 @@ class _WritingPageState extends State<WritingPage>
       _practiceLetter = selected;
       _practiceForms = 0;
       _lowercase = false;
+      _watchPending = true;
+      _playPendingWatch();
     });
     _toTop();
   }
@@ -432,6 +499,8 @@ class _WritingPageState extends State<WritingPage>
     setState(() {
       _practiceLetter = null;
       _position = '${_progress?.id}:${_progress?.index}';
+      _watchPending = true;
+      _playPendingWatch();
     });
     _toTop();
   }
@@ -519,16 +588,31 @@ class _WritingPageState extends State<WritingPage>
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ..._lessonHeader(),
-              if (!_practice && _forms != 3) _skipLetter(),
+              // Keep Watch beside Skip so the pads fit at 960×600 without scrolling.
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 24,
+                children: [
+                  _watchButton(),
+                  if (!_practice && _forms != 3) _skipLetter(),
+                ],
+              ),
             ],
           ),
-          _pads(),
+          _pads(tablet: true),
         ]
       : [
           ..._lessonHeader(),
-          _pads(),
+          _pads(tablet: false),
           if (!_practice && _forms != 3) _skipLetter(),
         ];
+
+  Widget _watchButton() => WatchButton(
+    buttonKey: const ValueKey('writing-watch'),
+    semanticsLabel: 'Watch how to write $_character',
+    onPressed: _enabled ? _replay : null,
+  );
 
   Widget _skipLetter() => TextButton(
     onPressed: _enabled ? _advance : null,
@@ -561,39 +645,77 @@ class _WritingPageState extends State<WritingPage>
     const SizedBox(height: 8),
   ];
 
-  Widget _pads() => LayoutBuilder(
+  Widget _pads({required bool tablet}) => LayoutBuilder(
     builder: (context, constraints) {
       final wide = constraints.maxWidth >= 640;
       final height = wide
           ? 240.0
           : (MediaQuery.sizeOf(context).height >= 800 ? 200.0 : 180.0);
-      Widget area(bool trace) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
+      Widget header(bool trace) => LayoutBuilder(
+        builder: (context, header) {
+          final label = Text(
             trace ? 'Trace the example' : 'Now write it yourself',
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 4),
-          SizedBox(
-            height: height,
-            child: WritingPad(
-              key: ValueKey(trace ? 'trace-pad' : 'freehand-pad'),
-              ink: trace ? _trace : _freehand,
-              template: letterTemplates[_character]!,
-              trace: trace,
-              enabled: _enabled,
+          );
+          if (tablet) return label;
+          final watch = _watchButton();
+          if (trace &&
+              header.maxWidth < 500 &&
+              MediaQuery.textScalerOf(context).scale(1) > 1.3) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                label,
+                Align(alignment: Alignment.centerRight, child: watch),
+              ],
+            );
+          }
+          return ConstrainedBox(
+            constraints: BoxConstraints(minHeight: wide || trace ? 48 : 0),
+            child: Row(
+              children: [
+                Expanded(child: label),
+                if (trace) watch,
+              ],
             ),
+          );
+        },
+      );
+      Widget pad(bool trace) => SizedBox(
+        height: height,
+        child: AnimatedBuilder(
+          animation: _watch,
+          builder: (context, _) => WritingPad(
+            key: ValueKey(trace ? 'trace-pad' : 'freehand-pad'),
+            ink: trace ? _trace : _freehand,
+            template: letterTemplates[_character]!,
+            trace: trace,
+            enabled: _enabled,
+            watchProgress:
+                trace && _watch.isAnimating && !_reducedMotion && _enabled
+                ? _watch.value
+                : null,
           ),
+        ),
+      );
+      Widget area(bool trace) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [header(trace), const SizedBox(height: 4), pad(trace)],
+      );
+      Widget pair(Widget left, Widget right) => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: left),
+          const SizedBox(width: 20),
+          Expanded(child: right),
         ],
       );
       return wide
-          ? Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          ? Column(
               children: [
-                Expanded(child: area(true)),
-                const SizedBox(width: 20),
-                Expanded(child: area(false)),
+                pair(header(true), header(false)),
+                const SizedBox(height: 4),
+                pair(pad(true), pad(false)),
               ],
             )
           : Column(
@@ -618,6 +740,8 @@ class _WritingPageState extends State<WritingPage>
       setState(() {
         _practiceDraft.clear();
         _practiceForms = 0;
+        _watchPending = true;
+        _playPendingWatch();
       });
       _toTop();
     } else {

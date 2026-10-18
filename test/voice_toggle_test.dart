@@ -317,7 +317,7 @@ void main() {
       await tester.pumpWidget(RainbowGardenApp(services: d));
       await settle(tester);
       await tapVisible(tester, find.text('Letters'));
-      await tapVisible(tester, find.text('Letter friends'));
+      await tapVisible(tester, find.text(Activity.matching.title));
       await tapVisible(tester, voiceOn);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
       await tester.pump();
@@ -326,7 +326,7 @@ void main() {
       expect(voiceOff, findsOneWidget);
       await tester.binding.handlePopRoute();
       await settle(tester);
-      await tapVisible(tester, find.text('Letter friends'));
+      await tapVisible(tester, find.text(Activity.matching.title));
       expect(voiceOn, findsOneWidget);
       await tester.binding.handlePopRoute();
       await settle(tester);
@@ -335,12 +335,12 @@ void main() {
       expect(find.byTooltip('Turn sound off'), findsOneWidget);
       await tapVisible(tester, find.byTooltip('Turn sound off'));
       await tapVisible(tester, find.text('Letters'));
-      await tapVisible(tester, find.text('Letter friends'));
+      await tapVisible(tester, find.text(Activity.matching.title));
       expect(voiceOff, findsOneWidget);
       await tapVisible(tester, voiceOff);
       await tester.binding.handlePopRoute();
       await settle(tester);
-      await tapVisible(tester, find.text('Uppercase letters'));
+      await tapVisible(tester, find.text(Activity.uppercase.title));
       expect(voiceOn, findsNothing);
       expect(voiceOff, findsOneWidget);
       expect(listen, findsNothing);
@@ -393,7 +393,7 @@ void main() {
         );
         await settle(tester);
         await tapVisible(tester, find.text('Letters'));
-        await tapVisible(tester, find.text('Letter friends'));
+        await tapVisible(tester, find.text(Activity.matching.title));
         for (final on in [true, false]) {
           final toggle = on ? voiceOn : voiceOff;
           final bounds = tester.getRect(toggle);

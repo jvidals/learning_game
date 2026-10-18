@@ -8,10 +8,10 @@ import 'widget_test.dart' show MemoryDevice, rewardResult, settle, tapVisible;
 
 void main() {
   for (final entry in [
-    ('Letters', 'Uppercase letters'),
-    ('Letters', 'Lowercase letters'),
-    ('Letters', 'Letter friends'),
-    ('Numbers', 'Number hunt'),
+    ('Letters', Activity.uppercase.title),
+    ('Letters', Activity.lowercase.title),
+    ('Letters', Activity.matching.title),
+    ('Numbers', Activity.numbers.title),
     ('Words', 'Sight Words'),
   ]) {
     testWidgets(

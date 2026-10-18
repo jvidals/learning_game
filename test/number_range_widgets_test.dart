@@ -68,9 +68,9 @@ void main() {
       await tester.pumpWidget(RainbowGardenApp(services: d));
       await settle(tester);
       await tapVisible(tester, find.text('Numbers'));
-      expect(find.bySemanticsLabel('Number hunt'), findsOneWidget);
+      expect(find.bySemanticsLabel('Number Hunt'), findsOneWidget);
       expect(
-        find.bySemanticsLabel('Change Number hunt range, 0–10'),
+        find.bySemanticsLabel('Change Number Hunt range, 0–10'),
         findsOneWidget,
       );
       await tapVisible(tester, find.byKey(const ValueKey('range-numbers')));
@@ -85,7 +85,7 @@ void main() {
       await tester.binding.handlePopRoute();
       await settle(tester);
       expect(
-        find.bySemanticsLabel('Change Number hunt range, 98–100'),
+        find.bySemanticsLabel('Change Number Hunt range, 98–100'),
         findsOneWidget,
       );
       expect(d.ranges.numberOrder, NumberRange.defaults);

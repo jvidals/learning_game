@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <!-- Include only player preferences and sketches. This offline app has no network permission; Android performs the backup. -->
+    <cloud-backup disableIfNoEncryptionCapabilities="true">
+        <include domain="sharedpref" path="garden.xml" />
+        <include domain="file" path="sketch/" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="sharedpref" path="garden.xml" />
+        <include domain="file" path="sketch/" />
+    </device-transfer>
+</data-extraction-rules>

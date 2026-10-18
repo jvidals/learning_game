@@ -1,3 +1,4 @@
+import 'package:rainbow_garden/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rainbow_garden/progress.dart';
@@ -25,7 +26,7 @@ void main() {
     await tester.pumpWidget(RainbowGardenApp(services: d));
     await settle(tester);
     await tapVisible(tester, find.text('Letters'));
-    await tapVisible(tester, find.text('Uppercase letters'));
+    await tapVisible(tester, find.text(Activity.uppercase.title));
     await finishLearning(tester);
     expect(d.xp, 50);
     await tapVisible(tester, find.text('Blue mane'));
@@ -39,7 +40,7 @@ void main() {
     expect(find.text('Adventure'), findsNothing);
     await tapVisible(tester, find.text('Back to home'));
     expect(find.text('Hi, Player 1!'), findsOneWidget);
-    expect(find.text('Uppercase letters'), findsNothing);
+    expect(find.text(Activity.uppercase.title), findsNothing);
   });
   testWidgets(
     'failed fifth-answer save survives navigation and retries on home',
@@ -48,7 +49,7 @@ void main() {
       await tester.pumpWidget(RainbowGardenApp(services: d));
       await settle(tester);
       await tapVisible(tester, find.text('Numbers'));
-      await tapVisible(tester, find.text('Number hunt'));
+      await tapVisible(tester, find.text(Activity.numbers.title));
       d.failSave = true;
       for (var i = 0; i < 5; i++) {
         final clip = d.clips.lastWhere((s) => s.startsWith('number_'));

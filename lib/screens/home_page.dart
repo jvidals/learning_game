@@ -17,12 +17,14 @@ import 'category_page.dart';
 import 'game_page.dart';
 import 'word_sprint_page.dart';
 import 'cursive_page.dart';
+import 'sketch_page.dart';
 import 'ordering_page.dart';
 import 'game_2048_page.dart';
 import 'writing_page.dart';
 import 'settings_page.dart';
 import 'profiles_sheet.dart';
 import '../widgets/profile_portrait.dart';
+import '../widgets/stable_route_insets.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.services, required this.controller});
@@ -35,6 +37,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   ProgressController get _controller => widget.controller;
   bool _opening = false;
+  int _openingGeneration = 0, _shortcutGeneration = 0;
+  StreamSubscription<void>? _shortcutSubscription;
+  Activity? _pendingShortcut, _lastGameActivity;
+  MaterialPageRoute<void>? _lastGameRoute;
+  bool _shortcutScheduled = false;
   bool get _sound => _controller.soundOn;
 
   Future<void> _toggleSound() async {
@@ -55,7 +62,71 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _controller.addListener(_checkShortcut);
+    _controller.blocked.addListener(_checkShortcut);
+    _shortcutSubscription = widget.services.shortcutRequests.listen(
+      (_) => unawaited(_takeShortcut()),
+    );
+    unawaited(_takeShortcut());
   }
+
+  Future<void> _takeShortcut() async {
+    final generation = ++_shortcutGeneration;
+    _pendingShortcut = null;
+    final id = await widget.services.takeShortcut();
+    if (!mounted || generation != _shortcutGeneration) return;
+    _pendingShortcut = switch (id) {
+      'sketchPad' => Activity.sketchPad,
+      'game2048' => Activity.game2048,
+      _ => null,
+    };
+    _checkShortcut();
+  }
+
+  bool get _shortcutReady =>
+      _controller.progress != null &&
+      _controller.activeProfile != null &&
+      !_controller.blocked.value;
+
+  void _checkShortcut() {
+    if (!mounted || _pendingShortcut == null) return;
+    if (_controller.loadFailed || _controller.failure != null) {
+      _pendingShortcut = null;
+      return;
+    }
+    if (!_shortcutReady || _shortcutScheduled) return;
+    _shortcutScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _shortcutScheduled = false;
+      if (!mounted) return;
+      if (_controller.loadFailed || _controller.failure != null) {
+        _pendingShortcut = null;
+        return;
+      }
+      final activity = _pendingShortcut;
+      if (activity == null || !_shortcutReady) return;
+      _pendingShortcut = null;
+      final open = _lastGameRoute;
+      if (_lastGameActivity == activity && open != null && open.isActive) {
+        // Already playing it: only close its sheets so the page keeps its work.
+        Navigator.of(context).popUntil((route) => route == open);
+        return;
+      }
+      Navigator.of(context).popUntil((route) => route.isFirst);
+      unawaited(widget.services.stop());
+      unawaited(_push(_categoryPage(activity.category), replaceOpening: true));
+      unawaited(_start(activity));
+    });
+    WidgetsBinding.instance.ensureVisualUpdate();
+  }
+
+  CategoryPage _categoryPage(GameCategory category) => CategoryPage(
+    category: category,
+    controller: _controller,
+    onEditRange: (activity) => _start(activity, editRange: true),
+    savingReward: _controller.blocked,
+    onStart: _start,
+  );
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -64,13 +135,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    unawaited(_shortcutSubscription?.cancel());
+    _controller.removeListener(_checkShortcut);
+    _controller.blocked.removeListener(_checkShortcut);
     WidgetsBinding.instance.removeObserver(this);
     unawaited(widget.services.stop());
     super.dispose();
   }
 
-  Future<void> _push(Widget page) async {
-    if (_opening) return;
+  Future<void> _push(Widget page, {bool replaceOpening = false}) async {
+    if (_opening && !replaceOpening) return;
+    final generation = ++_openingGeneration;
     setState(() => _opening = true);
     unawaited(widget.services.stop());
     try {
@@ -78,65 +153,72 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         context,
       ).push(MaterialPageRoute<void>(builder: (_) => page));
     } finally {
-      if (mounted) setState(() => _opening = false);
+      if (mounted && generation == _openingGeneration) {
+        setState(() => _opening = false);
+      }
     }
   }
 
   Future<void> _start(Activity activity, {bool editRange = false}) async {
     if (_controller.blocked.value) return;
     unawaited(widget.services.stop());
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => activity == Activity.tapChallenge
-            ? TapChallengePage(controller: _controller)
-            : activity == Activity.wordSprint
-            ? WordSprintPage(controller: _controller, services: widget.services)
-            : activity == Activity.handwriting
-            ? WritingPage(controller: _controller)
-            : activity == Activity.cursive
-            ? CursivePage(controller: _controller)
-            : activity == Activity.game2048
-            ? Game2048Page(controller: _controller)
-            : activity.isOrdering
-            ? OrderingPage(
-                activity: activity,
-                controller: _controller,
-                numberRange: _controller.settings.numberGameRanges.numberOrder,
-                openRangeSettings: editRange,
-              )
-            : GamePage(
-                services: widget.services,
-                activity: activity,
-                sound: _sound,
-                wordPacks: _controller.settings.enabledSightWordPacks,
-                sounds: _controller.settings.enabledLetterSounds,
-                countingRange: activity.isCounting
-                    ? _controller.settings.numberGameRanges.forActivity(
-                        activity,
-                      )
-                    : null,
-                numberRange: _controller.settings.numberGameRanges.numberHunt,
-                openRangeSettings: editRange,
-                controller: _controller,
-                onCompleteRound: _controller.completeRound,
-              ),
-      ),
+    final route = MaterialPageRoute<void>(
+      builder: (_) => activity == Activity.tapChallenge
+          ? TapChallengePage(controller: _controller)
+          : activity == Activity.wordSprint
+          ? WordSprintPage(controller: _controller, services: widget.services)
+          : activity == Activity.handwriting
+          ? WritingPage(controller: _controller)
+          : activity == Activity.cursive
+          ? CursivePage(controller: _controller)
+          : activity == Activity.sketchPad
+          ? SketchPage(controller: _controller, services: widget.services)
+          : activity == Activity.game2048
+          ? Game2048Page(controller: _controller)
+          : activity.isOrdering
+          ? OrderingPage(
+              activity: activity,
+              controller: _controller,
+              numberRange: _controller.settings.numberGameRanges.numberOrder,
+              openRangeSettings: editRange,
+            )
+          : GamePage(
+              services: widget.services,
+              activity: activity,
+              sound: _sound,
+              wordPacks: _controller.settings.enabledSightWordPacks,
+              sounds: _controller.settings.enabledLetterSounds,
+              countingRange: activity.isCounting
+                  ? _controller.settings.numberGameRanges.forActivity(activity)
+                  : null,
+              numberRange: _controller.settings.numberGameRanges.numberHunt,
+              openRangeSettings: editRange,
+              controller: _controller,
+              onCompleteRound: _controller.completeRound,
+            ),
     );
+    _lastGameRoute = route;
+    _lastGameActivity = activity;
+    await Navigator.of(context).push(route);
   }
 
   Future<void> _profiles() async {
     if (_opening || _controller.blocked.value) return;
+    final generation = ++_openingGeneration;
     setState(() => _opening = true);
     unawaited(widget.services.stop());
     try {
       await openProfiles(context, _controller);
     } finally {
-      if (mounted) setState(() => _opening = false);
+      if (mounted && generation == _openingGeneration) {
+        setState(() => _opening = false);
+      }
     }
   }
 
   Future<void> _settings() async {
     if (_opening || _controller.blocked.value) return;
+    final generation = ++_openingGeneration;
     setState(() => _opening = true);
     unawaited(widget.services.stop());
     try {
@@ -148,7 +230,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ),
       );
     } finally {
-      if (mounted) setState(() => _opening = false);
+      if (mounted && generation == _openingGeneration) {
+        setState(() => _opening = false);
+      }
     }
   }
 
@@ -158,191 +242,189 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     builder: (context, _) {
       final p = _controller.progress,
           busy = _controller.blocked.value || _opening;
-      return Scaffold(
-        body: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-                child: Row(
-                  children: [
-                    if (_controller.activeProfile != null)
+      return StableRouteInsets(
+        child: Scaffold(
+          body: SafeArea(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                  child: Row(
+                    children: [
+                      if (_controller.activeProfile != null)
+                        IconButton(
+                          key: const ValueKey('profile-picker'),
+                          tooltip:
+                              'Players: ${_controller.activeProfile!.name}',
+                          padding: EdgeInsets.zero,
+                          onPressed: busy ? null : _profiles,
+                          icon: ProfilePortrait(
+                            configuration: _controller.activeProfile!.portrait,
+                          ),
+                        ),
+                      const Spacer(),
                       IconButton(
-                        key: const ValueKey('profile-picker'),
-                        tooltip: 'Players: ${_controller.activeProfile!.name}',
-                        padding: EdgeInsets.zero,
-                        onPressed: busy ? null : _profiles,
-                        icon: ProfilePortrait(
-                          configuration: _controller.activeProfile!.portrait,
+                        tooltip: _sound ? 'Turn sound off' : 'Turn sound on',
+                        onPressed: busy || p == null ? null : _toggleSound,
+                        icon: Icon(
+                          _sound
+                              ? Icons.volume_up_rounded
+                              : Icons.volume_off_rounded,
                         ),
                       ),
-                    const Spacer(),
-                    IconButton(
-                      tooltip: _sound ? 'Turn sound off' : 'Turn sound on',
-                      onPressed: busy || p == null ? null : _toggleSound,
-                      icon: Icon(
-                        _sound
-                            ? Icons.volume_up_rounded
-                            : Icons.volume_off_rounded,
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: 'Settings',
-                      onPressed: busy ? null : _settings,
-                      icon: const Icon(Icons.settings_rounded),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: PageBody(
-                  children: [
-                    Text(
-                      _controller.activeProfile == null
-                          ? 'Hi!'
-                          : 'Hi, ${_controller.activeProfile!.name}!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 36,
-                        height: 1.1,
-                        fontWeight: FontWeight.w800,
-                        color: GardenColors.of(context).foreground,
-                      ),
-                    ),
-                    if (p != null)
-                      CompanionView(
-                        key: ValueKey(_controller.activeProfile?.id),
-                        configuration: p.companion,
-                        height: 240,
-                        onPet: () => requestFeedback(
-                          widget.services,
-                          DeviceFeedback.light,
-                          enabled: _controller.settings.haptics,
-                        ),
-                      ),
-                    SaveStatus(controller: _controller),
-                    if (p == null) ...[
-                      if (_controller.loadFailed) ...[
-                        const Text(
-                          'Your progress could not open. Try again, or ask a grown-up to reset progress in Settings.',
-                          textAlign: TextAlign.center,
-                        ),
-                        OutlinedButton(
-                          onPressed: _controller.load,
-                          child: const Text('Try again'),
-                        ),
-                      ] else
-                        const Center(
-                          child: CircularProgressIndicator(
-                            semanticsLabel: 'Opening your progress',
-                          ),
-                        ),
-                    ] else ...[
-                      LevelProgress(progress: p),
-                      const SizedBox(height: 16),
-                      Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 16,
-                        runSpacing: 16,
-                        children: [
-                          OutlinedButton(
-                            onPressed: busy
-                                ? null
-                                : () => _push(
-                                    CompanionPage(controller: _controller),
-                                  ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (p.availableChoices > 0) ...[
-                                  ExcludeSemantics(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Icon(
-                                          Icons.card_giftcard_rounded,
-                                          size: 40,
-                                        ),
-                                        const SizedBox(width: 2),
-                                        Badge(
-                                          label: Text('${p.availableChoices}'),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                ],
-                                Flexible(
-                                  child: Text(
-                                    'My unicorn',
-                                    textAlign: TextAlign.center,
-                                    semanticsLabel: p.availableChoices > 0
-                                        ? 'My unicorn, ${p.availableChoices} rewards available'
-                                        : 'My unicorn',
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      SelectionGrid(
-                        children: [
-                          for (final category in GameCategory.values)
-                            SelectionCard(
-                              title: category.title,
-                              example: category.example,
-                              illustration: category == GameCategory.reflex
-                                  ? const TapChallengeIllustration()
-                                  : category == GameCategory.writing
-                                  ? const HandwritingIllustration()
-                                  : null,
-                              subtitle: '',
-                              color: rainbow[category.colorIndex],
-                              onTap: busy
-                                  ? null
-                                  : () => _push(
-                                      CategoryPage(
-                                        category: category,
-                                        controller: _controller,
-                                        onEditRange: (activity) =>
-                                            _start(activity, editRange: true),
-                                        savingReward: _controller.blocked,
-                                        onStart: _start,
-                                      ),
-                                    ),
-                            ),
-                        ],
+                      IconButton(
+                        tooltip: 'Settings',
+                        onPressed: busy ? null : _settings,
+                        icon: const Icon(Icons.settings_rounded),
                       ),
                     ],
-                    TextButton.icon(
-                      onPressed: () => showDialog<void>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('For grown-ups'),
-                          scrollable: true,
-                          content: const Text(
-                            'Learning rounds have no timers or penalties. A wrong answer shows a brief fading × and the words “Try again”; you can choose again straight away. Retry haptics follow the Haptics switch and system settings. Five finds earn 50 XP. Levels earn unicorn surprises. Reflex opens Tap Challenge: tap stars (+1) and rainbows (+3), avoid bombs (−2). Rounds last 30 active seconds and scores never go below zero. A completed new personal best earns 50 XP, including the first positive score. Play again whenever you like.\n\nAlphabet Order and Number Order use a full board of cards. Hold and drag, or tap two cards to swap. Read across each row, then down. Correct cards turn green and lock; ordering the whole board earns 50 XP. The alphabet A/a button changes case immediately and remembers your choice. Number Order uses every number in the saved range.\n\nWriting teaches uppercase and lowercase together. Trace the example, then write on the blank lines and tap Check. Both forms earn 10 XP together. Clear lets you practise again without more XP; Skip letter moves on without XP. Your shuffled alphabet and completed forms are saved. Choose a letter opens practice only, without XP.\n\nSight Words uses words from the packs enabled in parent settings. Open Sight Word packs to choose packs; at least one must stay enabled.\n\nVoice is used only for letter, number and word identification and optional Letter friends instructions. Rewards, retries and other screens are silent. The Home and identification voice buttons share a remembered sound setting. Turning voice on in an identification question plays its target. When muted, the speaker gently pulses until you turn voice on or choose Show a hint. Reduced motion keeps a steady highlight. Hints reveal answers only when you ask. Letter friends starts from the remembered setting and has its own optional voice button; its choice lasts through Play again until you leave. Turning that button on is silent.\n\nSettings controls appearance, Tap Next and haptics. Number games have their own range button, with a shortcut beside each activity. Changes apply and save automatically. Appearance follows the phone by default, or a grown-up can choose Light or Dark for each player. Turn Tap Next off for an automatic short pause between finds; the fifth find always waits. Accessible navigation keeps Next. Everything, including speech, works offline. Unfinished learning and Tap Challenge rounds restart when you leave. Clearing app data or uninstalling removes progress.',
+                  ),
+                ),
+                Expanded(
+                  child: PageBody(
+                    children: [
+                      Text(
+                        _controller.activeProfile == null
+                            ? 'Hi!'
+                            : 'Hi, ${_controller.activeProfile!.name}!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 36,
+                          height: 1.1,
+                          fontWeight: FontWeight.w800,
+                          color: GardenColors.of(context).foreground,
+                        ),
+                      ),
+                      if (p != null)
+                        CompanionView(
+                          key: ValueKey(_controller.activeProfile?.id),
+                          configuration: p.companion,
+                          height: 240,
+                          onPet: () => requestFeedback(
+                            widget.services,
+                            DeviceFeedback.light,
+                            enabled: _controller.settings.haptics,
                           ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('Back to home'),
+                        ),
+                      SaveStatus(controller: _controller),
+                      if (p == null) ...[
+                        if (_controller.loadFailed) ...[
+                          const Text(
+                            'Your progress could not open. Try again, or ask a grown-up to reset progress in Settings.',
+                            textAlign: TextAlign.center,
+                          ),
+                          OutlinedButton(
+                            onPressed: _controller.load,
+                            child: const Text('Try again'),
+                          ),
+                        ] else
+                          const Center(
+                            child: CircularProgressIndicator(
+                              semanticsLabel: 'Opening your progress',
+                            ),
+                          ),
+                      ] else ...[
+                        LevelProgress(progress: p),
+                        const SizedBox(height: 16),
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 16,
+                          runSpacing: 16,
+                          children: [
+                            OutlinedButton(
+                              onPressed: busy
+                                  ? null
+                                  : () => _push(
+                                      CompanionPage(controller: _controller),
+                                    ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (p.availableChoices > 0) ...[
+                                    ExcludeSemantics(
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Icon(
+                                            Icons.card_giftcard_rounded,
+                                            size: 40,
+                                          ),
+                                          const SizedBox(width: 2),
+                                          Badge(
+                                            label: Text(
+                                              '${p.availableChoices}',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                  ],
+                                  Flexible(
+                                    child: Text(
+                                      'My Unicorn',
+                                      textAlign: TextAlign.center,
+                                      semanticsLabel: p.availableChoices > 0
+                                          ? 'My Unicorn, ${p.availableChoices} rewards available'
+                                          : 'My Unicorn',
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
+                        const SizedBox(height: 20),
+                        SelectionGrid(
+                          children: [
+                            for (final category in GameCategory.values)
+                              SelectionCard(
+                                title: category.title,
+                                example: category.example,
+                                illustration: category == GameCategory.reflex
+                                    ? const TapChallengeIllustration()
+                                    : category == GameCategory.artHub
+                                    ? const SketchPadIllustration()
+                                    : category == GameCategory.writing
+                                    ? const HandwritingIllustration()
+                                    : null,
+                                subtitle: '',
+                                color: rainbow[category.colorIndex],
+                                onTap: busy
+                                    ? null
+                                    : () => _push(_categoryPage(category)),
+                              ),
+                          ],
+                        ),
+                      ],
+                      TextButton.icon(
+                        onPressed: () => showDialog<void>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('For grown-ups'),
+                            scrollable: true,
+                            content: const Text(
+                              'Learning rounds have no timers or penalties. A wrong answer shows a brief fading × and the words “Try again”; you can choose again straight away. Retry haptics follow the Haptics switch and system settings. Five finds earn 50 XP. Levels earn unicorn surprises. Reflex opens Tap Challenge: tap stars (+1) and rainbows (+3), avoid bombs (−2). Rounds last 30 active seconds and scores never go below zero. A completed new personal best earns 50 XP, including the first positive score. Play again whenever you like.\n\nAlphabet Order and Number Order use a full board of cards. Hold and drag, or tap two cards to swap. Read across each row, then down. Correct cards turn green and lock; ordering the whole board earns 50 XP. The alphabet A/a button changes case immediately and remembers your choice. Number Order uses every number in the saved range.\n\nWriting teaches uppercase and lowercase together. Trace the example, then write on the blank lines and tap Check. Both forms earn 10 XP together. Clear lets you practise again without more XP; Skip letter moves on without XP. Your shuffled alphabet and completed forms are saved. Choose a letter opens practice only, without XP.\n\nArt Hub opens Sketch Pad: draw with the brush, erase, or tap Fill to color an enclosed shape. Undo and Redo fix mistakes. Clear asks first only if the drawing hasn\'t been saved to photos. Each player\'s drawing and recent colors are kept on this device. Save to photos works on Android 10 and later. Saving again updates the same photo until you clear the page. A grown-up can hide the save button in Settings. Art Hub is silent and earns no XP.\n\nSight Words uses words from the packs enabled in parent settings. Open Sight Word packs to choose packs; at least one must stay enabled.\n\nVoice is used only for letter, number and word identification and optional Letter Friends instructions. Rewards, retries and other screens are silent. The Home and identification voice buttons share a remembered sound setting. Turning voice on in an identification question plays its target. When muted, the speaker gently pulses until you turn voice on or choose Show a hint. Reduced motion keeps a steady highlight. Hints reveal answers only when you ask. Letter Friends starts from the remembered setting and has its own optional voice button; its choice lasts through Play again until you leave. Turning that button on is silent.\n\nSettings controls appearance, Tap Next and haptics. Number games have their own range button, with a shortcut beside each activity. Changes apply and save automatically. Appearance follows the phone by default, or a grown-up can choose Light or Dark for each player. Turn Tap Next off for an automatic short pause between finds; the fifth find always waits. Accessible navigation keeps Next. Everything, including speech, works offline. Unfinished learning and Tap Challenge rounds restart when you leave. Clearing app data or uninstalling removes progress.',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Back to home'),
+                              ),
+                            ],
+                          ),
+                        ),
+                        icon: const Icon(Icons.info_outline),
+                        label: const Text('For grown-ups'),
                       ),
-                      icon: const Icon(Icons.info_outline),
-                      label: const Text('For grown-ups'),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );

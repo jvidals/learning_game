@@ -1,4 +1,7 @@
+import 'package:rainbow_garden/game.dart';
 import 'dart:async';
+import 'package:rainbow_garden/app_settings.dart';
+import 'package:rainbow_garden/profiles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rainbow_garden/main.dart';
@@ -34,6 +37,50 @@ class PendingDevice extends MemoryDevice {
 }
 
 void main() {
+  test('Sketch photo saving defaults on and round trips off', () {
+    expect(const AppSettings().sketchSaveToPhotos, isTrue);
+    expect(AppSettings.fromMap(null).sketchSaveToPhotos, isTrue);
+    expect(AppSettings.fromMap({}).sketchSaveToPhotos, isTrue);
+    final settings = const AppSettings().withSketchSaveToPhotos(false);
+    expect(settings.copyWith().sketchSaveToPhotos, isFalse);
+    expect(AppSettings.fromMap(settings.toMap()).sketchSaveToPhotos, isFalse);
+  });
+
+  test('profiles reject non-boolean Sketch photo saving settings', () {
+    final player = PlayerProfile.fresh('Player 1');
+    for (final value in [null, 0, 'false', [], {}]) {
+      final malformed = PlayerProfile.fromMap({
+        ...player.toMap(),
+        'settings': {...player.settings.toMap(), 'sketchSaveToPhotos': value},
+      });
+      expect(() => malformed.settings, throwsFormatException);
+    }
+  });
+
+  testWidgets('Sketch photo saving toggle autosaves for the player', (
+    tester,
+  ) async {
+    final device = MemoryDevice();
+    await tester.pumpWidget(RainbowGardenApp(services: device));
+    await settle(tester);
+    await unlock(tester);
+    final toggle = find.byKey(const ValueKey('settings-sketch-save-photos'));
+    await tester.ensureVisible(toggle);
+    expect(tester.widget<SwitchListTile>(toggle).value, isTrue);
+    await tapVisible(tester, toggle);
+    expect(
+      ProfileStore.decode(
+        device.profileDocument!,
+      ).active.settings.sketchSaveToPhotos,
+      isFalse,
+    );
+    await tester.binding.handlePopRoute();
+    await settle(tester);
+    await unlock(tester);
+    await tester.ensureVisible(toggle);
+    expect(tester.widget<SwitchListTile>(toggle).value, isFalse);
+  });
+
   testWidgets(
     'gate rejects wrong answer, cancels, and requires unlocking on each entry',
     (tester) async {
@@ -171,7 +218,7 @@ void main() {
       await tester.pumpWidget(RainbowGardenApp(services: device));
       await settle(tester);
       await tapVisible(tester, find.text('Numbers'));
-      await tapVisible(tester, find.text('Number hunt'));
+      await tapVisible(tester, find.text(Activity.numbers.title));
       for (var i = 0; i < 5; i++) {
         final clip = device.clips.lastWhere(
           (clip) => clip.startsWith('number_'),
@@ -190,7 +237,7 @@ void main() {
       await settle(tester);
       expect(find.text('Numbers'), findsOneWidget);
       expect(find.text('Saving your progress…'), findsOneWidget);
-      await tapVisible(tester, find.text('Number hunt'));
+      await tapVisible(tester, find.text(Activity.numbers.title));
       expect(find.text('Numbers'), findsOneWidget);
       await tester.binding.handlePopRoute();
       await settle(tester);

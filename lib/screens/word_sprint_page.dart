@@ -13,6 +13,7 @@ import '../widgets/page_body.dart';
 import '../widgets/progress_widgets.dart';
 import '../widgets/sound_it_out.dart';
 import '../widgets/success_celebration.dart';
+import '../widgets/voice_button.dart';
 import '../word_bank.dart';
 import '../word_sprint.dart';
 
@@ -189,6 +190,24 @@ class _WordSprintPageState extends State<WordSprintPage>
     unawaited(widget.services.stop().catchError((Object _) {}));
   }
 
+  Future<void> _toggleSound() async {
+    if (!_foreground || _paused || !_controller.canEditSettings) return;
+    final soundOn = _controller.soundOn;
+    if (soundOn) _cancelAudio();
+    try {
+      if (_controller.blocked.value) {
+        // setSound requires an idle controller; settings edits may be queued.
+        await _controller.updateSettings(
+          (current) => current.withSound(!soundOn),
+        );
+      } else {
+        await _controller.setSound(!soundOn);
+      }
+    } catch (_) {
+      // SaveStatus retains the exact failed settings snapshot for retry.
+    }
+  }
+
   Future<bool> _playSequence(
     List<List<String>> steps, {
     void Function(int step)? onStep,
@@ -237,7 +256,24 @@ class _WordSprintPageState extends State<WordSprintPage>
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('Sound it out', textAlign: TextAlign.center),
+                Row(
+                  children: [
+                    const SizedBox(width: 56),
+                    const Expanded(
+                      child: Text('Sound it out', textAlign: TextAlign.center),
+                    ),
+                    VoiceButton(
+                      on: _controller.soundOn,
+                      onPressed:
+                          _foreground && !_paused && _controller.canEditSettings
+                          ? _toggleSound
+                          : null,
+                      needsVoice: !_controller.soundOn,
+                      active: _foreground && !_paused,
+                      subject: 'word sounds',
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 16),
                 SoundItOut(
                   word: word,

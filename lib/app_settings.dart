@@ -108,6 +108,7 @@ class AppSettings {
     this.orderingLowercase = false,
     this.soundOn = true,
     this.wordSprintTimer = true,
+    this.sketchSaveToPhotos = true,
     this.appearance = AppAppearance.system,
     this.enabledSightWordPacks = SightWordPacks.defaults,
   });
@@ -115,6 +116,7 @@ class AppSettings {
   final SoundSelection enabledLetterSounds;
   final bool tapNext, haptics, orderingLowercase, soundOn;
   final bool wordSprintTimer;
+  final bool sketchSaveToPhotos;
   final AppAppearance appearance;
   final SightWordPacks enabledSightWordPacks;
 
@@ -126,6 +128,7 @@ class AppSettings {
     bool? orderingLowercase,
     bool? soundOn,
     bool? wordSprintTimer,
+    bool? sketchSaveToPhotos,
     AppAppearance? appearance,
     SightWordPacks? enabledSightWordPacks,
   }) => AppSettings(
@@ -136,6 +139,7 @@ class AppSettings {
     orderingLowercase: orderingLowercase ?? this.orderingLowercase,
     soundOn: soundOn ?? this.soundOn,
     wordSprintTimer: wordSprintTimer ?? this.wordSprintTimer,
+    sketchSaveToPhotos: sketchSaveToPhotos ?? this.sketchSaveToPhotos,
     appearance: appearance ?? this.appearance,
     enabledSightWordPacks: enabledSightWordPacks ?? this.enabledSightWordPacks,
   );
@@ -143,6 +147,8 @@ class AppSettings {
       copyWith(orderingLowercase: lowercase);
   AppSettings withWordSprintTimer(bool enabled) =>
       copyWith(wordSprintTimer: enabled);
+  AppSettings withSketchSaveToPhotos(bool enabled) =>
+      copyWith(sketchSaveToPhotos: enabled);
   AppSettings withSound(bool enabled) => copyWith(soundOn: enabled);
   AppSettings withNumberRange(Activity activity, NumberRange range) =>
       copyWith(numberGameRanges: numberGameRanges.withRange(activity, range));
@@ -155,6 +161,7 @@ class AppSettings {
     'orderingLowercase': orderingLowercase,
     'soundOn': soundOn,
     'wordSprintTimer': wordSprintTimer,
+    'sketchSaveToPhotos': sketchSaveToPhotos,
     'appearance': appearance.name,
     'enabledSightWordPacks': enabledSightWordPacks.toList(),
   };
@@ -186,6 +193,7 @@ class AppSettings {
       orderingLowercase: map?['orderingLowercase'] == true,
       soundOn: map?['soundOn'] != false,
       wordSprintTimer: map?['wordSprintTimer'] != false,
+      sketchSaveToPhotos: map?['sketchSaveToPhotos'] != false,
       appearance: map != null && map.containsKey('appearance')
           ? AppAppearance.fromValue(map['appearance'])
           : AppAppearance.system,

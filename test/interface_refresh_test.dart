@@ -406,8 +406,8 @@ void main() {
               w is Text &&
               w.semanticsLabel ==
                   (count > 0
-                      ? 'My unicorn, $count rewards available'
-                      : 'My unicorn'),
+                      ? 'My Unicorn, $count rewards available'
+                      : 'My Unicorn'),
         ),
         findsOneWidget,
       );
@@ -434,10 +434,10 @@ void main() {
     await tester.pumpWidget(RainbowGardenApp(services: d));
     await settle(tester);
     expect(
-      find.bySemanticsLabel('My unicorn, 1 rewards available'),
+      find.bySemanticsLabel('My Unicorn, 1 rewards available'),
       findsOneWidget,
     );
-    await tapVisible(tester, find.text('My unicorn'));
+    await tapVisible(tester, find.text('My Unicorn'));
     await tapVisible(
       tester,
       find.byTooltip('Choose a unicorn surprise (1 ready)'),
@@ -449,12 +449,12 @@ void main() {
     expect(PlayerProgress.decode(d.document).availableChoices, 0);
     await tester.binding.handlePopRoute();
     await settle(tester);
-    expect(find.bySemanticsLabel('My unicorn'), findsOneWidget);
+    expect(find.bySemanticsLabel('My Unicorn'), findsOneWidget);
     expect(find.byIcon(Icons.card_giftcard_rounded), findsNothing);
-    final label = tester.getCenter(find.text('My unicorn'));
+    final label = tester.getCenter(find.text('My Unicorn'));
     final button = tester.getCenter(
       find.ancestor(
-        of: find.text('My unicorn'),
+        of: find.text('My Unicorn'),
         matching: find.byType(OutlinedButton),
       ),
     );

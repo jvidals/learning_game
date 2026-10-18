@@ -237,7 +237,7 @@ void main() {
     await tester.pumpWidget(RainbowGardenApp(services: device));
     await settle(tester);
     await tapVisible(tester, find.text('Letters'));
-    await tapVisible(tester, find.text('Uppercase letters'));
+    await tapVisible(tester, find.text(Activity.uppercase.title));
     final target = device.clips.last.substring(6).toUpperCase();
     await tester.tap(choice(target));
     await tester.pump();

@@ -1,3 +1,4 @@
+import 'package:rainbow_garden/game.dart';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -121,7 +122,7 @@ void main() {
           await snap('settings-error');
           await home();
 
-          await tapVisible(tester, find.text('My unicorn'));
+          await tapVisible(tester, find.text('My Unicorn'));
           await snap('unicorn');
           await tester.tap(
             find.descendant(
@@ -134,7 +135,7 @@ void main() {
           await home();
           await tapVisible(tester, find.text('Letters'));
           await snap('letters');
-          await tapVisible(tester, find.text('Letter friends'));
+          await tapVisible(tester, find.text(Activity.matching.title));
           await snap('question');
           final correct = target(tester);
           final wrong = find

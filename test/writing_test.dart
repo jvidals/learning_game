@@ -11,6 +11,61 @@ import 'widget_test.dart' show MemoryDevice;
 import 'progress_test.dart' show SlowDevice;
 
 void main() {
+  test('Watch follows print stroke endpoints and clamps progress', () {
+    for (final letter in letterTemplates.values) {
+      for (final progress in [-1.0, 0.0]) {
+        expect(
+          letter.watchPoint(progress).distance(letter.strokes.first.first),
+          closeTo(0, 1e-10),
+          reason: '${letter.character} start at $progress',
+        );
+      }
+      for (final progress in [1.0, 2.0]) {
+        expect(
+          letter.watchPoint(progress).distance(letter.strokes.last.last),
+          closeTo(0, 1e-10),
+          reason: '${letter.character} end at $progress',
+        );
+      }
+    }
+  });
+
+  test('Watch jumps across the pen lift in uppercase H', () {
+    final letter = letterTemplates['H']!;
+    // The two vertical strokes each have length 1; the crossbar is .6.
+    final before = letter.watchPoint((1 - .0001) / 2.6);
+    final after = letter.watchPoint((1 + .0001) / 2.6);
+    expect(before.distance(letter.strokes.first.last), closeTo(0, .0002));
+    expect(after.distance(letter.strokes[1].first), closeTo(0, .0002));
+    for (var step = 0; step <= 1000; step++) {
+      final point = letter.watchPoint(step / 1000);
+      expect(
+        (point.x - .2).abs() < 1e-10 ||
+            (point.x - .8).abs() < 1e-10 ||
+            (point.y - .5).abs() < 1e-10,
+        isTrue,
+        reason: 'No imaginary joining line at ${step / 1000}',
+      );
+    }
+  });
+
+  test('Watch gives the lowercase i dot a dwell', () {
+    final letter = letterTemplates['i']!;
+    for (final progress in [.82, .86, .9, .94, .98, 1.0]) {
+      expect(
+        letter.watchPoint(progress).distance(letter.strokes.last.single),
+        0,
+      );
+    }
+    // The shared helper also handles a short pen stroke at constant distance.
+    final short = [
+      [const InkPoint(0, 0), const InkPoint(.04, 0)],
+      [const InkPoint(1, 1)],
+    ];
+    expect(watchPointAlong(short, .25).x, closeTo(.02, 1e-10));
+    expect(watchPointAlong(short, .75).distance(short.last.single), 0);
+  });
+
   test('recognizable screenshot Q, j, h and u pass', () {
     for (final entry in screenshotWriting.entries) {
       final result = evaluateWriting(letterTemplates[entry.key]!, entry.value);

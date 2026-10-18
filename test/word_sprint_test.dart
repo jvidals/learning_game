@@ -32,6 +32,10 @@ const activity2Spellings = {
 };
 
 void main() {
+  test('runs contain 48 words', () {
+    expect(wordSprintSessionLength, 48);
+  });
+
   test('Activity 2 words need only existing letter-sound recordings', () {
     final manifest =
         jsonDecode(File('assets/audio_manifest.json').readAsStringSync())
@@ -74,10 +78,10 @@ void main() {
       final seen = <String>{};
       for (var seed = 0; seed < 100; seed++) {
         final session = WordSprintSession(mode: mode, random: Random(seed));
-        expect(session.words, hasLength(50));
+        expect(session.words, hasLength(wordSprintSessionLength));
         expect(session.words.every((w) => pool.contains(w.spelling)), isTrue);
         seen.addAll(session.words.map((w) => w.spelling));
-        final cycleLength = min(pool.length, 50);
+        final cycleLength = min(pool.length, wordSprintSessionLength);
         expect(
           session.words.take(cycleLength).map((w) => w.spelling).toSet(),
           hasLength(cycleLength),

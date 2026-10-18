@@ -81,7 +81,9 @@ void main() {
       Activity.sameNumber,
       Activity.numberParts,
       Activity.cursive,
+      Activity.sketchPad,
     ]);
+    expect(GameCategory.artHub.activities, [Activity.sketchPad]);
     expect(GameCategory.writing.activities, [
       Activity.handwriting,
       Activity.cursive,
@@ -102,14 +104,15 @@ void main() {
       Activity.numberParts,
     ]);
     final titles = [
-      'Read and find',
-      'Make-believe words',
+      'Read and Find',
+      'Make-Believe Words',
       'Word Sprint',
-      'Same number',
-      'Number parts',
-      'Cursive play',
+      'Same Number',
+      'Number Parts',
+      'Cursive Play',
+      'Sketch Pad',
     ];
-    final examples = ['cat', 'pib', 'pos', '5', '2+3', 'ce'];
+    final examples = ['cat', 'pib', 'pos', '5', '2+3', 'ce', ''];
     final added = Activity.values.skip(13).toList();
     expect(added.map((a) => a.title), titles);
     expect(added.map((a) => a.example), examples);
@@ -124,6 +127,7 @@ void main() {
     }
     expect(() => GameRound(Activity.wordSprint), throwsArgumentError);
     expect(() => GameRound(Activity.cursive), throwsArgumentError);
+    expect(() => GameRound(Activity.sketchPad), throwsArgumentError);
   });
 
   for (final activity in visualActivities) {
@@ -353,7 +357,7 @@ void main() {
       for (final card in cards.skip(5)) {
         expect(
           card.illustration,
-          card.title == 'Same number'
+          card.title == 'Same Number'
               ? isA<SameNumberIllustration>()
               : isA<NumberPartsIllustration>(),
         );
@@ -575,8 +579,8 @@ void main() {
     ]);
     for (final card in cards.skip(1)) {
       expect(card.illustration, switch (card.title) {
-        'Read and find' => isA<ReadAndFindIllustration>(),
-        'Make-believe words' => isA<MakeBelieveIllustration>(),
+        'Read and Find' => isA<ReadAndFindIllustration>(),
+        'Make-Believe Words' => isA<MakeBelieveIllustration>(),
         _ => isA<WordSprintIllustration>(),
       });
       expect(card.trailingAction, isNull);

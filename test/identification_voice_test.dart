@@ -206,7 +206,7 @@ void main() {
       await tapVisible(tester, find.byTooltip('Turn sound off'));
       expect(d.soundOn, isFalse);
       await tapVisible(tester, find.text('Letters'));
-      await tapVisible(tester, find.text('Uppercase letters'));
+      await tapVisible(tester, find.text(Activity.uppercase.title));
       expect(muted, findsOneWidget);
       expect(revealed, findsNothing);
       await tapVisible(tester, muted);
@@ -218,7 +218,7 @@ void main() {
       await settle(tester);
       expect(find.byTooltip('Turn sound off'), findsOneWidget);
       await tapVisible(tester, find.text('Numbers'));
-      await tapVisible(tester, find.text('Number hunt'));
+      await tapVisible(tester, find.text(Activity.numbers.title));
       expect(d.clips.last, startsWith('number_'));
       await tapVisible(tester, voiced);
       expect(d.soundOn, isFalse);
@@ -227,7 +227,7 @@ void main() {
       await settle(tester);
       expect(find.byTooltip('Turn sound on'), findsOneWidget);
       await tapVisible(tester, find.text('Letters'));
-      await tapVisible(tester, find.text('Letter friends'));
+      await tapVisible(tester, find.text(Activity.matching.title));
       expect(muted, findsOneWidget);
       expect(halo, findsNothing);
       final writes = d.settingsWrites, requests = d.clips.length;
