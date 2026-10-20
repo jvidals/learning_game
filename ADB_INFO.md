@@ -1,6 +1,6 @@
 # Install Learning Corner on an Android phone with ADB
 
-APK/emulator validation updated September 19, 2026; USB setup reviewed September 15.
+APK/icon emulator validation updated October 20, 2026; USB setup reviewed September 15.
 
 ## Your system
 
@@ -12,8 +12,8 @@ APK/emulator validation updated September 19, 2026; USB setup reviewed September
 | Shell PATH | `adb` was not found by `command -v adb`; use the path below |
 | USB permissions | `jvidals` already belongs to `plugdev` |
 | Android USB rules | `/usr/lib/udev/rules.d/51-android.rules` exists and grants matching devices access through `plugdev` and `uaccess` |
-| Connected devices | No device installation during 0.20.2; prior 0.20.0 disposable-emulator results are historical |
-| APK | `/home/jvidals/Documents/ScriptWork/learning_game/artifacts/learning-corner.apk` (version 0.22.2+49, about 671 MB) |
+| Latest installation | 0.28.1+60 upgraded on verified LearningCornerTest / emulator-5570; no personal phone installation |
+| APK | `/home/jvidals/Documents/ScriptWork/learning_game/artifacts/learning-corner.apk` (version 0.28.4+63, about 672 MB) |
 | App package | `com.rainbowgarden.rainbow_garden` |
 
 Emulator testing uses the disposable `LearningCornerTest` AVD on `emulator-5570`, never your own `Medium_Phone_API_36.1`; see [the runbook](docs/DEVELOPMENT_ENVIRONMENT.md#disposable-test-emulator-learningcornertest-current-2026-10-17).
@@ -57,7 +57,9 @@ The previous **Learning Corner 0.20.0+42** APK adds independent parent-controlle
 
 The previous **Learning Corner 0.20.1+43** APK moves each range/settings shortcut inside its Numbers activity card. SHA-256: `dfaa231e622140ef2df9c4ffd9a846d3d9b23e35f3db87bd7f68a84b10a6ca58`. Same signing key and bundled assets verified; use the approved `install -r` script to preserve saves. No device installation was performed for this layout-only release. [Validation](docs/testing.md).
 
-The current **Learning Corner 0.20.2+44** APK restores compact uniform Numbers cards, with a settings icon above the range replacing the play arrows. SHA-256: `711018b573aa33507cfb37034c3216eaffd05744504b8e4790b0da969d2812f3`. Same signing key, application identity and all bundled assets verified; use the approved `install -r` script to preserve progress. No device installation was performed for this layout release. [Validation](docs/testing.md).
+The previous **Learning Corner 0.20.2+44** APK restores compact uniform Numbers cards, with a settings icon above the range replacing the play arrows. SHA-256: `711018b573aa33507cfb37034c3216eaffd05744504b8e4790b0da969d2812f3`. Same signing key, application identity and all bundled assets verified; use the approved `install -r` script to preserve progress. No device installation was performed for this layout release. [Validation](docs/testing.md).
+
+Previous **0.28.1+60** uses the Letters and Numbers launcher icon. Build/signature/content checks and disposable-emulator upgrade, launcher, startup and themed-icon validation are recorded in [current validation](docs/testing.md). The original signing key and application ID are preserved; install with `-r`, never uninstall to update. Physical phone testing was not performed for this release.
 
 ## 1. Prepare the phone once
 
@@ -167,3 +169,9 @@ export PATH="$HOME/Android/Sdk/platform-tools:$PATH"
 ```
 
 The exports above apply to the current terminal. Repeat them in a new terminal, or add your preferred exports to `~/.bashrc` yourself. No shell startup files or USB rules were changed during this review.
+
+Previous APK **0.28.2+61** fixes Make a Group removal hit regions. Built and widget-tested; not installed on any device in this session. The latest emulator installation remains 0.28.1+60.
+
+Previous APK **0.28.3+62** limits Make a Group tap placement to one icon width. Built and tested without device installation; use `install -r` to preserve progress.
+
+Current APK **0.28.4+63** halves the picture gap in Make a Group. Built and widget-tested; no device installation was performed for this change.

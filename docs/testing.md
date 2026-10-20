@@ -1,5 +1,125 @@
 # Testing Learning Corner
 
+## 0.28.4 — Make a Group closer spacing (2026-10-20)
+
+The parent clarified that icons should sit closer and accept closer taps.
+Placement now uses **47 dp center separation**, leaving **9 dp between 38 dp
+picture bounds**, half the previous gap. Add and resizing use the same spacing.
+The 38 dp maximum nudge, visible-shape removal, 56 dp accessible controls and
+silent rejection stay unchanged. No save-schema changes.
+
+Current-session validation: **185 focused tests passed**, including **30 placement
+tests**, plus learning-expansion rules/widgets, number-range widgets and continuous
+rounds. Six expected red-test failures preceded implementation. **Eight final
+capture/layout scenarios passed**, with a close pair added to each; reviewed phone
+1x and small 2x in both palettes. Captures: `docs/screenshots/0284/`. Full Flutter
+analysis: **0 errors/warnings, 62 existing infos**. Formatting and diff checks passed.
+No full-suite rerun, device installation, native TalkBack or physical touch check.
+
+Approved scripted APK **0.28.4+63**, **672,041,356 bytes**, SHA-256
+`19c90f764a815894b74f93fd1f160e492ba9876a598bf6d53802d961134f758f`. Same signing certificate and all 1,989 bundled content files unchanged
+from 0.28.3. [Evidence and backups](../artifacts/spacing-0284/README.md).
+No commit was made.
+
+
+## 0.28.3 — Make a Group nearby placement (2026-10-20)
+
+Tray taps now place only within **38 logical pixels** of the original touch,
+using straight-line distance including edge adjustment. If no space fits, the
+tap silently changes nothing. Tap placement never grows the tray; Add and
+resizing retain their existing behavior. Visible-shape removal is unchanged.
+
+Current-session checks: **183 focused tests passed**, including **28 placement
+tests** plus learning-expansion rules/widgets, number-range widgets and continuous
+rounds. New regressions first failed against the prior behavior. Tests cover
+cluster rejection, exact/over-limit nudges, diagonal and edge distances, unchanged
+IDs/positions/dimensions on rejection, Add growth, shape removal, semantics,
+scrolling/cancellation and round completion. Full Flutter analysis: **0 errors
+or warnings, 62 existing infos** (exit 1 for infos). Formatting and diff checks
+passed. No full-suite rerun, new captures, device installation or physical
+touch/TalkBack check was performed.
+
+Approved scripted APK **0.28.3+62**, **672,041,356 bytes**, SHA-256
+`1a550dc6f52ef3b89c52a6ca240ebb84817f6ef69126627dd2f0bc613b112979`. Same signing certificate and bundled content as 0.28.2.
+[Evidence and backups](../artifacts/nearby-0283/README.md). No commit was made.
+
+
+## 0.28.2 — Make a Group precise removal (2026-10-20)
+
+Pointer hit testing now follows each counter's silhouette. Empty corners and
+padding add a counter nearby instead of deleting the existing one. The drawing,
+56 dp spacing, accessible removal action and learning rules are unchanged.
+
+Current-session validation: the new nearby-tap regression failed before the fix;
+**144 counting/learning-expansion/continuous-round tests passed**, then the final
+**24 placement tests passed**, including an added screen-reader removal test.
+Coverage includes all three shapes, empty picture corners, visible off-center
+parts, nearby placement, cancellation, scrolling, capacity and layout/palette
+regressions. Full Flutter analysis: **0 errors/warnings, 62 existing infos**.
+Formatting and diff checks passed. No full-suite rerun, new visual captures,
+device installation or physical touch/TalkBack check in this session.
+
+The approved build script produced **0.28.2+61**, **672,041,352 bytes**, SHA-256
+`92e47339842f012ca77ed7d1f63171aebfab3049706bf28c98eaa743802194ec`.
+Evidence and before-edit backups: `artifacts/counter-hit-fix/`.
+
+
+## 0.28.1 — Letters and Numbers launcher icon (2026-10-20)
+
+The parent selected the flat open book with **A + 3** and a golden star. Editable
+Android vectors now provide the default color, themed monochrome and legacy
+icons. A dedicated blue background preserves the existing shortcut artwork.
+[Design](design.md#letters-and-numbers-launcher-icon-0281) ·
+[Reference](../art/branding/README.md).
+
+Current-session checks:
+- Approved `tools/build_apk.sh` completed successfully, including audio/companion
+  verification and the exact APK asset inventory. **0.28.1+60**, **672,041,356 bytes**,
+  SHA-256 `21b8023ef2fee81f5bd98f2088875e30a4a0366da674a3e175c1e870a5f1c784`.
+- Original signing certificate, application ID, minimum/target API and permissions
+  preserved; no network permission. All **1,992 bundled content files**, including
+  **325 recordings** and **1,601 companion assets**, are byte-identical to 0.28.0.
+  All packaged executable files are also unchanged. Only the manifest/version,
+  four drawable resources and resource table changed.
+- XML/background-reference checks and `git diff --check` passed. Foreground
+  geometry remains within the adaptive radius-33 dp safe region (maximum 32.807).
+  Reviewed circle, rounded-square and squircle previews at 32/48 px and larger,
+  including monochrome light/dark treatments.
+- **12 native checks passed** on verified **LearningCornerTest / emulator-5570**,
+  offline and upgraded using the approved `install -r` script: visible Home
+  fixture preserved, installed APK hash matched, color launcher icon, themed
+  light/dark rendering, Circle/Square/4-sided-cookie launcher masks, light/dark
+  startup videos, shortcut popup, 2048 → Numbers Back navigation, pinned Sketch
+  Pad → Art Hub Back navigation, final Home fixture unchanged, no Flutter or
+  AndroidRuntime exceptions, and restored launcher/device settings.
+
+The first timed screenshots missed the startup icon; videos captured it reliably.
+The first themed-icon toggle did not apply because the next tap arrived too soon;
+checking the switch and waiting for Apply corrected the test sequence. These were
+capture/automation issues; no app fix or second APK build was needed.
+
+No Flutter tests or analyzer run was needed for this Android-resource-only change;
+no Dart/Kotlin logic changed and the packaged executable payload is byte-identical.
+The previous release's Flutter results below are historical. Physical phones,
+tablets and an actual pre-Android-8 runtime were not tested; the fallback compiled.
+
+Final fixture: Player 1, level 8, 100/200 XP toward level 9, seven gifts, sound off.
+Circle/default icons, light system appearance and original display settings were
+restored; the emulator stopped with its data preserved. No commit was made.
+[Evidence, backups and reproduction](../artifacts/icon-0281/README.md).
+
+## 0.28.0 — Make a Group tap placement (2026-10-20)
+
+Implemented the parent's request to place counters by tapping the tray, retaining Add and tap-to-remove. The parent selected non-overlapping objects. The plain Dart placement helper preserves existing centers, clamps edges, finds the nearest clear space and extends a crowded tray; width changes remap positions safely. State remains visit-local. [Design](design.md#make-a-group-tap-placement-0280).
+
+Current-session checks: **19 new focused tests passed**, then the **full Flutter suite passed** through Dart MCP, including counting/range/continuous-round/save regressions. Full `flutter analyze`: **0 errors/warnings, 62 existing infos** (exit 1 for infos; no watcher fallback). Formatting checked **148 files, zero changes**. **24 capture scenarios passed**, producing **56 screenshots**; reviewed phone 1×, small 2×, landscape and tablet, both palettes, full 20-object trays and the unchanged How Many? layout. The initial sandbox capture command could not write compiled shader assets; scoped host access completed it. The native harness initially assumed insertion-order accessibility nodes; Android orders them spatially, and positional comparisons corrected that harness assertion.
+
+Approved scripted APK **0.28.0+59**, **672,040,556 bytes**, SHA-256 `05e70e85954183247cbb344e30ee84dd1af207a2d742626447c1f5bf0a197e7f`. Same signing certificate, package/API levels and offline permissions as 0.27.0. Exact 1,601-asset companion inventory verified; all 325 recordings unchanged from the prior APK. The installed APK hash matches.
+
+Native checks passed offline on verified **LearningCornerTest / emulator-5570**, upgraded with `install -r`: exact touch positions; nearby tap nudged clear; Add mixed with taps; one removal without moving survivors; swiping added nothing; Rewards preserved positions; Midnight Rainbow; rotation retained counters; wrong Check retained work; correcting and checking enabled Next; Next began empty. Final Home still shows **Player 1, level 8, 100/200 XP toward level 9, seven gifts**, sound off. One question was completed, its unfinished round abandoned, no XP awarded. No Flutter/AndroidRuntime errors in logcat. Personal phone/tablet, physical touch/haptic feel and TalkBack were not tested; semantics and reduced-motion layouts have widget coverage. Display settings were restored and the emulator stopped with data preserved.
+
+Evidence, backups and reproduction: [session report](../artifacts/tap-place-0280/README.md); captures under `docs/screenshots/0280/`. No commit was made.
+
 ## 0.27.0 — Sketch Pad effects stay on across colors, twinkling Glitter (2026-10-18)
 
 Parent feedback (2026-10-18): Glitter/Neon must stay on when changing color, and Glitter should twinkle ([design](design.md#sketch-pad-effects-stay-on-across-colors-twinkling-glitter-0270)). The other Learning Corner session had ended, so no coordination was needed.

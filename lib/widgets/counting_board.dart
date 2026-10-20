@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import '../app_theme.dart';
 import '../counting.dart';
 
@@ -35,19 +36,113 @@ class CountingBoard extends StatelessWidget {
   final int maximum;
   final VoidCallback onChanged;
 
+  Widget _editableTray(BuildContext context) {
+    final colors = GardenColors.of(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        work.resizeTray(math.max(280.0, constraints.maxWidth));
+        final positions = work.positions;
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            // The Add button supplies the accessible, coordinate-free action.
+            excludeFromSemantics: true,
+            onTapUp: !enabled || work.items.length >= maximum
+                ? null
+                : (details) {
+                    if (work.add(
+                      position: math.Point(
+                        details.localPosition.dx,
+                        details.localPosition.dy,
+                      ),
+                    )) {
+                      onChanged();
+                    }
+                  },
+            child: SizedBox(
+              key: const ValueKey('counting-collection'),
+              width: work.trayWidth,
+              height: work.trayHeight,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: colors.mutedSurface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    for (final (i, id) in work.items.indexed)
+                      Positioned(
+                        key: ValueKey('placed-counter-$id'),
+                        left: positions[id]!.x - 28,
+                        top: positions[id]!.y - 28,
+                        width: 56,
+                        height: 56,
+                        child: Semantics(
+                          label: hint
+                              ? '${i + 1}, ${scene.object.label}, remove'
+                              : '${scene.object.label}, remove',
+                          button: true,
+                          enabled: enabled,
+                          child: _CounterHitRegion(
+                            object: scene.object,
+                            child: InkWell(
+                              key: ValueKey('count-object-$i'),
+                              borderRadius: BorderRadius.circular(8),
+                              onTap: !enabled
+                                  ? null
+                                  : () {
+                                      if (work.remove(id)) onChanged();
+                                    },
+                              child: ExcludeSemantics(
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    CountingPicture(object: scene.object),
+                                    if (hint)
+                                      Positioned(
+                                        right: 1,
+                                        bottom: 1,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 4,
+                                          ),
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.surface,
+                                          child: Text(
+                                            '${i + 1}',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _collection(BuildContext context, {bool example = false}) {
-    final count = example || !makeGroup ? scene.quantity : work.items.length;
-    final frame =
-        example || makeGroup || scene.arrangement == CountingArrangement.frame;
-    final capacity = example
-        ? (count <= 5
-              ? 5
-              : count <= 10
-              ? 10
-              : 20)
-        : makeGroup
-        ? maximum
-        : frame
+    final count = scene.quantity;
+    final frame = example || scene.arrangement == CountingArrangement.frame;
+    final capacity = frame
         ? (count <= 5
               ? 5
               : count <= 10
@@ -97,14 +192,10 @@ class CountingBoard extends StatelessWidget {
                                 : Semantics(
                                     label: hint || example
                                         ? '${i + 1}, ${scene.object.label}'
-                                        : '${scene.object.label}${makeGroup
-                                              ? ', remove'
-                                              : work.marked.contains(i)
-                                              ? ', counted'
-                                              : ', not marked'}',
+                                        : '${scene.object.label}${work.marked.contains(i) ? ', counted' : ', not marked'}',
                                     button: !example,
                                     selected:
-                                        !makeGroup && work.marked.contains(i),
+                                        !example && work.marked.contains(i),
                                     child: InkWell(
                                       key: ValueKey(
                                         example
@@ -115,11 +206,7 @@ class CountingBoard extends StatelessWidget {
                                       onTap: !enabled || example
                                           ? null
                                           : () {
-                                              if (makeGroup) {
-                                                work.remove(work.items[i]);
-                                              } else {
-                                                work.toggleMark(i);
-                                              }
+                                              work.toggleMark(i);
                                               onChanged();
                                             },
                                       child: ExcludeSemantics(
@@ -165,7 +252,7 @@ class CountingBoard extends StatelessWidget {
                                                   ),
                                                 ),
                                               ),
-                                            if (!makeGroup &&
+                                            if (!example &&
                                                 work.marked.contains(i) &&
                                                 !hint)
                                               const Positioned(
@@ -220,7 +307,7 @@ class CountingBoard extends StatelessWidget {
         ),
         const SizedBox(height: 12),
       ],
-      _collection(context),
+      if (makeGroup) _editableTray(context) else _collection(context),
       if (makeGroup) ...[
         const SizedBox(height: 12),
         FilledButton.tonalIcon(
@@ -235,7 +322,7 @@ class CountingBoard extends StatelessWidget {
           label: Text('Add ${scene.object.label}'),
         ),
         const Text(
-          'Tap an object in the tray to remove it.',
+          'Tap an empty spot to add. Tap an object to remove.',
           textAlign: TextAlign.center,
         ),
         if (hint) ...[
@@ -249,6 +336,86 @@ class CountingBoard extends StatelessWidget {
       ],
     ],
   );
+}
+
+// Only pointer hit testing follows the picture. The full 56 dp semantics and
+// keyboard action remain available independently of the picture spacing.
+class _CounterHitRegion extends SingleChildRenderObjectWidget {
+  const _CounterHitRegion({required this.object, required super.child});
+  final CountingObject object;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderCounterHitRegion(object);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderCounterHitRegion renderObject,
+  ) {
+    renderObject.object = object;
+  }
+}
+
+class _RenderCounterHitRegion extends RenderProxyBox {
+  _RenderCounterHitRegion(this.object);
+  CountingObject object;
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    // CountingPicture is centered at 38 dp, painted in a 40-unit coordinate space.
+    final point =
+        (position - Offset((size.width - 38) / 2, (size.height - 38) / 2)) *
+        (40 / 38);
+    final path = _counterOutline(object);
+    var inside = path.contains(point);
+    for (var i = 0; !inside && i < 8; i++) {
+      final angle = i * math.pi / 4;
+      inside = path.contains(
+        point + Offset(math.cos(angle), math.sin(angle)) * .75,
+      );
+    }
+    if (!inside) return false;
+    return super.hitTest(result, position: position);
+  }
+}
+
+Path _gemPath() => Path()
+  ..moveTo(10, 5)
+  ..lineTo(30, 5)
+  ..lineTo(38, 16)
+  ..lineTo(20, 37)
+  ..lineTo(2, 16)
+  ..close();
+
+Path _counterOutline(CountingObject object) {
+  final path = Path();
+  switch (object) {
+    case CountingObject.apple:
+      path.addOval(const Rect.fromLTWH(5, 12, 30, 26));
+      path.addOval(const Rect.fromLTWH(22, 4, 13, 7));
+      // The visible 3-unit stem, including its slant.
+      path.addPolygon(const [
+        Offset(18.5, 16),
+        Offset(19.5, 5),
+        Offset(22.5, 5),
+        Offset(21.5, 16),
+      ], true);
+    case CountingObject.flower:
+      for (var i = 0; i < 6; i++) {
+        final a = i * math.pi / 3;
+        path.addOval(
+          Rect.fromCircle(
+            center: Offset(20 + math.cos(a) * 10, 20 + math.sin(a) * 10),
+            radius: 8,
+          ),
+        );
+      }
+      path.addOval(const Rect.fromLTWH(12, 12, 16, 16));
+    case CountingObject.gem:
+      return _gemPath();
+  }
+  return path;
 }
 
 class _ObjectPainter extends CustomPainter {
@@ -299,13 +466,7 @@ class _ObjectPainter extends CustomPainter {
         p.color = const Color(0xfff6d66d);
         canvas.drawCircle(const Offset(20, 20), 8, p);
       case CountingObject.gem:
-        final path = Path()
-          ..moveTo(10, 5)
-          ..lineTo(30, 5)
-          ..lineTo(38, 16)
-          ..lineTo(20, 37)
-          ..lineTo(2, 16)
-          ..close();
+        final path = _gemPath();
         p.color = const Color(0xff75cfff);
         canvas.drawPath(path, p);
         p

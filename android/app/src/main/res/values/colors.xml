@@ -2,4 +2,5 @@
 <resources>
     <color name="garden_background">#FFFBF5</color>
     <color name="ic_launcher_background">#FFF4F7</color>
+    <color name="learning_corner_icon_background">#074BB3</color>
 </resources>

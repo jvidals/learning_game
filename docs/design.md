@@ -1,5 +1,32 @@
 # Learning Corner design decisions
 
+## Letters and Numbers launcher icon (0.28.1)
+
+Accepted October 20, 2026 after comparing learning blocks, a book/star and a
+pencil/corner. The parent rejected the blocks as too baby-ish, preferred the
+flatter second-round artwork, then selected the book with **A + 3** on its pages.
+The default icon now represents learning across companions.
+
+The [approved reference and production notes](../art/branding/README.md) specify
+the blue background, cream pages, teal cover and gold star/page edges. Editable
+Android vectors provide the color foreground, real monochrome cutouts and
+pre-Android-8 fallback. The mark fits the central adaptive safe region; Android
+supplies the outer mask and themed colors. Its new blue background resource is
+separate from the existing shortcut background, preserving Sketch Pad and 2048.
+
+This supersedes the earlier decision to preserve the unicorn launcher icon.
+In-app companion artwork and palettes, app/package identity, signing, navigation
+and saved data are unchanged. No icon picker, theme switching or new companion
+is introduced.
+
+## Make a Group tap placement (0.28.0)
+
+Accepted October 20, 2026 after the child intuitively tapped the tray. Empty-space taps now center an apple, flower or gem on that point. The parent chose separate objects: edge taps are clamped inside, and nearby placements move to the closest free location without moving existing counters. A placed counter still removes on tap; the existing Add button finds the first free position from the top left. Only completed taps mutate the tray, so scrolls, cancellations and disabled input do not add counters.
+
+Counters keep stable IDs and visit-local logical positions in `CountingWork`. Their 56 dp targets never overlap. If free placement exhausts the initial tray area before the configured maximum, the tray grows downward by one target height and keeps that height until the next question. A width change remaps horizontal positions and resolves collisions in insertion order; ordinary rebuilds, hints, adding and removing preserve existing positions. No profile/save schema, dependencies or native API changes.
+
+The current artwork, palette, Add control, explicit numbered hint, Check/Next, zero answer, configured capacity, silent counting and durable five-question/50 XP flow remain. How Many? and the hint example retain their original collection layouts. The instruction is “Tap an empty spot to add. Tap an object to remove.” The Add button remains the coordinate-free accessible action and each counter retains a removal semantics action. No dragging or persistent unfinished groups is introduced.
+
 ## Sketch Pad: effects stay on across colors, twinkling Glitter (0.27.0)
 
 Parent feedback on 0.26.0 (2026-10-18): changing color with Glitter/Neon selected fell back to plain ink, and "can it sparkle?". Choices: effects persist; Glitter twinkles and keeps twinkling between visits; turn effects off with a Plain tile and by tapping the selected effect again.
@@ -680,3 +707,36 @@ A continuous painted skin follows neck/head, four leg/knee chains, ear and tail 
 Twirl uses sixteen ordered generated views, with separate front/rear/side equipment artwork and tracked attachments. Angular spacing and proportions are approximate, not a geometrically exact model; this is recorded in the production artwork notes. The future dinosaur is a separate companion rather than a unicorn transformation.
 
 One shared, retryable asset cache keeps four skin colors, equipment/turn atlases and two small eye patches. It does not grow with outfit or route count. Image decoding and color-skin preparation occur before painting; missing art offers a local retry and never changes player data.
+
+## Make a Group precise removal (0.28.2)
+
+Parent feedback: taps beside a drawing were removing it because the old removal
+target covered an invisible 56 dp square. Pointer removal now follows the apple,
+flower or gem silhouette (including its thin outline); empty picture corners and
+outer padding pass taps to the tray to add a nearby counter. The existing counter
+stays still and the new one is nudged clear. Spacing, Add, hints, capacity and
+Check are unchanged. The full 56 dp screen-reader/keyboard action is retained.
+
+## Make a Group nearby placement limit (0.28.3)
+
+Parent selected a maximum nudge of one icon width: **38 logical pixels** from
+the original tap, using straight-line distance, including edge adjustment. A
+tap places the nearest free counter within that limit or silently does nothing.
+Rejected taps change no counters, IDs or tray dimensions. Tap placement never
+expands the tray. Add still fills the first free position and grows the tray
+when necessary; resizing still remaps every counter. Visible-shape removal,
+56 dp spacing, accessible controls and saved learning rules are unchanged.
+
+## Make a Group closer spacing (0.28.4)
+
+The parent clarified that icons should sit closer together and accept closer
+placement taps, rather than reducing the maximum nudge. The minimum separation
+is now 47 dp along either axis, leaving 9 dp between 38 dp picture bounds instead
+of 18 dp. Tap placement, Add and resizing use this same separation. Shapes never
+overlap; existing counters stay still when adding or removing.
+
+The 38 dp maximum movement from a tap, silhouette-based removal, 56 dp semantics
+and keyboard controls, tray edge margins and silent rejection remain unchanged.
+Add can grow the tray by one 47 dp spacing step when necessary; taps cannot.
+The larger semantic rectangles may overlap in the empty space between drawings;
+pointer hit testing still follows only the drawings, not those rectangles.
