@@ -1,5 +1,28 @@
 # Learning Corner design decisions
 
+## Sketch Pad: responsive drawing and margin entry (0.28.7)
+
+Sketch Pad now caches finished artwork, paints the active stroke separately,
+and freezes background twinkles during drawing (resuming on lift/cancel).
+Autosave and the display cache share exact immutable snapshots with independent
+image ownership. The existing white page, full-resolution exports, saved formats,
+effect appearance and 30-step Undo remain unchanged.
+
+Brush/Eraser strokes can begin in the blank margin and enter the page. Outside
+coordinates are retained and ink is clipped to paper, avoiding edge smears;
+outside-only gestures do nothing. Android 10+ protects the drawing/input area
+from side-edge Back gestures while ready, clears protection for pickers,
+backgrounding and exit, and updates after rotation and route transitions.
+The visible Back button remains available; OS-reserved gestures still apply.
+
+Parent choices (2026-10-24): pause background twinkles while drawing; support
+starting strokes in the blank margin. Toolbar starts and automatic straight-line
+snapping are outside this change. No performance setting or dependency is added.
+The native `setSketchGestureExclusion` boundary accepts a Flutter-view rectangle
+in physical pixels, or null to restore normal system gestures. Unsupported
+platforms remain best effort. A single completed-page cache is temporary,
+revision-checked and disposed on exit; it is never saved as a new data format.
+
 ## Sketch Pad: White crayon (0.28.6)
 
 White is a predefined opaque color beside Black in Crayons. All twelve previous

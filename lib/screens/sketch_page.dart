@@ -63,6 +63,66 @@ enum _LoadState { loading, ready, failed, unreadable }
 
 class _SketchPageState extends State<SketchPage> with WidgetsBindingObserver {
   final _canvas = SketchCanvasController();
+  final _inputAreaKey = GlobalKey();
+  Rect? _gestureBounds;
+  bool _foreground = true;
+  bool _gestureUpdateScheduled = false;
+  Animation<double>? _routeAnimation;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final animation = ModalRoute.of(context)?.animation;
+    if (animation != _routeAnimation) {
+      _routeAnimation?.removeStatusListener(_routeStatusChanged);
+      _routeAnimation = animation;
+      animation?.addStatusListener(_routeStatusChanged);
+    }
+    _updateGestureBounds();
+  }
+
+  void _routeStatusChanged(AnimationStatus status) => _updateGestureBounds();
+
+  void _updateGestureBounds() {
+    if (_gestureUpdateScheduled) return;
+    _gestureUpdateScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _gestureUpdateScheduled = false;
+      if (!mounted) return;
+      Rect? bounds;
+      final box = _inputAreaKey.currentContext?.findRenderObject();
+      if (_enabled &&
+          _foreground &&
+          (_routeAnimation == null ||
+              _routeAnimation!.status == AnimationStatus.completed) &&
+          box is RenderBox &&
+          box.hasSize) {
+        final ratio = MediaQuery.devicePixelRatioOf(context);
+        final origin = box.localToGlobal(Offset.zero);
+        bounds = Rect.fromLTWH(
+          origin.dx * ratio,
+          origin.dy * ratio,
+          box.size.width * ratio,
+          box.size.height * ratio,
+        );
+      }
+      if (bounds == _gestureBounds) return;
+      _gestureBounds = bounds;
+      unawaited(
+        widget.services
+            .setSketchGestureExclusion(bounds)
+            .catchError((Object _) {}),
+      );
+    });
+  }
+
+  void _clearGestureBounds() {
+    _gestureBounds = null;
+    unawaited(
+      widget.services.setSketchGestureExclusion(null).catchError((Object _) {}),
+    );
+  }
+
   final _toolAnchor = GlobalKey();
   final _colorAnchor = GlobalKey();
   final _sizeAnchor = GlobalKey();
@@ -115,6 +175,7 @@ class _SketchPageState extends State<SketchPage> with WidgetsBindingObserver {
   }
 
   void _setWindow(bool active) {
+    if (!active) _clearGestureBounds();
     unawaited(
       SystemChrome.setEnabledSystemUIMode(
         active ? SystemUiMode.immersiveSticky : SystemUiMode.edgeToEdge,
@@ -246,7 +307,7 @@ class _SketchPageState extends State<SketchPage> with WidgetsBindingObserver {
     try {
       // flatten() records synchronously, so each image is an exact snapshot.
       // An unfinished stroke waits: ending or cancelling it queues a save.
-      while (_dirty && _canvas.live == null) {
+      while (_dirty && !_canvas.isDrawing) {
         _dirty = false;
         final snapshot = _canvas.flatten();
         final twinkles = _canvas.visibleTwinkles;
@@ -271,7 +332,13 @@ class _SketchPageState extends State<SketchPage> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) _setWindow(true);
+    _foreground = state == AppLifecycleState.resumed;
+    if (_foreground) {
+      _setWindow(true);
+      _updateGestureBounds();
+    } else {
+      _clearGestureBounds();
+    }
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive ||
         state == AppLifecycleState.hidden) {
@@ -300,6 +367,7 @@ class _SketchPageState extends State<SketchPage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _routeAnimation?.removeStatusListener(_routeStatusChanged);
     WidgetsBinding.instance.removeObserver(this);
     unawaited(_rotationSubscription?.cancel());
     _setWindow(false);
@@ -611,6 +679,7 @@ class _SketchPageState extends State<SketchPage> with WidgetsBindingObserver {
         backgroundColor: GardenColors.of(context).background,
         body: LayoutBuilder(
           builder: (context, constraints) {
+            _updateGestureBounds();
             final portrait = constraints.maxHeight >= constraints.maxWidth;
             // System/caption bars overlay this immersive page; only hardware
             // cutouts should change its geometry when the device turns.
@@ -647,14 +716,16 @@ class _SketchPageState extends State<SketchPage> with WidgetsBindingObserver {
                 child: child,
               ),
             );
+            final padding = portrait
+                ? EdgeInsets.symmetric(horizontal: longInset, vertical: 8)
+                : EdgeInsets.symmetric(horizontal: 8, vertical: longInset);
             final page = Expanded(
-              child: Padding(
-                padding: portrait
-                    ? EdgeInsets.symmetric(horizontal: longInset, vertical: 8)
-                    : EdgeInsets.symmetric(horizontal: 8, vertical: longInset),
+              child: SizedBox.expand(
+                key: _inputAreaKey,
                 child: _ready
                     ? SketchCanvas(
                         controller: _canvas,
+                        padding: padding,
                         quarterTurns: (4 - _rotation) % 4,
                         color: _drawingColor,
                         special: _drawingSpecial,
@@ -663,7 +734,7 @@ class _SketchPageState extends State<SketchPage> with WidgetsBindingObserver {
                         enabled: _enabled,
                         onFill: (point) => unawaited(_fill(point)),
                       )
-                    : _loadBody(),
+                    : Padding(padding: padding, child: _loadBody()),
               ),
             );
             return Flex(

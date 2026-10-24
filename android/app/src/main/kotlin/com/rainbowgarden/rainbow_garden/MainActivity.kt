@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
+import android.graphics.Rect
+import android.view.View
 import android.hardware.display.DisplayManager
 import android.os.Environment
 import android.provider.MediaStore
@@ -42,6 +44,7 @@ class MainActivity : FlutterActivity() {
     private var deviceChannel: MethodChannel? = null
     private var pendingShortcut: String? = null
     private var sketchDisplayListener: DisplayManager.DisplayListener? = null
+    private var sketchGestureRect: Rect? = null
     private var previousRotationAnimation: Int? = null
     private var lastSentRotation = 0
 
@@ -108,6 +111,20 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    private fun applySketchGestureExclusion() {
+        if (Build.VERSION.SDK_INT < 29) return
+        // Rectangles originate in Flutter-view physical coordinates. Attach to
+        // that view, not the decor view (which may have different window insets).
+        val view = findViewById<View>(FLUTTER_VIEW_ID) ?: return
+        val rect = sketchGestureRect?.let { Rect(it) }
+        if (sketchDisplayListener != null && rect != null &&
+            rect.intersect(0, 0, view.width, view.height)) {
+            view.systemGestureExclusionRects = listOf(rect)
+        } else {
+            view.systemGestureExclusionRects = emptyList()
+        }
+    }
+
     private fun setSketchWindow(active: Boolean) {
         val manager = getSystemService(DISPLAY_SERVICE) as DisplayManager
         if (active) {
@@ -134,6 +151,8 @@ class MainActivity : FlutterActivity() {
         } else {
             sketchDisplayListener?.let { manager.unregisterDisplayListener(it) }
             sketchDisplayListener = null
+            sketchGestureRect = null
+            applySketchGestureExclusion()
             previousRotationAnimation?.let {
                 val attributes = window.attributes
                 attributes.rotationAnimation = it
@@ -199,6 +218,22 @@ class MainActivity : FlutterActivity() {
                             } catch (_: Exception) {
                                 result.error("sketch_window_failed", "Could not update Sketch window", null)
                             }
+                        }
+                    }
+                    "setSketchGestureExclusion" -> {
+                        val values = call.arguments as? List<*>
+                        val numbers = values?.mapNotNull { (it as? Number)?.toDouble() }
+                        if (call.arguments != null && (numbers == null || numbers.size != 4 || values?.size != 4 ||
+                                numbers.any { !it.isFinite() || kotlin.math.abs(it) > 100000 } ||
+                                numbers[2] <= numbers[0] || numbers[3] <= numbers[1])) {
+                            result.error("invalid_gesture_bounds", "Expected finite drawing bounds", null)
+                        } else {
+                            sketchGestureRect = numbers?.let {
+                                Rect(kotlin.math.floor(it[0]).toInt(), kotlin.math.floor(it[1]).toInt(),
+                                    kotlin.math.ceil(it[2]).toInt(), kotlin.math.ceil(it[3]).toInt())
+                            }
+                            applySketchGestureExclusion()
+                            result.success(null)
                         }
                     }
                     "loadProfiles" -> storageWorker.execute {

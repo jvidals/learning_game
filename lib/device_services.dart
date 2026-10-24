@@ -43,6 +43,9 @@ abstract class DeviceServices {
   Future<String?> takeShortcut();
   Future<void> setSketchWindow(bool active);
 
+  /// Flutter-view physical pixels; null restores normal system gestures.
+  Future<void> setSketchGestureExclusion(Rect? bounds);
+
   /// Completes when the clip finishes, is stopped, or is replaced by another clip.
   Future<void> play(String clip);
   Future<void> stop();
@@ -120,6 +123,29 @@ class AndroidServices implements DeviceServices {
       // Window effects are best effort.
     } on MissingPluginException {
       // Other platforms do not provide Sketch window effects.
+    }
+  }
+
+  @override
+  Future<void> setSketchGestureExclusion(Rect? bounds) async {
+    if (bounds != null && (!bounds.isFinite || bounds.isEmpty)) {
+      throw ArgumentError.value(
+        bounds,
+        'bounds',
+        'Expected a finite drawing area',
+      );
+    }
+    try {
+      await _channel.invokeMethod<void>(
+        'setSketchGestureExclusion',
+        bounds == null
+            ? null
+            : [bounds.left, bounds.top, bounds.right, bounds.bottom],
+      );
+    } on PlatformException {
+      // Gesture protection is best effort on older/vendor Android systems.
+    } on MissingPluginException {
+      // Other platforms do not reserve Android's back gesture.
     }
   }
 

@@ -123,6 +123,7 @@ void paintSketch(
   ui.Image? base,
   required List<SketchOp> ops,
   SketchStroke? live,
+  bool background = true,
 }) {
   final paper = Paint()..color = const Color(sketchPaperColor);
   final page = Offset.zero & size;
@@ -191,7 +192,7 @@ void paintSketch(
 
   canvas.save();
   canvas.clipRect(page);
-  canvas.drawRect(page, paper);
+  if (background) canvas.drawRect(page, paper);
   if (base != null) canvas.drawImage(base, Offset.zero, Paint());
   for (final op in ops) {
     switch (op) {
@@ -221,6 +222,33 @@ void _disposeOp(SketchOp op) {
     op.image = null;
     op._coverage = null;
     op.twinkles = const [];
+  }
+}
+
+// Display caching and autosave often request the same completed edit together.
+// Each caller gets its own native image handle; the shared original is released
+// as soon as all waiting callers have taken their snapshot.
+class _SketchRasterSnapshot {
+  _SketchRasterSnapshot(this.revision, this.size, this.image, this.onReleased);
+  final int revision;
+  final Size size;
+  final Future<ui.Image> image;
+  final VoidCallback onReleased;
+  int _waiting = 0;
+
+  Future<ui.Image> take() async {
+    _waiting++;
+    ui.Image? original;
+    try {
+      original = await image;
+      return original.clone();
+    } finally {
+      _waiting--;
+      if (_waiting == 0) {
+        original?.dispose();
+        onReleased();
+      }
+    }
   }
 }
 
@@ -273,6 +301,86 @@ class SketchCanvasController extends ChangeNotifier {
   int _pendingFills = 0;
   Future<void> _fillChain = Future<void>.value();
   int _revision = 0;
+  int _contentRevision = 0;
+  final _committedChanges = ChangeNotifier();
+  Listenable get committedChanges => _committedChanges;
+  bool get isDrawing => _stroke != null;
+  SketchStroke? _liveSnapshot;
+
+  ui.Image? _displayImage;
+  int _displayRevision = -1;
+  Size? _displaySize;
+  bool _displayEnabled = false;
+  Future<void>? _displayWork;
+  _SketchRasterSnapshot? _pendingSnapshot;
+
+  ui.Image? get displayImage =>
+      _displayRevision == _contentRevision && _displaySize == pageSize
+      ? _displayImage
+      : null;
+
+  /// One finished-page image, never one bitmap per Undo step. Recording a
+  /// snapshot is synchronous; stale asynchronous results never replace edits.
+  Future<void> prepareDisplay() {
+    if (_disposed) return Future.value();
+    _displayEnabled = true;
+    return _displayWork ??= _cacheDisplay().whenComplete(
+      () => _displayWork = null,
+    );
+  }
+
+  Future<ui.Image> _committedSnapshot() {
+    final size = pageSize;
+    var pending = _pendingSnapshot;
+    if (pending == null ||
+        pending.revision != _contentRevision ||
+        pending.size != size) {
+      late final _SketchRasterSnapshot created;
+      created = _SketchRasterSnapshot(
+        _contentRevision,
+        size,
+        _render(size: size, base: _base, ops: ops),
+        () {
+          if (identical(_pendingSnapshot, created)) _pendingSnapshot = null;
+        },
+      );
+      pending = _pendingSnapshot = created;
+    }
+    return pending.take();
+  }
+
+  Future<void> _cacheDisplay() async {
+    try {
+      while (!_disposed && _displayEnabled && displayImage == null) {
+        final revision = _contentRevision;
+        final size = pageSize;
+        final image = await _committedSnapshot();
+        if (_disposed || !_displayEnabled) {
+          image.dispose();
+          return;
+        }
+        if (revision != _contentRevision || size != pageSize) {
+          image.dispose();
+          continue;
+        }
+        _displayImage?.dispose();
+        _displayImage = image;
+        _displayRevision = revision;
+        _displaySize = size;
+        _committedChanges.notifyListeners();
+      }
+    } catch (error) {
+      // Exact vector replay remains available if a display cache cannot allocate.
+      debugPrint('Could not cache sketch display: $error');
+    }
+  }
+
+  void releaseDisplay() {
+    _displayEnabled = false;
+    _displayImage?.dispose();
+    _displayImage = null;
+    _displayRevision = -1;
+  }
 
   ui.Image? get base => _base;
   List<SketchOp> get pendingBaseOps => List.unmodifiable(_pendingBaseOps);
@@ -284,7 +392,7 @@ class SketchCanvasController extends ChangeNotifier {
   bool get busy => _pendingFills > 0;
   Future<void> get idle => _fillChain;
   int get revision => _revision;
-  SketchStroke? get live => _stroke?.build();
+  SketchStroke? get live => _liveSnapshot ??= _stroke?.build();
 
   bool get isBlank {
     if (_stroke != null) return false;
@@ -318,6 +426,10 @@ class SketchCanvasController extends ChangeNotifier {
     _pendingBaseOps.clear();
     _stroke = null;
     _revision = 0;
+    _liveSnapshot = null;
+    _contentRevision++;
+    _committedChanges.notifyListeners();
+    if (_displayEnabled) unawaited(prepareDisplay());
     notifyListeners();
   }
 
@@ -325,6 +437,12 @@ class SketchCanvasController extends ChangeNotifier {
     // Pointer movement does not alter committed ink or its coverage.
     if (!twinklesChanged && _twinkleRevision == _revision) _twinkleRevision++;
     _revision++;
+    _liveSnapshot = null;
+    if (twinklesChanged) {
+      _contentRevision++;
+      _committedChanges.notifyListeners();
+      if (_displayEnabled) unawaited(prepareDisplay());
+    }
     notifyListeners();
   }
 
@@ -438,8 +556,14 @@ class SketchCanvasController extends ChangeNotifier {
 
   /// Returns a new image owned by the caller; recording is synchronous so
   /// later edits and disposal cannot change this snapshot.
-  Future<ui.Image> flatten() =>
-      _render(size: pageSize, base: _base, ops: ops, live: live);
+  Future<ui.Image> flatten() {
+    final cached = displayImage;
+    if (!isDrawing) {
+      if (cached != null) return Future.value(cached.clone());
+      return _committedSnapshot();
+    }
+    return _render(size: pageSize, base: _base, ops: ops, live: live);
+  }
 
   /// Rotates a synchronous snapshot clockwise. Caller owns the result.
   Future<ui.Image> flattenRotated(int quarterTurns) async {
@@ -623,6 +747,8 @@ class SketchCanvasController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    releaseDisplay();
+    _committedChanges.dispose();
     _base?.dispose();
     _history.clearAll();
     for (final op in _pendingBaseOps) {
@@ -631,6 +757,28 @@ class SketchCanvasController extends ChangeNotifier {
     _pendingBaseOps.clear();
     super.dispose();
   }
+}
+
+bool sketchSegmentEntersPage(Offset from, Offset to, Rect rect) {
+  var enter = 0.0, leave = 1.0;
+  final delta = to - from;
+  bool clip(double direction, double distance) {
+    if (direction == 0) return distance >= 0;
+    final t = distance / direction;
+    if (direction < 0) {
+      if (t > leave) return false;
+      enter = math.max(enter, t);
+    } else {
+      if (t < enter) return false;
+      leave = math.min(leave, t);
+    }
+    return true;
+  }
+
+  return clip(-delta.dx, from.dx - rect.left) &&
+      clip(delta.dx, rect.right - from.dx) &&
+      clip(-delta.dy, from.dy - rect.top) &&
+      clip(delta.dy, rect.bottom - from.dy);
 }
 
 class SketchCanvas extends StatefulWidget {
@@ -644,6 +792,7 @@ class SketchCanvas extends StatefulWidget {
     this.onFill,
     this.special,
     this.quarterTurns = 0,
+    this.padding = EdgeInsets.zero,
   });
   final SketchCanvasController controller;
   final int color;
@@ -653,6 +802,7 @@ class SketchCanvas extends StatefulWidget {
   final bool enabled;
   final ValueChanged<Offset>? onFill;
   final int quarterTurns;
+  final EdgeInsets padding;
 
   static Rect pageRect(Size area, Size page) {
     final scale = math.max(
@@ -677,6 +827,7 @@ class _SketchCanvasState extends State<SketchCanvas>
   bool _motionAllowed = false;
   int? _pointer;
   Offset? _down;
+  Offset? _previous;
   bool _moved = false;
   Size? _size;
   Size? _page;
@@ -700,8 +851,12 @@ class _SketchCanvasState extends State<SketchCanvas>
     final active =
         _motionAllowed && widget.controller.visibleTwinkles.isNotEmpty;
     _twinkleClock.setActive(active);
-    if (active && !_ticker.isActive) _ticker.start();
-    if (!active && _ticker.isActive) _ticker.stop();
+    final running = active && !widget.controller.isDrawing;
+    if (running && !_ticker.isActive) {
+      _twinkleClock.resume();
+      _ticker.start();
+    }
+    if (!running && _ticker.isActive) _ticker.stop();
   }
 
   // Pointer moves only repaint; rebuild the layout when the page reshapes
@@ -716,6 +871,7 @@ class _SketchCanvasState extends State<SketchCanvas>
   @override
   void dispose() {
     widget.controller.removeListener(_controllerChanged);
+    widget.controller.releaseDisplay();
     _ticker.dispose();
     _twinkleClock.dispose();
     super.dispose();
@@ -726,16 +882,37 @@ class _SketchCanvasState extends State<SketchCanvas>
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller.removeListener(_controllerChanged);
+      oldWidget.controller.releaseDisplay();
       widget.controller.addListener(_controllerChanged);
     }
     if (!widget.enabled ||
         oldWidget.tool != widget.tool ||
         oldWidget.quarterTurns != widget.quarterTurns ||
+        oldWidget.padding != widget.padding ||
         oldWidget.controller != widget.controller) {
       _pointer = null;
       oldWidget.controller.cancelStroke();
     }
     _syncTwinkles();
+  }
+
+  void _begin(Offset point) {
+    widget.controller.beginStroke(
+      point,
+      color: widget.tool == SketchTool.eraser ? sketchPaperColor : widget.color,
+      width: widget.width,
+      special: widget.tool == SketchTool.brush ? widget.special : null,
+    );
+  }
+
+  void _move(Offset point, Rect rect, Offset Function(Offset) toPage) {
+    final previous = _previous!;
+    if (!widget.controller.isDrawing &&
+        sketchSegmentEntersPage(previous, point, rect)) {
+      _begin(toPage(previous));
+    }
+    if (widget.controller.isDrawing) widget.controller.addPoint(toPage(point));
+    _previous = point;
   }
 
   @override
@@ -755,9 +932,28 @@ class _SketchCanvasState extends State<SketchCanvas>
               });
             }
             _size = size;
-            widget.controller.viewport = size;
+            // Padding is supplied in upright screen coordinates; rotate it
+            // with the input surface into the paper's natural orientation.
+            var padding = widget.padding;
+            for (var i = 0; i < widget.quarterTurns % 4; i++) {
+              padding = EdgeInsets.fromLTRB(
+                padding.top,
+                padding.right,
+                padding.bottom,
+                padding.left,
+              );
+            }
+            final area = Size(
+              size.width - padding.horizontal,
+              size.height - padding.vertical,
+            );
+            widget.controller.viewport = area;
             final pageSize = _page = widget.controller.pageSize;
-            final rect = SketchCanvas.pageRect(size, pageSize);
+            final rect = SketchCanvas.pageRect(
+              area,
+              pageSize,
+            ).shift(Offset(padding.left, padding.top));
+            unawaited(widget.controller.prepareDisplay());
             final scale = rect.width / pageSize.width;
             widget.controller._viewScale = scale;
             Offset page(Offset point) => (point - rect.topLeft) / scale;
@@ -774,25 +970,17 @@ class _SketchCanvasState extends State<SketchCanvas>
               child: Listener(
                 behavior: HitTestBehavior.opaque,
                 onPointerDown: (event) {
-                  if (!widget.enabled ||
-                      _pointer != null ||
+                  if (!widget.enabled || _pointer != null) return;
+                  if (widget.tool == SketchTool.fill &&
                       !rect.contains(event.localPosition)) {
                     return;
                   }
                   _pointer = event.pointer;
-                  _down = event.localPosition;
+                  _down = _previous = event.localPosition;
                   _moved = false;
-                  if (widget.tool != SketchTool.fill) {
-                    widget.controller.beginStroke(
-                      page(event.localPosition),
-                      color: widget.tool == SketchTool.eraser
-                          ? sketchPaperColor
-                          : widget.color,
-                      width: widget.width,
-                      special: widget.tool == SketchTool.brush
-                          ? widget.special
-                          : null,
-                    );
+                  if (widget.tool != SketchTool.fill &&
+                      rect.contains(event.localPosition)) {
+                    _begin(page(event.localPosition));
                   }
                 },
                 onPointerMove: (event) {
@@ -801,7 +989,7 @@ class _SketchCanvasState extends State<SketchCanvas>
                     _moved = true;
                   }
                   if (widget.tool != SketchTool.fill) {
-                    widget.controller.addPoint(page(event.localPosition));
+                    _move(event.localPosition, rect, page);
                   }
                 },
                 onPointerUp: (event) {
@@ -815,7 +1003,7 @@ class _SketchCanvasState extends State<SketchCanvas>
                       widget.onFill?.call(page(event.localPosition));
                     }
                   } else {
-                    widget.controller.addPoint(page(event.localPosition));
+                    _move(event.localPosition, rect, page);
                     widget.controller.endStroke();
                   }
                 },
@@ -834,6 +1022,21 @@ class _SketchCanvasState extends State<SketchCanvas>
                           child: CustomPaint(
                             painter: _SketchPainter(widget.controller),
                             child: const SizedBox.expand(),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned.fromRect(
+                      rect: rect,
+                      child: IgnorePointer(
+                        child: RepaintBoundary(
+                          key: const ValueKey('sketch-live'),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(18),
+                            child: CustomPaint(
+                              painter: _LiveSketchPainter(widget.controller),
+                              child: const SizedBox.expand(),
+                            ),
                           ),
                         ),
                       ),
@@ -881,20 +1084,24 @@ class _SketchCanvasState extends State<SketchCanvas>
 }
 
 class _SketchPainter extends CustomPainter {
-  _SketchPainter(this.controller) : super(repaint: controller);
+  _SketchPainter(this.controller) : super(repaint: controller.committedChanges);
   final SketchCanvasController controller;
   @override
   void paint(Canvas canvas, Size size) {
     canvas.save();
     final pageSize = controller.pageSize;
     canvas.scale(size.width / pageSize.width);
-    paintSketch(
-      canvas,
-      size: pageSize,
-      base: controller.base,
-      ops: controller.ops,
-      live: controller.live,
-    );
+    final cached = controller.displayImage;
+    if (cached != null) {
+      canvas.drawImage(cached, Offset.zero, Paint());
+    } else {
+      paintSketch(
+        canvas,
+        size: pageSize,
+        base: controller.base,
+        ops: controller.ops,
+      );
+    }
     canvas.restore();
   }
 
@@ -903,13 +1110,41 @@ class _SketchPainter extends CustomPainter {
       oldDelegate.controller != controller;
 }
 
+class _LiveSketchPainter extends CustomPainter {
+  _LiveSketchPainter(this.controller) : super(repaint: controller);
+  final SketchCanvasController controller;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final live = controller.live;
+    if (live == null) return;
+    final page = controller.pageSize;
+    canvas.save();
+    canvas.scale(size.width / page.width);
+    paintSketch(
+      canvas,
+      size: page,
+      ops: const [],
+      live: live,
+      background: false,
+    );
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_LiveSketchPainter old) => old.controller != controller;
+}
+
 /// Only this clock listens to frame ticks. The raster page listens exclusively
 /// to drawing changes and is isolated in its own repaint boundary.
 class _TwinkleClock extends ChangeNotifier {
   double seconds = 0;
   bool active = false;
+  double _startedAt = 0;
+  void resume() => _startedAt = seconds;
   void tick(Duration elapsed) {
-    seconds = elapsed.inMicroseconds / Duration.microsecondsPerSecond;
+    seconds =
+        _startedAt + elapsed.inMicroseconds / Duration.microsecondsPerSecond;
     notifyListeners();
   }
 
@@ -922,7 +1157,7 @@ class _TwinkleClock extends ChangeNotifier {
 
 class _TwinklePainter extends CustomPainter {
   _TwinklePainter(this.controller, this.clock)
-    : super(repaint: Listenable.merge([controller, clock]));
+    : super(repaint: Listenable.merge([controller.committedChanges, clock]));
   final SketchCanvasController controller;
   final _TwinkleClock clock;
 

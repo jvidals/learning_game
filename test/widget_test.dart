@@ -55,6 +55,13 @@ class MemoryDevice implements DeviceServices {
     sketchWindowCalls.add(active);
   }
 
+  final sketchGestureExclusions = <Rect?>[];
+
+  @override
+  Future<void> setSketchGestureExclusion(Rect? bounds) async {
+    sketchGestureExclusions.add(bounds);
+  }
+
   final sketches = <String, SketchSnapshot>{};
   bool failSketchLoad = false, failSketchSave = false, gallerySupported = true;
   int sketchWrites = 0;

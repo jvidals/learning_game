@@ -33,18 +33,25 @@ void main() {
     }
   });
 
-  test('stroke points clamp to a landscape page before distance filtering', () {
-    final builder = StrokeBuilder(
-      color: sketchDefaultColor,
-      width: 32,
-      page: const Size(1920, 1200),
-    );
-    expect(builder.add(const Offset(-10, -1)), isTrue);
-    expect(builder.add(const Offset(-20, -30)), isFalse);
-    expect(builder.add(const Offset(3000, 3000)), isTrue);
-    expect(builder.points, [Offset.zero, const Offset(1920, 1200)]);
-    expect(builder.add(const Offset(double.nan, 10)), isFalse);
-  });
+  test(
+    'stroke points preserve outside coordinates before distance filtering',
+    () {
+      final builder = StrokeBuilder(
+        color: sketchDefaultColor,
+        width: 32,
+        page: const Size(1920, 1200),
+      );
+      expect(builder.add(const Offset(-10, -1)), isTrue);
+      expect(builder.add(const Offset(-20, -30)), isTrue);
+      expect(builder.add(const Offset(3000, 3000)), isTrue);
+      expect(builder.points, [
+        const Offset(-10, -1),
+        const Offset(-20, -30),
+        const Offset(3000, 3000),
+      ]);
+      expect(builder.add(const Offset(double.nan, 10)), isFalse);
+    },
+  );
 
   test('recent colors insert, move, cap, and preserve the input', () {
     final recent = List.generate(10, (i) => 0xFF000000 + i);
@@ -102,17 +109,17 @@ void main() {
       expect(wider.add(const Offset(3, 4)), isTrue);
     });
 
-    test('clamps before filtering and caps at 4000 points', () {
+    test('retains outside samples and caps at 4000 points', () {
       final builder = StrokeBuilder(
         page: const Size(1080, 1920),
         color: sketchDefaultColor,
         width: 32,
       );
       builder.add(const Offset(-10, -10));
-      expect(builder.points.first, Offset.zero);
-      expect(builder.add(const Offset(-20, -20)), isFalse);
+      expect(builder.points.first, const Offset(-10, -10));
+      expect(builder.add(const Offset(-20, -20)), isTrue);
       builder.add(const Offset(2000, 3000));
-      expect(builder.points.last, const Offset(1080, 1920));
+      expect(builder.points.last, const Offset(2000, 3000));
       for (var i = 0; i < 5000; i++) {
         builder.add(i.isEven ? Offset.zero : const Offset(1080, 1920));
       }

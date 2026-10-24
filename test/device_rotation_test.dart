@@ -19,6 +19,40 @@ void main() {
     binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, null);
   });
 
+  test(
+    'drawing gesture bounds use physical pixels and null clears them',
+    () async {
+      final calls = <Object?>[];
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+        call,
+      ) async {
+        expect(call.method, 'setSketchGestureExclusion');
+        calls.add(call.arguments);
+        return null;
+      });
+      await device.setSketchGestureExclusion(
+        const Rect.fromLTRB(0, 144, 1080, 2200),
+      );
+      await device.setSketchGestureExclusion(null);
+      expect(calls, [
+        [0.0, 144.0, 1080.0, 2200.0],
+        null,
+      ]);
+      await expectLater(
+        device.setSketchGestureExclusion(Rect.zero),
+        throwsArgumentError,
+      );
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+        _,
+      ) async {
+        throw PlatformException(code: 'unavailable');
+      });
+      await device.setSketchGestureExclusion(null);
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, null);
+      await device.setSketchGestureExclusion(null);
+    },
+  );
+
   test('takeShortcut accepts only the two supported ids', () async {
     for (final value in <Object?>[
       'sketchPad',

@@ -73,7 +73,8 @@ class SketchStroke {
   final SketchSpecial? special;
 }
 
-/// Collects bounded page points without retaining excessive pointer samples.
+/// Retains off-page direction; the renderer clips ink to the paper.
+/// Distance filtering and the sample cap bound storage.
 class StrokeBuilder {
   StrokeBuilder({
     required int color,
@@ -84,7 +85,6 @@ class StrokeBuilder {
   }) : _color = color,
        _width = width,
        _special = special,
-       _page = page,
        _minDistanceSquared = minDistance * minDistance {
     if (!minDistance.isFinite || minDistance < 0) {
       throw ArgumentError.value(minDistance, 'minDistance');
@@ -94,7 +94,6 @@ class StrokeBuilder {
   final int _color;
   final double _width;
   final SketchSpecial? _special;
-  final Size _page;
   final double _minDistanceSquared;
   final List<Offset> _points = [];
 
@@ -102,15 +101,11 @@ class StrokeBuilder {
     if (_points.length >= 4000 || !point.dx.isFinite || !point.dy.isFinite) {
       return false;
     }
-    final clamped = Offset(
-      point.dx.clamp(0.0, _page.width),
-      point.dy.clamp(0.0, _page.height),
-    );
     if (_points.isNotEmpty &&
-        (clamped - _points.last).distanceSquared < _minDistanceSquared) {
+        (point - _points.last).distanceSquared < _minDistanceSquared) {
       return false;
     }
-    _points.add(clamped);
+    _points.add(point);
     return true;
   }
 

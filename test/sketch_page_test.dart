@@ -188,7 +188,9 @@ class PendingGalleryDevice extends GalleryCaptureDevice {
 
 Rect screenPage(WidgetTester tester) {
   final drawing = canvas(tester);
-  final bounds = tester.getRect(keyed('sketch-canvas'));
+  final bounds = drawing.padding.deflateRect(
+    tester.getRect(keyed('sketch-canvas')),
+  );
   final page = drawing.controller.pageSize;
   final displayed = drawing.quarterTurns.isOdd
       ? Size(page.height, page.width)
@@ -262,6 +264,41 @@ Future<void> seedLegacy(
 }
 
 void main() {
+  testWidgets(
+    'gesture exclusion covers margin, clears for pickers and on exit',
+    (tester) async {
+      final device = MemoryDevice();
+      final state = await mount(tester, device, reducedMotion: true);
+      final input = tester.getRect(find.byType(SketchCanvas));
+      final ratio = tester.view.devicePixelRatio;
+      expect(
+        device.sketchGestureExclusions.last,
+        Rect.fromLTRB(
+          input.left * ratio,
+          input.top * ratio,
+          input.right * ratio,
+          input.bottom * ratio,
+        ),
+      );
+      final gesture = await tester.startGesture(
+        input.centerLeft + const Offset(2, 0),
+      );
+      await gesture.moveTo(input.center);
+      await gesture.up();
+      expect(canvas(tester).controller.canUndo, isTrue);
+      await tester.tap(keyed('sketch-tool'));
+      await tester.pumpAndSettle();
+      expect(device.sketchGestureExclusions.last, isNull);
+      await tester.tapAt(input.center);
+      await tester.pumpAndSettle();
+      expect(device.sketchGestureExclusions.last, isNotNull);
+      await tester.tap(keyed('sketch-back'));
+      await settleImages(tester);
+      expect(device.sketchGestureExclusions.last, isNull);
+      state.progress.dispose();
+    },
+  );
+
   group('sketchCutoutInsets', () {
     const size = Size(400, 800);
 
@@ -2033,7 +2070,7 @@ void main() {
   });
 
   testWidgets(
-    'single pointer, margins, cancellation, edge clamping and eraser',
+    'single pointer, margins, cancellation, edge clipping and eraser',
     (tester) async {
       final c = SketchCanvasController();
       var tool = SketchTool.brush;
@@ -2079,7 +2116,7 @@ void main() {
       expect(c.ops.single, isA<StrokeOp>());
       expect(
         (c.ops.single as StrokeOp).stroke.points.last.dx,
-        c.pageSize.width,
+        greaterThan(c.pageSize.width),
       );
       tool = SketchTool.eraser;
       await show();
@@ -2217,14 +2254,17 @@ void main() {
           scale: size.width == 320 ? 2 : 1,
         );
         expect(tester.takeException(), isNull);
+        final inputSize = tester.getSize(keyed('sketch-canvas'));
+        final padding = canvas(tester).padding;
+        final paperArea = Size(
+          inputSize.width - padding.horizontal,
+          inputSize.height - padding.vertical,
+        );
         final rect = SketchCanvas.pageRect(
-          tester.getSize(keyed('sketch-canvas')),
+          paperArea,
           canvas(tester).controller.pageSize,
         );
-        expect(
-          rect.size.aspectRatio,
-          closeTo(tester.getSize(keyed('sketch-canvas')).aspectRatio, .001),
-        );
+        expect(rect.size.aspectRatio, closeTo(paperArea.aspectRatio, .001));
         expect(rect.width, greaterThanOrEqualTo(size.width == 320 ? 140 : 150));
         if (size.width == 320) {
           for (final label in ['Undo', 'Redo', 'Clear']) {

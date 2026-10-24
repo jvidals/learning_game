@@ -29,6 +29,13 @@ class SprintDevice implements DeviceServices {
   @override
   Future<void> setSketchWindow(bool active) async {}
 
+  final sketchGestureExclusions = <Rect?>[];
+
+  @override
+  Future<void> setSketchGestureExclusion(Rect? bounds) async {
+    sketchGestureExclusions.add(bounds);
+  }
+
   final sketches = <String, SketchSnapshot>{};
 
   @override

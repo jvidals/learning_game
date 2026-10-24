@@ -1,5 +1,56 @@
 # Testing Learning Corner
 
+## 0.28.7 — Sketch Pad rendering and edge input (2026-10-24)
+
+Sketch Pad now caches finished artwork, paints the active stroke separately,
+and freezes background twinkles during drawing (resuming on lift/cancel).
+Autosave and the display cache share exact immutable snapshots with independent
+image ownership. The existing white page, full-resolution exports, saved formats,
+effect appearance and 30-step Undo remain unchanged.
+
+Brush/Eraser strokes can begin in the blank margin and enter the page. Outside
+coordinates are retained and ink is clipped to paper, avoiding edge smears;
+outside-only gestures do nothing. Android 10+ protects the drawing/input area
+from side-edge Back gestures while ready, clears protection for pickers,
+backgrounding and exit, and updates after rotation and route transitions.
+The visible Back button remains available; OS-reserved gestures still apply.
+
+Validation: **1,369 Flutter tests passed**, including new edge, repaint,
+cache-pixel, asynchronous snapshot ownership and platform-channel regressions.
+Four initial regression tests failed before implementation. Full Flutter analysis:
+**0 errors/warnings, 62 existing informational notices**. Four visual captures
+passed and were reviewed at phone 1× / small 2× in Light and Midnight Rainbow.
+Formatting and diff checks passed.
+
+The paired profile benchmark used the original and optimized renderers on the
+same disposable emulator with 25 completed strokes plus a growing stroke.
+Glitter median raster time fell **122.3 → 43.6 ms**, Neon **262.7 → 43.7 ms**,
+and Rainbow **113.4 → 46.6 ms**. Plain ink was **33.0 → 35.3 ms** (no raster
+improvement). Software-emulator timings are diagnostic, not tablet performance
+claims; the 60 Hz frame budget was not met. Some host tests ran concurrently.
+The final shared autosave/cache snapshot refinement followed this benchmark;
+the measured per-frame rendering paths are unchanged.
+
+Final normal APK **0.28.7+66**, **672,057,740 bytes**, SHA-256:
+`29bb2adc270aefbc8b36b0f3993f6db6fea56307dcd9d3374ef432f5b7b2ed85`.
+The approved build verified bundled assets; all **1,989 content files** match
+0.28.6. Same signing certificate/application ID, no Internet permission, and no
+benchmark entrypoint in the distributable libraries.
+
+Native checks on verified **LearningCornerTest / emulator-5570**, offline,
+using `install -r`: all four margins draw into the paper, a left system-edge
+swipe draws with no Back preview, Undo removes the four test strokes, tool
+popover clears gesture exclusion, rotation updates its bounds, and the visible
+Back button returns to Art Hub with exclusions cleared. Rotation was restored.
+Installed APK checksum matched the final artifact; the emulator was stopped
+on Art Hub with its original drawing restored. No runtime errors were logged.
+No personal device was connected or modified. Daughter's tablet latency and
+physical touch/TalkBack remain unverified.
+
+Evidence, source/APK backups, benchmark harness/results and captures:
+`artifacts/sketch-performance-edges/`. Changes are on branch
+`fix/sketch-pad-performance-edges`; not merged into `main`.
+
 ## 0.28.6 — Sketch Pad White crayon (2026-10-24)
 
 Added opaque White beside Black in the predefined Crayons palette, retaining
