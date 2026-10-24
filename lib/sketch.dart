@@ -39,6 +39,7 @@ enum SketchTool { brush, eraser, fill }
 /// Opaque crayon colors, in the order shown in the color picker.
 const List<({int color, String name})> sketchPresetColors = [
   (color: 0xFF000000, name: 'Black'),
+  (color: 0xFFFFFFFF, name: 'White'),
   (color: 0xFF757575, name: 'Grey'),
   (color: 0xFF79502E, name: 'Brown'),
   (color: 0xFFE53935, name: 'Red'),

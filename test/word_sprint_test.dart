@@ -31,20 +31,110 @@ const activity2Spellings = {
   'vup',
 };
 
+const activity4NewSpellings = {
+  'tuz',
+  'rup',
+  'hos',
+  'fec',
+  'gob',
+  'sis',
+  'bap',
+  'yek',
+  'fon',
+  'nop',
+  'hap',
+  'bef',
+  'din',
+  'lod',
+  'tep',
+  'paz',
+  'gik',
+  'pev',
+  'fab',
+  'neb',
+  'lim',
+  'yik',
+  'min',
+  'pag',
+  'yun',
+  'sid',
+  'tix',
+  'piz',
+  'dax',
+  'roz',
+  'yon',
+  'kim',
+  'tiv',
+  'fez',
+  'ris',
+  'dap',
+  'dod',
+};
+
+const activity4Spellings = {
+  'tuz',
+  'rup',
+  'vab',
+  'hos',
+  'bem',
+  'fec',
+  'gob',
+  'sis',
+  'bap',
+  'yek',
+  'fon',
+  'nop',
+  'hap',
+  'bef',
+  'din',
+  'lod',
+  'tep',
+  'paz',
+  'gik',
+  'pok',
+  'pev',
+  'fab',
+  'neb',
+  'lim',
+  'yik',
+  'min',
+  'pag',
+  'yun',
+  'lix',
+  'nuv',
+  'sid',
+  'tix',
+  'piz',
+  'dax',
+  'tik',
+  'roz',
+  'yon',
+  'kim',
+  'tiv',
+  'sut',
+  'fez',
+  'ris',
+  'hif',
+  'dap',
+  'dod',
+};
+
+const sprintOnlySpellings = {...activity2Spellings, ...activity4NewSpellings};
+
 void main() {
   test('runs contain 48 words', () {
     expect(wordSprintSessionLength, 48);
   });
 
-  test('Activity 2 words need only existing letter-sound recordings', () {
+  test('Activity 2 and 4 words need only existing letter-sound recordings', () {
     final manifest =
         jsonDecode(File('assets/audio_manifest.json').readAsStringSync())
             as Map<String, dynamic>;
     expect(
       sprintOnlyPretendWords.map((w) => w.spelling).toSet(),
-      activity2Spellings,
+      sprintOnlySpellings,
     );
-    expect(sprintOnlyPretendWords, hasLength(22));
+    expect(sprintOnlyPretendWords, hasLength(59));
     for (final word in sprintOnlyPretendWords) {
       expect(word.real, isFalse);
       expect(word.picture, isNull);
@@ -61,18 +151,49 @@ void main() {
     }
   });
 
+  test('worksheet words extend only the Word Sprint pretend pool', () {
+    final targets = makeBelieveItems.map((item) => item.target).toSet();
+    final pretendPool = {
+      ...targets,
+      ...sprintOnlyPretendWords.map((word) => word.spelling),
+    };
+    expect(activity4NewSpellings, hasLength(37));
+    expect(activity4Spellings, hasLength(45));
+    expect(pretendPool, hasLength(83));
+    expect(pretendPool, containsAll(activity4Spellings));
+    expect(targets, hasLength(24));
+    expect(targets.intersection(sprintOnlySpellings), isEmpty);
+    expect(
+      realWords
+          .map((word) => word.spelling)
+          .toSet()
+          .intersection(sprintOnlySpellings),
+      isEmpty,
+    );
+    expect(const DecodableWord('fec').letterSounds, [
+      ['sound_f'],
+      ['sound_e'],
+      ['sound_k'],
+    ]);
+    expect(const DecodableWord('tix').letterSounds, [
+      ['sound_t'],
+      ['sound_i'],
+      ['sound_k', 'sound_s'],
+    ]);
+  });
+
   for (final mode in WordSprintMode.values) {
     test('${mode.name} cycles its shuffled pool without adjacent repeats', () {
       final pool = switch (mode) {
         WordSprintMode.realWords => realWords.map((w) => w.spelling).toSet(),
         WordSprintMode.makeBelieve => {
           ...makeBelieveItems.map((w) => w.target),
-          ...activity2Spellings,
+          ...sprintOnlySpellings,
         },
         WordSprintMode.mix => {
           ...realWords.map((w) => w.spelling),
           ...makeBelieveItems.map((w) => w.target),
-          ...activity2Spellings,
+          ...sprintOnlySpellings,
         },
       };
       final seen = <String>{};
@@ -95,7 +216,7 @@ void main() {
         );
         if (mode == WordSprintMode.realWords) {
           expect(
-            session.words.any((w) => activity2Spellings.contains(w.spelling)),
+            session.words.any((w) => sprintOnlySpellings.contains(w.spelling)),
             isFalse,
           );
         }

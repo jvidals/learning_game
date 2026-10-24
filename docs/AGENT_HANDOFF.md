@@ -22,13 +22,60 @@ cleared; host tooling, signing keys, devices, emulators and source skills were
 untouched.
 
 
-Snapshot updated **2026-10-20**, after 0.28.4+63 (Make a Group closer spacing).
+Snapshot updated **2026-10-24**, after 0.28.6+65 (Sketch Pad White crayon).
 Read [AGENTS.md](../AGENTS.md), [README](../README.md), [design](design.md),
 [testing](testing.md) and the [development runbook](DEVELOPMENT_ENVIRONMENT.md).
 This handoff is context, not authorization for another feature.
 
 
-## Current release: 0.28.4+63 — Make a Group closer spacing (2026-10-20)
+## Current release: 0.28.6+65 — Sketch Pad White crayon (2026-10-24)
+
+Added opaque White beside Black in the predefined Crayons palette, retaining
+all twelve existing colors and the compact scrolling pane. White is immediately
+visible, with an outlined swatch and black selected check in both palettes.
+Existing solid-color selection, recent colors and effects behavior is reused.
+No persistence or bundled-content changes.
+
+A GPT-6.1-sol subagent implemented the palette and regression tests; the lead
+reviewed the diff and built the APK. New tests failed before implementation.
+Validation: 58 unit/picker tests passed, including phone 1× and small 2× in both
+palettes. All 78 Sketch Pad page tests also passed (136 focused tests total).
+Full Flutter analysis: zero errors/warnings and 62 existing
+informational notices. Formatting and diff checks passed. Earlier page tests
+that selected Red by its old palette position were updated to select by tooltip.
+No full-suite run, new screenshots, device installation or physical touch check.
+
+Approved build script produced **0.28.6+65**, **672,041,356 bytes**. Checksum,
+package version, unchanged signing certificate and absence of network permission
+verified. Bundled audio/art and APK asset verification passed in the build.
+SHA-256: `b979b9c533f3420939d7ff5fd4df089d5a0b5ce7b63f5490b50858b13486a335`.
+Backups and logs: `artifacts/white-crayon/`. No commit was made.
+
+## Previous release: 0.28.5+64 — Word Sprint Activity 4 words (2026-10-23)
+
+All 45 distinct spellings from the parent's Activity 4 worksheet are now available
+in Word Sprint: eight already existed and 37 were added once each. The parent
+explicitly approved real or word-like worksheet entries as well. The Sprint-only
+list has 59 entries; the combined Make-believe practice pool has 83. Make-believe
+and Mix still select 48 words per run. Timer, personal bests, no-XP behavior,
+other games and saved data are unchanged. Hints use existing letter sounds only.
+
+GPT-6.1 sol workers updated word data/unit tests and hint/widget regressions in
+separate files. The lead reviewed their diffs, corrected the recording comment,
+and ran final validation. Four expected unit failures preceded the data edit;
+**53 focused Word Sprint/decoding tests passed** afterward. Full Flutter analysis:
+**0 errors/warnings, 62 existing infos** (exit 1 for infos). Formatting and diff
+checks passed. Initial sandbox tests could not bind a loopback socket; scoped
+access completed the real red and green runs. No full-suite rerun, device
+installation, new visual captures or physical listening check was performed.
+
+The approved build script produced **0.28.5+64**, **672,041,356 bytes**,
+SHA-256 `ace37be87a2d6119063b07c92931d38c1c1d6edbf32c010bd4d2b1072dcda663`. Checksum, original signing certificate, package
+version and absence of Internet permission verified. All **1,989 bundled content
+files**, including 325 recordings, are byte-identical to 0.28.4. Source/APK backups
+and validation logs: `artifacts/word-sprint-0285/`. No commit was made.
+
+## Previous release: 0.28.4+63 — Make a Group closer spacing (2026-10-20)
 
 The parent clarified that icons should sit closer and accept closer taps.
 Placement now uses **47 dp center separation**, leaving **9 dp between 38 dp

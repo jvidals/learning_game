@@ -108,8 +108,8 @@ const makeBelieveItems = <MakeBelieveItem>[
   MakeBelieveItem('tes', ['tos', 'tep']),
 ];
 
-/// Word Sprint only: from the school's Activity 2 sheet.
-/// These words have NO whole-word recordings.
+/// Word Sprint only: from the school's Activity 2 and Activity 4 sheets.
+/// Hints use letter sounds only; no whole-word recording is required.
 const sprintOnlyPretendWords = <DecodableWord>[
   DecodableWord('fod'),
   DecodableWord('hif'),
@@ -133,6 +133,43 @@ const sprintOnlyPretendWords = <DecodableWord>[
   DecodableWord('lix'),
   DecodableWord('wob'),
   DecodableWord('vup'),
+  DecodableWord('tuz'),
+  DecodableWord('rup'),
+  DecodableWord('hos'),
+  DecodableWord('fec'),
+  DecodableWord('gob'),
+  DecodableWord('sis'),
+  DecodableWord('bap'),
+  DecodableWord('yek'),
+  DecodableWord('fon'),
+  DecodableWord('nop'),
+  DecodableWord('hap'),
+  DecodableWord('bef'),
+  DecodableWord('din'),
+  DecodableWord('lod'),
+  DecodableWord('tep'),
+  DecodableWord('paz'),
+  DecodableWord('gik'),
+  DecodableWord('pev'),
+  DecodableWord('fab'),
+  DecodableWord('neb'),
+  DecodableWord('lim'),
+  DecodableWord('yik'),
+  DecodableWord('min'),
+  DecodableWord('pag'),
+  DecodableWord('yun'),
+  DecodableWord('sid'),
+  DecodableWord('tix'),
+  DecodableWord('piz'),
+  DecodableWord('dax'),
+  DecodableWord('roz'),
+  DecodableWord('yon'),
+  DecodableWord('kim'),
+  DecodableWord('tiv'),
+  DecodableWord('fez'),
+  DecodableWord('ris'),
+  DecodableWord('dap'),
+  DecodableWord('dod'),
 ];
 
 /// Every make-believe spelling that needs a recording (targets and foils).

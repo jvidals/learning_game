@@ -544,12 +544,13 @@ void main() {
     });
   });
 
-  test('presets are twelve distinct named opaque non-white colors', () {
-    expect(sketchPresetColors.length, 12);
-    expect(sketchPresetColors.map((preset) => preset.color).toSet().length, 12);
-    expect(sketchPresetColors.map((preset) => preset.name).toSet().length, 12);
+  test('presets retain the original crayons and include opaque White', () {
+    expect(sketchPresetColors.length, 13);
+    expect(sketchPresetColors.map((preset) => preset.color).toSet().length, 13);
+    expect(sketchPresetColors.map((preset) => preset.name).toSet().length, 13);
     expect(sketchPresetColors.map((preset) => preset.name), [
       'Black',
+      'White',
       'Grey',
       'Brown',
       'Red',
@@ -562,9 +563,12 @@ void main() {
       'Purple',
       'Pink',
     ]);
+    expect(
+      sketchPresetColors.singleWhere((preset) => preset.name == 'White').color,
+      sketchPaperColor,
+    );
     for (final preset in sketchPresetColors) {
       expect(preset.color >> 24, 255);
-      expect(preset.color, isNot(sketchPaperColor));
       expect(preset.name.trim(), isNotEmpty);
     }
   });

@@ -150,6 +150,71 @@ void main() {
     );
   }
 
+  testWidgets('pretend x hint keeps two clips in its final letter step', (
+    tester,
+  ) async {
+    final steps = <List<String>>[];
+    final pending = <Completer<void>>[];
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SoundItOut(
+            word: const DecodableWord('dax'),
+            includeWholeWord: false,
+            playSequence: (sequence, {onStep}) async {
+              for (var i = 0; i < sequence.length; i++) {
+                onStep?.call(i);
+                steps.add(sequence[i]);
+                final hold = Completer<void>();
+                pending.add(hold);
+                await hold.future;
+              }
+              return true;
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Sound it out'));
+    await tester.pump();
+    for (var i = 0; i < 3; i++) {
+      expect(steps, hasLength(i + 1));
+      expect(
+        tester
+            .widget<Semantics>(find.byKey(ValueKey('sound-letter-$i')))
+            .properties
+            .selected,
+        isTrue,
+      );
+      expect(find.byKey(const ValueKey('whole-word-underline')), findsNothing);
+      pending.last.complete();
+      await tester.pump();
+    }
+    await tester.pumpAndSettle();
+    expect(steps, [
+      ['sound_d'],
+      ['sound_a'],
+      ['sound_k', 'sound_s'],
+    ]);
+    expect(steps.expand((clips) => clips), [
+      'sound_d',
+      'sound_a',
+      'sound_k',
+      'sound_s',
+    ]);
+    expect(find.byKey(const ValueKey('whole-word-underline')), findsNothing);
+    for (var i = 0; i < 3; i++) {
+      expect(
+        tester
+            .widget<Semantics>(find.byKey(ValueKey('sound-letter-$i')))
+            .properties
+            .selected,
+        isFalse,
+      );
+    }
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets(
     'single letter taps play its clips and dispose safely mid-sequence',
     (tester) async {

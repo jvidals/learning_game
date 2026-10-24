@@ -1,7 +1,7 @@
 name: rainbow_garden
 description: Offline learning games and companions for little learners.
 publish_to: none
-version: 0.28.4+63
+version: 0.28.6+65
 environment:
   sdk: ^3.10.7
 dependencies:

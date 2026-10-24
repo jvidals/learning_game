@@ -1,5 +1,31 @@
 # Learning Corner design decisions
 
+## Sketch Pad: White crayon (0.28.6)
+
+White is a predefined opaque color beside Black in Crayons. All twelve previous
+colors remain available. The compact pane keeps its fixed height and scrolls
+for the extra row; White is visible immediately. Its selected check is black
+in both palettes. Brush, Fill, recent colors and effects use the existing
+solid-color behavior; no saved-data changes.
+
+## Word Sprint: Activity 4 worksheet (0.28.5)
+
+The parent approved every distinct spelling from Activity 4 (2026-10-23), including
+real or word-like entries excluded by the earlier worksheet filtering. Its 50
+cells contain 45 distinct spellings: eight were already available, and these 37
+join `sprintOnlyPretendWords` once each:
+
+`tuz rup hos fec gob sis bap yek fon nop hap bef din lod tep paz gik pev fab neb lim yik min pag yun sid tix piz dax roz yon kim tiv fez ris dap dod`.
+
+The Sprint-only list now contains 59 entries; together with the existing 24
+Make-Believe targets, the worksheet/practice pool contains 83. Make-believe and
+Mix use this expanded pool, while Real words retains its existing curated pool.
+Runs still select 48 shuffled words, so a run no longer contains every practice
+word. Timer, personal-best-only scoring and no-adjacent-repeat behavior are
+unchanged. Worksheet hints use existing letter sounds only (c shares /k/; x
+plays /k/ then /s/), with no new audio or whole-word playback. The separate
+Make-Believe Words game and saved-data format are unchanged.
+
 ## Letters and Numbers launcher icon (0.28.1)
 
 Accepted October 20, 2026 after comparing learning blocks, a book/star and a
@@ -40,7 +66,7 @@ Parent feedback on 0.26.0 (2026-10-18): changing color with Glitter/Neon selecte
 
 The parent asked (2026-10-18) to minimize the color wheel and add special inks, chose **Glitter** and **Neon glow**, and asked that the color pane stay small as specials grow. Of three layouts offered (tabs with effects moved to the pen menu, tabs only, swap-in-place tiles) they chose **tabs only**.
 
-- **Tabbed pane** (`showSketchInkPopover`, `lib/widgets/color_wheel.dart`): a single non-wrapping Recent row (as many of the saved 10 as fit; about 7 on a Pixel-size phone), three ≥48 dp icon tabs (palette = Crayons, sparkles = Special colors, picker = Mix a color) and a fixed 150 dp content area, so switching tabs never resizes the pane or moves anything. Crayons is 6×2; Special is a scrolling grid of `SketchSpecial.values`, so future specials are just new tiles; Mix is a compact wheel beside brightness and a preview (still live, committed once on close). `SketchColorTab` is visit-local in the page (`_colorTab`): first open uses Special if a special ink is active, otherwise Crayons; afterwards the last tab.
+- **Tabbed pane** (`showSketchInkPopover`, `lib/widgets/color_wheel.dart`): a single non-wrapping Recent row (as many of the saved 10 as fit; about 7 on a Pixel-size phone), three ≥48 dp icon tabs (palette = Crayons, sparkles = Special colors, picker = Mix a color) and a fixed 150 dp content area, so switching tabs never resizes the pane or moves anything. Crayons uses six columns (13 colors since 0.28.6, with scrolling); Special is a scrolling grid of `SketchSpecial.values`, so future specials are just new tiles; Mix is a compact wheel beside brightness and a preview (still live, committed once on close). `SketchColorTab` is visit-local in the page (`_colorTab`): first open uses Special if a special ink is active, otherwise Crayons; afterwards the last tab.
 - **Glitter / Neon** (`lib/sketch_ink.dart`): base color = the player's last solid color (`SketchStroke.color`); picking a solid color still clears the special, and specials never enter Recent colors. Glitter draws the base stroke plus white/gold/tint dots and four-point twinkles at fixed path distances seeded by a hash of the first point and width, so sparkles never move while a stroke grows and replays are identical. Neon draws an opaque 1.9× stroke inside a blurred layer at 55% opacity (halo) and a 0.55× core mixed 55% toward white. Fills run in the isolate: Glitter = base color with hashed 2–3 px sparkle clusters; Neon = chamfer distance-to-edge, saturated at the edge fading to the light core about 14 px inward. `SketchCanvasController.fill(..., color:)` passes the base. Saved settings already store the special by name, so there is no format change.
 - **Swatches** (`lib/widgets/special_swatch.dart`): one painter for Special tiles (in the current base color), the strip's color dot and the brush-size preview (`showBrushSizePopover(special:)` replaced `gradient:`).
 - **Device bug found and fixed (lead):** on the emulator's renderer a perfectly horizontal or vertical Neon stroke lost its mask-filtered halo (zero-height path bounds); the halo is now drawn in a `saveLayer` with explicit padded bounds and an `ImageFilter.blur`, which also prevents translucent sections stacking at joins. Regression test: `neon keeps its halo on a perfectly horizontal line`.

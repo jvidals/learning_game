@@ -177,25 +177,7 @@ void main() {
       await tester.tap(option);
       await tester.pump();
       await tap(tester, 'Start');
-      if (mode == WordSprintMode.makeBelieve) {
-        await tester.scrollUntilVisible(
-          find.text('lix'),
-          150,
-          scrollable: find.descendant(
-            of: find.byType(CustomScrollView),
-            matching: find.byType(Scrollable),
-          ),
-        );
-        // The shuffled run can leave the word under the fixed bottom bar.
-        await Scrollable.ensureVisible(
-          tester.element(find.text('lix')),
-          alignment: .5,
-        );
-        await tester.pump();
-        await tester.longPress(find.text('lix'));
-      } else {
-        await tester.longPress(word(0));
-      }
+      await tester.longPress(word(0));
       await tester.pumpAndSettle();
       final hint = tester.widget<SoundItOut>(find.byType(SoundItOut));
       expect(hint.word.real, mode == WordSprintMode.realWords);
@@ -230,30 +212,9 @@ void main() {
       await tester.tap(option);
       await tester.pump();
       await tap(tester, 'Start');
-      if (mode == WordSprintMode.makeBelieve) {
-        final jav = find.text('jav');
-        await tester.scrollUntilVisible(
-          jav,
-          150,
-          scrollable: find.descendant(
-            of: find.byType(CustomScrollView),
-            matching: find.byType(Scrollable),
-          ),
-        );
-        await Scrollable.ensureVisible(
-          tester.element(jav.first),
-          alignment: .5,
-        );
-        await tester.pump();
-        await tester.longPress(jav.first);
-      } else {
-        await tester.longPress(word(0));
-      }
+      await tester.longPress(word(0));
       await tester.pumpAndSettle();
       final hint = tester.widget<SoundItOut>(find.byType(SoundItOut));
-      if (mode == WordSprintMode.makeBelieve) {
-        expect(hint.word.spelling, 'jav');
-      }
       final expected = [
         ...hint.word.letterSounds.expand((sounds) => sounds),
         if (hint.word.real) hint.word.clip,

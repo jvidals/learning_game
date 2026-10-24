@@ -542,8 +542,8 @@ void main() {
           } else if (source == 'crayon') {
             await tester.tap(keyed('sketch-color-tab-crayons'));
             await tester.pumpAndSettle();
-            expectedColor = sketchPresetColors[3].color;
-            await tester.tap(keyed('sketch-preset-3'));
+            expectedColor = sketchPresetColors[4].color;
+            await tester.tap(find.byTooltip('Red'));
           } else if (source == 'recent') {
             expectedColor = 0xFF123456;
             await tester.tap(keyed('sketch-recent-0'));
@@ -691,10 +691,10 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(keyed('sketch-color-tab-crayons'));
         await tester.pumpAndSettle();
-        await tester.tap(keyed('sketch-preset-3'));
+        await tester.tap(find.byTooltip('Red'));
         await settleImages(tester);
         expect(canvas(tester).special, special);
-        expect(canvas(tester).color, sketchPresetColors[3].color);
+        expect(canvas(tester).color, sketchPresetColors[4].color);
         final changedDot = tester.widget<SpecialSwatch>(
           find.descendant(
             of: keyed('sketch-color'),
@@ -702,7 +702,7 @@ void main() {
           ),
         );
         expect(changedDot.special, special);
-        expect(changedDot.base, Color(sketchPresetColors[3].color));
+        expect(changedDot.base, Color(sketchPresetColors[4].color));
         await tester.pumpWidget(const SizedBox());
         await settleImages(tester);
         fixture.progress.dispose();
@@ -1243,7 +1243,7 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(keyed('sketch-color-tab-crayons'));
         await tester.pumpAndSettle();
-        await tester.tap(keyed('sketch-preset-3'));
+        await tester.tap(find.byTooltip('Red'));
         await settleImages(tester);
         expect(canvas(tester).special, isNull);
         expect(canvas(tester).tool, SketchTool.brush);
@@ -1351,7 +1351,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(keyed('sketch-color'));
       await tester.pumpAndSettle();
-      await tester.tap(keyed('sketch-preset-3'));
+      await tester.tap(find.byTooltip('Red'));
       await settleImages(tester);
       expect(canvas(tester).tool, SketchTool.brush);
       await flushStore(tester, fixture.store);

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rainbow_garden/app_theme.dart';
 import 'package:rainbow_garden/sketch_ink.dart';
+import 'package:rainbow_garden/sketch.dart';
 import 'package:rainbow_garden/widgets/brush_size_sheet.dart';
 import 'package:rainbow_garden/widgets/color_wheel.dart';
 import 'package:rainbow_garden/widgets/special_swatch.dart';
@@ -81,6 +82,77 @@ Color preview(WidgetTester tester) =>
         .color!;
 
 void main() {
+  for (final scale in [1.0, 2.0]) {
+    for (final dark in [false, true]) {
+      testWidgets(
+        'production White crayon selects with a dark check: dark=$dark scale=$scale',
+        (tester) async {
+          tester.view.physicalSize = scale == 1
+              ? const Size(393, 852)
+              : const Size(320, 640);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.resetPhysicalSize);
+          addTearDown(tester.view.resetDevicePixelRatio);
+          final semantics = tester.ensureSemantics();
+          SketchPick? result;
+          var current = 0xFF000000;
+          await host(
+            tester,
+            (context) async {
+              result = await showSketchInkPopover(
+                context,
+                anchor: pickerAnchor,
+                base: Color(current),
+                current: SolidInk(current),
+                onPreview: (_) {},
+                presets: [
+                  for (final preset in sketchPresetColors)
+                    (color: Color(preset.color), name: preset.name),
+                ],
+                recent: [],
+              );
+            },
+            dark: dark,
+            scale: scale,
+          );
+          final white = find.byTooltip('White');
+          expect(white, findsOneWidget);
+          expect(white.hitTestable(), findsOneWidget);
+          expect(tester.getSize(white).shortestSide, greaterThanOrEqualTo(48));
+          expect(
+            tester.getSemantics(white).flagsCollection.isSelected,
+            Tristate.isFalse,
+          );
+          await tester.tap(white);
+          await tester.pumpAndSettle();
+          expect(
+            result,
+            isA<PickSolid>().having((pick) => pick.argb, 'argb', 0xFFFFFFFF),
+          );
+          current = (result! as PickSolid).argb;
+          await tester.tap(find.text('Open'));
+          await tester.pumpAndSettle();
+          expect(
+            tester.getSemantics(white).flagsCollection.isSelected,
+            Tristate.isTrue,
+          );
+          final check = tester.widget<Icon>(
+            find.descendant(of: white, matching: find.byIcon(Icons.check)),
+          );
+          expect(check.color, Colors.black);
+          await tester.tap(white);
+          await tester.pumpAndSettle();
+          expect(
+            result,
+            isA<PickSolid>().having((pick) => pick.argb, 'argb', 0xFFFFFFFF),
+          );
+          expect(tester.takeException(), isNull);
+          semantics.dispose();
+        },
+      );
+    }
+  }
+
   for (final special in [null, ...SketchSpecial.values]) {
     testWidgets('base and special selection: $special', (tester) async {
       final semantics = tester.ensureSemantics();
