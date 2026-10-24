@@ -22,13 +22,46 @@ cleared; host tooling, signing keys, devices, emulators and source skills were
 untouched.
 
 
-Snapshot updated **2026-10-24**, after 0.28.7+66 (Sketch Pad rendering and edge input).
+Snapshot updated **2026-10-24**, after 0.28.8+67 (Sketch Pad wider margin entry).
 Read [AGENTS.md](../AGENTS.md), [README](../README.md), [design](design.md),
 [testing](testing.md) and the [development runbook](DEVELOPMENT_ENVIRONMENT.md).
 This handoff is context, not authorization for another feature.
 
 
-## Current release: 0.28.7+66 — Sketch Pad rendering and edge input (2026-10-24)
+## Current release: 0.28.8+67 — Sketch Pad wider margin entry (2026-10-24)
+
+Parent confirmed missed strokes start in blank space outside the white page;
+the sparkle performance improvement is working on the tablet. The 0.28.7 input
+surface stopped at the toolbar strip, leaving only an 8 dp run-in. The input
+surface now extends 16 dp into blank strip space, for **24 dp total** (roughly
+4 mm) beside the paper on toolbar sides. Buttons sit above it and retain their
+full hit targets; starting on a button cannot draw. Outside-only gestures and
+starts beyond this narrow band do nothing. Paper geometry, renderer, saved
+images, sparkle behavior and controls remain unchanged.
+
+Two landscape regressions failed before the fix. **170 focused tests passed**
+(Sketch Pad page/canvas/effects, pickers and shortcuts), plus the **three final
+margin scenarios** covering portrait phone, landscape phone and landscape tablet,
+band limits and button-drag ownership. The latter reruns the two landscape cases
+with additional assertions and adds portrait. Full Flutter analysis: **0 errors
+or warnings, 62 existing infos**. Formatting/diff checks passed. Four font-loaded
+Light/Dark phone 1× and small 2× captures are pixel-identical to 0.28.7.
+
+Approved build: **0.28.8+67**, **672,057,740 bytes**; original signing certificate,
+application ID and offline permissions retained. SHA-256:
+`80af4a2cd1aa9583478076dc1cc542e53399e185d2ecc416f11611552cda868f`.
+
+Native check on verified LearningCornerTest / emulator-5570 after `install -r`:
+in landscape, strokes starting 50 physical pixels (19 dp) into blank space
+outside both paper edges enter correctly. Both test strokes were undone;
+rotation was restored and Back returned to Art Hub. Native gesture exclusion
+expanded to `(147,0)-(2253,1080)` and cleared on exit. No physical device was
+connected; this specific fix still needs a check on the daughter's tablet.
+No full-suite rerun or new performance benchmark was needed for this layout-only
+change. Evidence/backups: `artifacts/sketch-margin-run-in/`. The parent confirmed this fix works and approved committing it and merging
+`fix/sketch-pad-performance-edges` into `main`.
+
+## Previous release: 0.28.7+66 — Sketch Pad rendering and edge input (2026-10-24)
 
 Sketch Pad now caches finished artwork, paints the active stroke separately,
 and freezes background twinkles during drawing (resuming on lift/cancel).
@@ -76,8 +109,8 @@ No personal device was connected or modified. Daughter's tablet latency and
 physical touch/TalkBack remain unverified.
 
 Evidence, source/APK backups, benchmark harness/results and captures:
-`artifacts/sketch-performance-edges/`. Changes are on branch
-`fix/sketch-pad-performance-edges`; not merged into `main`.
+`artifacts/sketch-performance-edges/`. Originally committed on
+`fix/sketch-pad-performance-edges`; see 0.28.8 above for parent acceptance.
 
 ## Previous release: 0.28.6+65 — Sketch Pad White crayon (2026-10-24)
 

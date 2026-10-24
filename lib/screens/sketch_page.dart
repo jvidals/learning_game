@@ -716,33 +716,59 @@ class _SketchPageState extends State<SketchPage> with WidgetsBindingObserver {
                 child: child,
               ),
             );
+            // Add a short run-in through blank strip space without changing
+            // the paper's viewport. Strips paint/hit-test above this surface,
+            // so buttons keep their full touch targets and own their gestures.
+            const runIn = 16.0;
+            final stripExtent = 72 + shortInset;
             final padding = portrait
-                ? EdgeInsets.symmetric(horizontal: longInset, vertical: 8)
-                : EdgeInsets.symmetric(horizontal: 8, vertical: longInset);
-            final page = Expanded(
-              child: SizedBox.expand(
-                key: _inputAreaKey,
-                child: _ready
-                    ? SketchCanvas(
-                        controller: _canvas,
-                        padding: padding,
-                        quarterTurns: (4 - _rotation) % 4,
-                        color: _drawingColor,
-                        special: _drawingSpecial,
-                        width: _settings.size,
-                        tool: _drawingTool,
-                        enabled: _enabled,
-                        onFill: (point) => unawaited(_fill(point)),
-                      )
-                    : Padding(padding: padding, child: _loadBody()),
-              ),
+                ? EdgeInsets.symmetric(
+                    horizontal: longInset,
+                    vertical: 8 + runIn,
+                  )
+                : EdgeInsets.symmetric(
+                    horizontal: 8 + runIn,
+                    vertical: longInset,
+                  );
+            final page = SizedBox.expand(
+              key: _inputAreaKey,
+              child: _ready
+                  ? SketchCanvas(
+                      controller: _canvas,
+                      padding: padding,
+                      quarterTurns: (4 - _rotation) % 4,
+                      color: _drawingColor,
+                      special: _drawingSpecial,
+                      width: _settings.size,
+                      tool: _drawingTool,
+                      enabled: _enabled,
+                      onFill: (point) => unawaited(_fill(point)),
+                    )
+                  : Padding(padding: padding, child: _loadBody()),
             );
-            return Flex(
-              direction: portrait ? Axis.vertical : Axis.horizontal,
+            return Stack(
               children: [
-                strip(_pickers(vertical: !portrait), first: true),
-                page,
-                strip(_actions(vertical: !portrait), first: false),
+                Positioned(
+                  left: portrait ? 0 : stripExtent - runIn,
+                  right: portrait ? 0 : stripExtent - runIn,
+                  top: portrait ? stripExtent - runIn : 0,
+                  bottom: portrait ? stripExtent - runIn : 0,
+                  child: page,
+                ),
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  right: portrait ? 0 : null,
+                  bottom: portrait ? null : 0,
+                  child: strip(_pickers(vertical: !portrait), first: true),
+                ),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  left: portrait ? 0 : null,
+                  top: portrait ? null : 0,
+                  child: strip(_actions(vertical: !portrait), first: false),
+                ),
               ],
             );
           },

@@ -1,5 +1,15 @@
 # Learning Corner design decisions
 
+## Sketch Pad: wider run-in beside tool strips (0.28.8)
+
+The parent clarified that strokes start in the blank space just outside the
+white page. Accept a 24 dp run-in on the toolbar sides (existing 8 dp gap plus
+16 dp of blank strip space), rather than turning the entire toolbar into an
+input surface. Toolbar buttons keep their full targets and own gestures that
+start on them. The white page stays exactly where it was, including after
+rotation; a stack expands only the input surface behind the strips. The
+0.28.7 renderer, twinkle pause and saved drawings are unchanged.
+
 ## Sketch Pad: responsive drawing and margin entry (0.28.7)
 
 Sketch Pad now caches finished artwork, paints the active stroke separately,
